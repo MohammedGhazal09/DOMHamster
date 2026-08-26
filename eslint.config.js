@@ -1,25 +1,17 @@
-import js from '@eslint/js';
-import reactHooks from 'eslint-plugin-react-hooks';
-import { reactRefresh } from 'eslint-plugin-react-refresh';
+import eslint from '@eslint/js';
 import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  {
-    ignores: [
-      'coverage/**',
-      'dist/**',
-      'node_modules/**',
-      'playwright-report/**',
-      'test-results/**',
-    ],
-  },
-  js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results', '.worktrees'] },
+  eslint.configs.recommended,
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 'latest',
       globals: globals.browser,
       parserOptions: {
         projectService: true,
@@ -28,18 +20,20 @@ export default tseslint.config(
     },
     plugins: {
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh.plugin,
+      'react-refresh': reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.flat.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
       ],
     },
   },
   {
-    files: ['**/*.{js,mjs,cjs}', '**/*.config.ts'],
+    files: ['**/*.{js,mjs}'],
+    ...tseslint.configs.disableTypeChecked,
     languageOptions: {
       globals: globals.node,
     },
