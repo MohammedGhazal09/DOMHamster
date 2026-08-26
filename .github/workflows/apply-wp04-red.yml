@@ -65,19 +65,17 @@ jobs:
           test ! -e src/app/selectors.ts
           test ! -e src/persistence/local-storage.ts
 
-      - name: Apply the test-only commit
+      - name: Apply and commit tests without the dedicated workflow file
+        shell: bash
         run: |
           git config user.name 'Mohammed Ghazal'
           git config user.email 'mohammedghazal01@outlook.com'
-          git am --committer-date-is-author-date /tmp/DOMHamster_WP04_RED.patch
-
-      - name: Remove transfer infrastructure
-        run: |
+          git apply --index --exclude=.github/workflows/wp04-red.yml /tmp/DOMHamster_WP04_RED.patch
           rm -rf .wp04-transfer
           rm .github/workflows/apply-wp04-red.yml
           git add -A
           git diff --cached --check
-          git commit -m 'chore: remove WP04 RED transfer infrastructure'
+          git commit -m 'test: define WP04 store and persistence contracts'
 
       - name: Publish the test-only branch
         run: git push origin HEAD:implementation/wp04-store-persistence
