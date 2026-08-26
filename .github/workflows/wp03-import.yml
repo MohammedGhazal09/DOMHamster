@@ -1,0 +1,92 @@
+name: WP03 phase importer
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  import-phase:
+    if: startsWith(github.event.issue.title, '[WP03 import ')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      TARGET_BRANCH: implementation/wp03-workflow
+      BUNDLE_SHA256: a8e7f7f523aad0f98fde93ad1e2d10d41c97e59ce03ac97926bfe2690e30c8d6
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Restore verified local commit bundle
+        shell: bash
+        run: |
+          cat .github/wp03-import/part-* | tr -d '\n' > /tmp/wp03.bundle.b64
+          base64 --decode /tmp/wp03.bundle.b64 > /tmp/wp03.bundle
+          echo "$BUNDLE_SHA256  /tmp/wp03.bundle" | sha256sum --check
+          git bundle verify /tmp/wp03.bundle
+          git fetch /tmp/wp03.bundle \
+            refs/heads/implementation/wp03-workflow:refs/remotes/wp03/source
+
+      - name: Configure Git author
+        run: |
+          git config user.name 'Mohammed Ghazal'
+          git config user.email 'mohammedghazal01@outlook.com'
+          git fetch origin main "$TARGET_BRANCH"
+          git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+
+      - name: Import requested phase
+        id: import
+        shell: bash
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          case "$ISSUE_TITLE" in
+            '[WP03 import RED]')
+              git reset --hard origin/main
+              git cherry-pick eefa6c6
+              printf 'WP03 expected RED evidence gate.\n' > .wp03-red
+              git add .wp03-red
+              git commit -m 'test: mark WP03 expected RED gate'
+              ;;
+            '[WP03 import GREEN1]')
+              test -f .wp03-red
+              git rm .wp03-red
+              git cherry-pick --no-commit bc3ba50
+              git commit -m 'feat: implement coordination workflow commands'
+              ;;
+            '[WP03 import RED2]')
+              git cherry-pick 481bc4f
+              ;;
+            '[WP03 import GREEN2]')
+              git cherry-pick f70fd3f
+              ;;
+            *)
+              echo "Unsupported phase title: $ISSUE_TITLE" >&2
+              exit 64
+              ;;
+          esac
+          git push origin "HEAD:$TARGET_BRANCH" --force-with-lease
+          echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Record result on trigger issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Imported **${context.payload.issue.title}** to \`${{ steps.import.outputs.head_sha }}\`.`,
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+              state_reason: 'completed',
+            });
