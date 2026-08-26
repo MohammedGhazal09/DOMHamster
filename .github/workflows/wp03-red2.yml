@@ -1,0 +1,49 @@
+name: WP03 draft-status RED evidence
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - .wp03-red2
+      - src/domain/commands.ts
+      - tests/domain/commands.test.ts
+
+permissions:
+  contents: read
+
+jobs:
+  draft-status-red:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out pull request
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Observe expected pre-commit-status RED result
+        if: hashFiles('.wp03-red2') != ''
+        shell: bash
+        run: |
+          set +e
+          npm run test:run -- tests/domain/commands.test.ts > wp03-red2-test.log 2>&1
+          test_status=$?
+          set -e
+          cat wp03-red2-test.log
+
+          test "$test_status" -ne 0
+          grep -Fq 'rejects committed assignment rows before the commit command' wp03-red2-test.log
+          grep -Fq 'rejects a human edit that tries to mark a draft row committed' wp03-red2-test.log
+          echo 'DOMHAMSTER_WP03_DRAFT_STATUS_RED_CONFIRMED'
+
+      - name: Confirm RED was already recorded for GREEN revisions
+        if: hashFiles('.wp03-red2') == ''
+        run: echo 'WP03 draft-status RED evidence was already recorded; normal CI owns GREEN verification.'
