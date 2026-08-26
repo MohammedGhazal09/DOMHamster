@@ -19,7 +19,7 @@ function normalize(value: unknown): CanonicalJsonValue {
   }
 
   if (typeof value === 'object') {
-    const prototype = Object.getPrototypeOf(value);
+    const prototype = Reflect.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) {
       return unsupported('non-plain-object');
     }
@@ -40,18 +40,12 @@ function normalize(value: unknown): CanonicalJsonValue {
 }
 
 export function canonicalJson(value: unknown): string {
-  const serialized = JSON.stringify(normalize(value));
-  return serialized ?? unsupported('undefined');
-}
-
-function subtleCrypto(): SubtleCrypto {
-  const subtle = globalThis.crypto?.subtle;
-  return subtle ?? unsupported('crypto-unavailable');
+  return JSON.stringify(normalize(value));
 }
 
 export async function sha256Hex(value: unknown): Promise<string> {
   const bytes = new TextEncoder().encode(typeof value === 'string' ? value : canonicalJson(value));
-  const digest = await subtleCrypto().digest('SHA-256', bytes);
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
 
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
