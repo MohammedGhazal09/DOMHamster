@@ -1,0 +1,13 @@
+name: WP00 RED evidence archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'The expected WP00 RED result is preserved in workflow run 32987466258.'

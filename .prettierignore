@@ -1,0 +1,11 @@
+coverage
+dist
+node_modules
+playwright-report
+test-results
+*.bundle
+*.zip
+
+# Frozen planning checkpoints are reviewed as source documents, not reformatted build inputs.
+MASTERPLAN.md
+docs/superpowers/plans/

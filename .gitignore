@@ -1,0 +1,28 @@
+# Dependencies and package-manager state
+node_modules/
+.npm/
+
+# Build and test output
+dist/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/
+.idea/
+
+# Local worktrees
+.worktrees/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Generated release/private checkpoints
+freeze-manifest.private.json

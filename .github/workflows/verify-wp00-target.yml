@@ -1,18 +1,10 @@
-name: WP00 target GREEN verification
+name: WP00 GREEN verification
 
 on:
   push:
-    branches: [main]
-    paths:
-      - .github/workflows/verify-wp00-target.yml
-      - docs/execution/WP00_MAIN_TRIGGER.md
+    branches: [implementation/wp00-toolchain]
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-  issues:
-    types: [opened]
-  issue_comment:
-    types: [created]
   workflow_dispatch:
 
 permissions:
@@ -20,24 +12,17 @@ permissions:
 
 jobs:
   green-contract:
-    if: >-
-      (github.event_name != 'issues' || startsWith(github.event.issue.title, '[WP00 trigger]')) &&
-      (github.event_name != 'issue_comment' || contains(github.event.comment.body, '/verify-wp00-green'))
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
-      - name: Check out WP00 implementation branch
+      - name: Check out repository
         uses: actions/checkout@v7
-        with:
-          ref: implementation/wp00-toolchain
-          fetch-depth: 0
 
       - name: Set up Node.js 24.19.0
         uses: actions/setup-node@v7
         with:
           node-version: 24.19.0
           cache: npm
-          cache-dependency-path: package-lock.json
 
       - name: Verify runtime
         run: |
@@ -62,7 +47,7 @@ jobs:
       - name: Verify types
         run: npm run typecheck
 
-      - name: Verify complete Vitest suite
+      - name: Verify Vitest suite
         run: npm run test:run
 
       - name: Verify production build
@@ -74,7 +59,7 @@ jobs:
       - name: Verify browser smoke test
         run: npm run test:e2e
 
-      - name: Upload WP00 GREEN evidence
+      - name: Upload WP00 verification evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
