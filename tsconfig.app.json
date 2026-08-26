@@ -24,5 +24,5 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "tests/setup.ts", "tests/domain/**/*.ts"]
+  "include": ["src", "tests/setup.ts", "tests/domain/**/*.ts", "tests/fixtures/**/*.ts"]
 }
