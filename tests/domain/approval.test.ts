@@ -291,124 +291,127 @@ describe('commit lifecycle', () => {
 });
 
 describe('canonical human-approved journey', () => {
-  it('preserves R-105 while the agent repairs only R-106, then approves and commits all eight outcomes', () => {
-    const deps = dependencies();
-    const initialAssignments = validAssignments().map((assignment) =>
-      assignment.requestId === requestId('R-106')
-        ? { ...assignment, volunteerId: volunteerId('V-03') }
-        : assignment,
-    );
-    let state = validDraft(deps, initialAssignments);
+  it(
+    'preserves R-105 while the agent repairs R-106 before approval and commit',
+    () => {
+      const deps = dependencies();
+      const initialAssignments = validAssignments().map((assignment) =>
+        assignment.requestId === requestId('R-106')
+          ? { ...assignment, volunteerId: volunteerId('V-03') }
+          : assignment,
+      );
+      let state = validDraft(deps, initialAssignments);
 
-    state = success(
-      reduceCommand(
-        state,
-        {
-          type: 'EDIT_ASSIGNMENT',
-          actor: 'human',
-          expectedDraftVersion: 1,
-          requestId: requestId('R-105'),
-          patch: { volunteerId: volunteerId('V-03'), startTime: '13:00' },
-        },
-        deps,
-      ),
-    );
-    expect(state.workflowState).toBe('DRAFT_INVALID');
+      state = success(
+        reduceCommand(
+          state,
+          {
+            type: 'EDIT_ASSIGNMENT',
+            actor: 'human',
+            expectedDraftVersion: 1,
+            requestId: requestId('R-105'),
+            patch: { volunteerId: volunteerId('V-03'), startTime: '13:00' },
+          },
+          deps,
+        ),
+      );
+      expect(state.workflowState).toBe('DRAFT_INVALID');
 
-    state = success(
-      reduceCommand(
-        state,
-        {
-          type: 'LOCK_ASSIGNMENT',
-          actor: 'human',
-          expectedDraftVersion: 2,
-          requestId: requestId('R-105'),
-        },
-        deps,
-      ),
-    );
-    const lockedR105 = state.draft!.assignments.find(
-      ({ requestId: id }) => id === requestId('R-105'),
-    )!;
+      state = success(
+        reduceCommand(
+          state,
+          {
+            type: 'LOCK_ASSIGNMENT',
+            actor: 'human',
+            expectedDraftVersion: 2,
+            requestId: requestId('R-105'),
+          },
+          deps,
+        ),
+      );
+      const lockedR105 = state.draft!.assignments.find(
+        ({ requestId: id }) => id === requestId('R-105'),
+      )!;
 
-    const repaired = state.draft!.assignments.map((assignment) =>
-      assignment.requestId === requestId('R-106')
-        ? {
-            ...assignment,
-            volunteerId: volunteerId('V-05'),
-            startTime: '13:00' as const,
-          }
-        : { ...assignment },
-    );
-    state = success(
-      reduceCommand(
-        state,
-        {
-          type: 'REVISE_DRAFT',
-          actor: 'agent',
-          expectedDraftVersion: 3,
-          assignments: repaired,
-        },
-        deps,
-      ),
-    );
-    expect(state.workflowState).toBe('DRAFT_VALID');
-    expect(
-      state.draft!.assignments.find(({ requestId: id }) => id === requestId('R-105')),
-    ).toEqual(lockedR105);
+      const repaired = state.draft!.assignments.map((assignment) =>
+        assignment.requestId === requestId('R-106')
+          ? {
+              ...assignment,
+              volunteerId: volunteerId('V-05'),
+              startTime: '13:00' as const,
+            }
+          : { ...assignment },
+      );
+      state = success(
+        reduceCommand(
+          state,
+          {
+            type: 'REVISE_DRAFT',
+            actor: 'agent',
+            expectedDraftVersion: 3,
+            assignments: repaired,
+          },
+          deps,
+        ),
+      );
+      expect(state.workflowState).toBe('DRAFT_VALID');
+      expect(
+        state.draft!.assignments.find(({ requestId: id }) => id === requestId('R-105')),
+      ).toEqual(lockedR105);
 
-    state = success(
-      reduceCommand(
-        state,
-        {
-          type: 'PREPARE_APPROVAL',
-          actor: 'agent',
-          expectedDraftVersion: 4,
-        },
-        deps,
-      ),
-    );
-    deps.setNow('2026-08-26T12:00:30.000Z');
-    state = success(
-      reduceCommand(
-        state,
-        {
-          type: 'APPROVE',
-          actor: 'human',
-          expectedDraftVersion: 4,
-        },
-        deps,
-      ),
-    );
-    state = success(
-      reduceCommand(
-        state,
-        {
-          type: 'COMMIT_PLAN',
-          actor: 'agent',
-          expectedDraftVersion: 4,
-        },
-        deps,
-      ),
-    );
+      state = success(
+        reduceCommand(
+          state,
+          {
+            type: 'PREPARE_APPROVAL',
+            actor: 'agent',
+            expectedDraftVersion: 4,
+          },
+          deps,
+        ),
+      );
+      deps.setNow('2026-08-26T12:00:30.000Z');
+      state = success(
+        reduceCommand(
+          state,
+          {
+            type: 'APPROVE',
+            actor: 'human',
+            expectedDraftVersion: 4,
+          },
+          deps,
+        ),
+      );
+      state = success(
+        reduceCommand(
+          state,
+          {
+            type: 'COMMIT_PLAN',
+            actor: 'agent',
+            expectedDraftVersion: 4,
+          },
+          deps,
+        ),
+      );
 
-    expect(state.workflowState).toBe('COMMITTED');
-    expect(state.committedPlan?.assignments).toHaveLength(8);
-    expect(
-      state.committedPlan?.assignments.find(({ requestId: id }) => id === requestId('R-105')),
-    ).toMatchObject({
-      volunteerId: volunteerId('V-03'),
-      startTime: '13:00',
-      lockedByHuman: true,
-    });
-    expect(state.auditHistory.map(({ type }) => type)).toEqual([
-      'DRAFT_CREATED',
-      'DRAFT_REVISED',
-      'ASSIGNMENT_LOCKED',
-      'DRAFT_REVISED',
-      'APPROVAL_REQUESTED',
-      'APPROVAL_APPROVED',
-      'PLAN_COMMITTED',
-    ]);
-  });
+      expect(state.workflowState).toBe('COMMITTED');
+      expect(state.committedPlan?.assignments).toHaveLength(8);
+      expect(
+        state.committedPlan?.assignments.find(({ requestId: id }) => id === requestId('R-105')),
+      ).toMatchObject({
+        volunteerId: volunteerId('V-03'),
+        startTime: '13:00',
+        lockedByHuman: true,
+      });
+      expect(state.auditHistory.map(({ type }) => type)).toEqual([
+        'DRAFT_CREATED',
+        'DRAFT_REVISED',
+        'ASSIGNMENT_LOCKED',
+        'DRAFT_REVISED',
+        'APPROVAL_REQUESTED',
+        'APPROVAL_APPROVED',
+        'PLAN_COMMITTED',
+      ]);
+    },
+  );
 });
