@@ -1,0 +1,73 @@
+name: WP00 GREEN verification
+
+on:
+  push:
+    branches: [implementation/wp00-toolchain]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  green-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Verify runtime
+        run: |
+          test "$(node --version)" = "v24.19.0"
+          test "$(npm --version)" = "11.17.0"
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Verify exact dependency policy
+        run: node scripts/verify-exact-dependencies.mjs
+
+      - name: Audit dependency graph
+        run: npm audit --audit-level=high --json > npm-audit.json
+
+      - name: Verify formatting
+        run: npm run format:check
+
+      - name: Verify lint
+        run: npm run lint
+
+      - name: Verify types
+        run: npm run typecheck
+
+      - name: Verify Vitest suite
+        run: npm run test:run
+
+      - name: Verify production build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify browser smoke test
+        run: npm run test:e2e
+
+      - name: Upload WP00 verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp00-green-evidence
+          path: |
+            npm-audit.json
+            dist/
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: warn

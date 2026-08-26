@@ -1,84 +1,13 @@
-name: WP00 RED evidence
+name: WP00 RED evidence archive
 
 on:
-  push:
-    branches: [implementation/wp00-toolchain]
-    paths-ignore:
-      - package-lock.json
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  red-contract:
+  archived:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Set up Node.js 24.19.0
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24.19.0
-          package-manager-cache: false
-
-      - name: Verify runtime
-        run: |
-          test "$(node --version)" = "v24.19.0"
-          test "$(npm --version)" = "11.17.0"
-
-      - name: Verify exact dependency policy
-        run: node scripts/verify-exact-dependencies.mjs
-
-      - name: Generate npm lockfile
-        run: npm install --package-lock-only --ignore-scripts
-
-      - name: Install generated dependency graph
-        run: npm ci --ignore-scripts
-
-      - name: Commit generated lockfile
-        shell: bash
-        run: |
-          if git diff --quiet -- package-lock.json && git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
-            echo 'package-lock.json is already committed and unchanged.'
-            exit 0
-          fi
-
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package-lock.json
-          git commit -m 'chore: commit WP00 lockfile [skip bootstrap]'
-          git push
-
-      - name: Audit dependency graph
-        run: npm audit --audit-level=high --json > npm-audit.json
-
-      - name: Verify static toolchain contracts
-        run: node --test tests/toolchain/wp00-contract.test.mjs
-
-      - name: Observe required RED component test
-        shell: bash
-        run: |
-          set +e
-          npm run test:run -- src/app/App.test.tsx > wp00-red-test.log 2>&1
-          test_status=$?
-          set -e
-          cat wp00-red-test.log
-
-          test "$test_status" -ne 0
-          grep -Eqi '(cannot find module|failed to resolve import|could not resolve).*(\./App|src/app/App)' wp00-red-test.log
-          echo 'DOMHAMSTER_EXPECTED_RED_CONFIRMED'
-
-      - name: Upload RED evidence
-        uses: actions/upload-artifact@v7
-        with:
-          name: wp00-red-evidence
-          path: |
-            package.json
-            package-lock.json
-            npm-audit.json
-            wp00-red-test.log
-          retention-days: 7
-          if-no-files-found: error
+      - run: echo 'The expected WP00 RED result is preserved in workflow run 32987466258.'
