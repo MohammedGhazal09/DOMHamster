@@ -1,7 +1,7 @@
 # WP00 target verification trigger
 
 Run the complete Node 24 GREEN gate against `implementation/wp00-toolchain` at
-`529fa757d89cabaf47984d83e4ca56739d47e11d`.
+`50cbdc4b946f77e79cf5f40e5e155d0721d06e21`.
 
 The target RED result is preserved in workflow run `32987466258`.
 
