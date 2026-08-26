@@ -1,0 +1,132 @@
+name: Restore governance plans v0.17.1
+
+on:
+  push:
+    branches: [governance/restore-plans-v0171]
+    paths:
+      - .github/workflows/restore-plans-v0171.yml
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out governance branch
+        uses: actions/checkout@v7
+        with:
+          ref: governance/restore-plans-v0171
+          fetch-depth: 0
+
+      - name: Fetch intact prior master-plan payload
+        run: git fetch origin governance/restore-plans:refs/remotes/origin/governance/restore-plans
+
+      - name: Restore and verify governance plans
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          import gzip
+          import hashlib
+          import subprocess
+
+          def decode_chunks(directory: str) -> bytes:
+              parts = sorted(Path(directory).glob('*'))
+              if not parts:
+                  raise RuntimeError(f'No payload chunks found in {directory}')
+              encoded = ''.join(part.read_text(encoding='utf-8').strip() for part in parts)
+              return gzip.decompress(base64.b64decode(encoded, validate=True))
+
+          prior_paths = [
+              '.plan-payload/master/00.b64',
+              '.plan-payload/master/01.b64',
+              '.plan-payload/master/02.b64',
+              '.plan-payload/fix/master03/00.b64',
+              '.plan-payload/fix/master03/01.b64',
+              '.plan-payload/fix/master03/02.b64',
+              '.plan-payload/master/04.b64',
+              '.plan-payload/master/05.b64',
+              '.plan-payload/fix/master06/00.b64',
+              '.plan-payload/fix/master06/01.b64',
+              '.plan-payload/fix/master06/02.b64',
+              '.plan-payload/master/07.b64',
+              '.plan-payload/master/08.b64',
+          ]
+          compressed_parts = []
+          for path in prior_paths:
+              encoded = subprocess.check_output(
+                  ['git', 'show', f'origin/governance/restore-plans:{path}'],
+                  text=True,
+              ).strip()
+              encoded += '=' * (-len(encoded) % 4)
+              compressed_parts.append(base64.b64decode(encoded, validate=True))
+
+          prior_master = gzip.decompress(b''.join(compressed_parts))
+          if len(prior_master) != 252003:
+              raise RuntimeError(f'Prior master size mismatch: {len(prior_master)}')
+          prior_hash = hashlib.sha256(prior_master).hexdigest()
+          if prior_hash != '644a52f898cd68dfb4fad70203e2888556d8e5c98a45999da5a88db375ad4a54':
+              raise RuntimeError(f'Prior master hash mismatch: {prior_hash}')
+          Path('MASTERPLAN.md').write_bytes(prior_master)
+
+          master_patch = decode_chunks('.plan-update/master.patch.gz.b64')
+          if len(master_patch) != 10682:
+              raise RuntimeError(f'Master patch size mismatch: {len(master_patch)}')
+          patch_hash = hashlib.sha256(master_patch).hexdigest()
+          if patch_hash != 'aa2d731b8edc9e8e11526b2387c3bd5f29b15286b12f533e4aa14bfa4538070b':
+              raise RuntimeError(f'Master patch hash mismatch: {patch_hash}')
+          Path('.plan-update/master-v0171.patch').write_bytes(master_patch)
+
+          implementation_plan = decode_chunks('.plan-update/impl.gz.b64')
+          if len(implementation_plan) != 54770:
+              raise RuntimeError(f'Implementation-plan size mismatch: {len(implementation_plan)}')
+          implementation_hash = hashlib.sha256(implementation_plan).hexdigest()
+          if implementation_hash != 'd23aa66b199e9d545968ce723cdd47c750f338e109e22a648a6ec275785b0432':
+              raise RuntimeError(f'Implementation-plan hash mismatch: {implementation_hash}')
+          destination = Path('docs/superpowers/plans/2026-08-26-domhamster-implementation.md')
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_bytes(implementation_plan)
+          PY
+
+          patch --batch --forward -p0 < .plan-update/master-v0171.patch
+
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+
+          expected = {
+              'MASTERPLAN.md': (
+                  257498,
+                  '9543bfd6cb724b073ce59c8db6ae27517f2380eb97c7c7bbd139c70575afe83b',
+              ),
+              'docs/superpowers/plans/2026-08-26-domhamster-implementation.md': (
+                  54770,
+                  'd23aa66b199e9d545968ce723cdd47c750f338e109e22a648a6ec275785b0432',
+              ),
+          }
+          for path_string, (expected_size, expected_hash) in expected.items():
+              data = Path(path_string).read_bytes()
+              actual_hash = hashlib.sha256(data).hexdigest()
+              if len(data) != expected_size:
+                  raise RuntimeError(f'{path_string}: size {len(data)} != {expected_size}')
+              if actual_hash != expected_hash:
+                  raise RuntimeError(f'{path_string}: hash {actual_hash} != {expected_hash}')
+              print(f'Verified {path_string}: {len(data)} bytes, sha256={actual_hash}')
+          PY
+
+      - name: Remove one-time transfer files
+        run: |
+          rm -rf .plan-update
+          rm .github/workflows/restore-plans-v0171.yml
+
+      - name: Commit restored governance plans
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: restore governance plans at v0.17.1'
+          git push origin HEAD:governance/restore-plans-v0171
