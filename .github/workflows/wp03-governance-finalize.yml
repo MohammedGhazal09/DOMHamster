@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 30
     env:
       TARGET_BRANCH: governance/wp03-finalize
-      PLAN_OUTPUT_SHA256: 696b5669e47687ac4aaf269c735f27633da80b1bd662eba28c408f261dd9a622
+      PLAN_OUTPUT_SHA256: 14b25898e667a95bea048889f0eaf8294dc6425e48c33ff85097bccff9ad7438
     steps:
       - name: Check out governance branch
         uses: actions/checkout@v7
@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p docs/superpowers/plans
-          tr -d '\n' < .github/governance/implementation-plan-00 \
+          cat .github/governance/implementation-plan-* | tr -d '\n' \
             | base64 --decode > /tmp/domhamster-implementation-plan.md.gz
           echo "Compressed staging SHA-256: $(sha256sum /tmp/domhamster-implementation-plan.md.gz | cut -d' ' -f1)"
           gzip --test /tmp/domhamster-implementation-plan.md.gz
