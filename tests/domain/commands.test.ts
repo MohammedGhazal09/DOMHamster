@@ -93,6 +93,23 @@ describe('draft creation and revision commands', () => {
     );
   });
 
+  it('rejects committed assignment rows before the commit command', () => {
+    const deps = dependencies();
+    const state = readyState();
+    const assignments = validAssignments();
+    assignments[0] = { ...assignments[0]!, status: 'committed' };
+
+    expectFailure(
+      reduceCommand(
+        state,
+        { type: 'CREATE_DRAFT', actor: 'agent', assignments },
+        deps,
+      ),
+      'INVALID_INPUT',
+      state,
+    );
+  });
+
   it('rejects unknown request identifiers safely', () => {
     const deps = dependencies();
     const state = readyState();
@@ -268,6 +285,27 @@ describe('human edits and authoritative locks', () => {
       ),
       'LOCKED_ASSIGNMENT_CHANGE',
       locked,
+    );
+  });
+
+  it('rejects a human edit that tries to mark a draft row committed', () => {
+    const deps = dependencies();
+    const state = createValidDraft(deps);
+
+    expectFailure(
+      reduceCommand(
+        state,
+        {
+          type: 'EDIT_ASSIGNMENT',
+          actor: 'human',
+          expectedDraftVersion: 1,
+          requestId: requestId('R-105'),
+          patch: { status: 'committed' },
+        },
+        deps,
+      ),
+      'INVALID_INPUT',
+      state,
     );
   });
 
