@@ -58,11 +58,7 @@ function expectFailure(result: CommandResult, code: string, state: AppState): vo
 
 function createValidDraft(deps: CommandDependencies, assignments = validAssignments()): AppState {
   return expectSuccess(
-    reduceCommand(
-      readyState(),
-      { type: 'CREATE_DRAFT', actor: 'agent', assignments },
-      deps,
-    ),
+    reduceCommand(readyState(), { type: 'CREATE_DRAFT', actor: 'agent', assignments }, deps),
   );
 }
 
@@ -105,11 +101,7 @@ describe('draft creation and revision commands', () => {
     assignments[7] = { ...assignments[7]!, requestId: requestId('R-999') };
 
     expectFailure(
-      reduceCommand(
-        state,
-        { type: 'CREATE_DRAFT', actor: 'agent', assignments },
-        deps,
-      ),
+      reduceCommand(state, { type: 'CREATE_DRAFT', actor: 'agent', assignments }, deps),
       'UNKNOWN_REQUEST',
       state,
     );
@@ -333,9 +325,7 @@ describe('discard and reset commands', () => {
   it('resets from any state to the canonical READY state with one reset event', () => {
     const deps = dependencies();
     const state = createValidDraft(deps);
-    const reset = expectSuccess(
-      reduceCommand(state, { type: 'RESET_DEMO', actor: 'human' }, deps),
-    );
+    const reset = expectSuccess(reduceCommand(state, { type: 'RESET_DEMO', actor: 'human' }, deps));
 
     expect(reset.workflowState).toBe('READY');
     expect(reset.scenario).toBe(CANONICAL_SCENARIO);

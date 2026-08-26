@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CANONICAL_SCENARIO } from '../../src/domain/seed';
-import {
-  type AppState,
-  type AuditEventId,
-  type Draft,
-  type PlanId,
-} from '../../src/domain/types';
+import { type AppState, type AuditEventId, type Draft, type PlanId } from '../../src/domain/types';
 import { validateDraft } from '../../src/domain/validation';
 import {
   canTransition,
@@ -65,9 +60,7 @@ function approvedState(workflowState: 'AWAITING_APPROVAL' | 'APPROVED'): AppStat
     status: workflowState === 'APPROVED' ? ('approved' as const) : ('pending' as const),
     createdAt: '2026-08-26T12:00:00.000Z',
     expiresAt: '2026-08-26T12:02:00.000Z',
-    ...(workflowState === 'APPROVED'
-      ? { decidedAt: '2026-08-26T12:00:30.000Z' }
-      : {}),
+    ...(workflowState === 'APPROVED' ? { decidedAt: '2026-08-26T12:00:30.000Z' } : {}),
   };
 
   return {

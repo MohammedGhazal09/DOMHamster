@@ -683,10 +683,7 @@ function commitPlan(
   );
 }
 
-function resetDemo(
-  command: ResetDemoCommand,
-  dependencies: CommandDependencies,
-): CommandResult {
+function resetDemo(command: ResetDemoCommand, dependencies: CommandDependencies): CommandResult {
   return success(
     Object.freeze({
       workflowState: 'READY',
@@ -737,11 +734,7 @@ export function reduceCommand(
         dependencies,
       );
     case 'PREPARE_APPROVAL':
-      return prepareApproval(
-        state as DraftState,
-        command,
-        dependencies,
-      );
+      return prepareApproval(state as DraftState, command, dependencies);
     case 'APPROVE':
     case 'REJECT':
     case 'CANCEL_APPROVAL':
