@@ -15,21 +15,28 @@ jobs:
     timeout-minutes: 15
     env:
       TARGET_BRANCH: implementation/wp03-workflow
-      BUNDLE_SHA256: a8e7f7f523aad0f98fde93ad1e2d10d41c97e59ce03ac97926bfe2690e30c8d6
+      BASE_BUNDLE_SHA256: bcb64c80477912b5f2ea10e9f15b568795acaff96f48c035920d7a8da31e83ce
+      FEATURE_BUNDLE_SHA256: a8e7f7f523aad0f98fde93ad1e2d10d41c97e59ce03ac97926bfe2690e30c8d6
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Restore verified local commit bundle
+      - name: Restore verified local commit bundles
         shell: bash
         run: |
-          cat .github/wp03-import/part-* | tr -d '\n' > /tmp/wp03.bundle.b64
-          base64 --decode /tmp/wp03.bundle.b64 > /tmp/wp03.bundle
-          echo "$BUNDLE_SHA256  /tmp/wp03.bundle" | sha256sum --check
-          git bundle verify /tmp/wp03.bundle
-          git fetch /tmp/wp03.bundle \
+          cat .github/wp03-base/part-* | tr -d '\n' > /tmp/wp03-base.bundle.b64
+          base64 --decode /tmp/wp03-base.bundle.b64 > /tmp/wp03-base.bundle
+          echo "$BASE_BUNDLE_SHA256  /tmp/wp03-base.bundle" | sha256sum --check
+          git bundle verify /tmp/wp03-base.bundle
+          git fetch /tmp/wp03-base.bundle refs/heads/main:refs/remotes/wp03/base
+
+          cat .github/wp03-import/part-* | tr -d '\n' > /tmp/wp03-feature.bundle.b64
+          base64 --decode /tmp/wp03-feature.bundle.b64 > /tmp/wp03-feature.bundle
+          echo "$FEATURE_BUNDLE_SHA256  /tmp/wp03-feature.bundle" | sha256sum --check
+          git bundle verify /tmp/wp03-feature.bundle
+          git fetch /tmp/wp03-feature.bundle \
             refs/heads/implementation/wp03-workflow:refs/remotes/wp03/source
 
       - name: Configure Git author
