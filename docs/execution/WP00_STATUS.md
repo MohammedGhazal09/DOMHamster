@@ -1,20 +1,25 @@
 # WP00 Execution Status
 
-**Work package:** WP00 — Repository, toolchain, minimal application, and CI shell
+**Work package:** WP00 — repository, toolchain, minimum application, and CI shell
+
 **Branch:** `implementation/wp00-toolchain`
-**Checkpoint:** 0.13.3 — public repository available; target RED pending
+
+**Checkpoint:** 0.13.4 — target RED verified; GREEN verification in progress
+
 **Date:** 2026-08-26 (Asia/Riyadh)
 
-## Verified preparation
+## Verified evidence
 
-| Item | Evidence |
-|---|---|
-| Public repository | `MohammedGhazal09/DOMHamster` is public and writable by the entrant |
-| Runtime contract | Node `24.19.0` and npm `11.17.0` are pinned in package metadata and workflows |
-| Dependency graph | Exact package manifest; the target Node 24 workflow will generate and commit `package-lock.json` |
-| Test-first boundary | `src/app/App.test.tsx` exists while `src/app/App.tsx` and `src/main.tsx` remain absent |
-| Workflow | `WP00 RED evidence` generates the lockfile and requires the expected missing-`App` failure |
+- The public repository is `MohammedGhazal09/DOMHamster`.
+- Node `24.19.0` and npm `11.17.0` are pinned in package metadata and workflows.
+- The npm-generated exact dependency lockfile is committed.
+- Target workflow run `32987466258` installed 257 packages and reported zero vulnerabilities.
+- The same run passed all six static toolchain contracts.
+- The same run proved the required missing-`./App` RED failure before production source was added.
+- `src/app/App.tsx` and `src/main.tsx` now contain only the minimum code needed for GREEN.
 
 ## Pending gate
 
-WP00 remains incomplete until the target repository records the expected RED result, production source is then added, and formatting, lint, type checking, all Vitest tests, production build, Playwright smoke testing, and dependency audit pass on the same feature branch.
+WP00 remains incomplete until formatting, lint, strict type checking, the complete Vitest suite,
+the production build, Playwright Chromium smoke testing, and the dependency audit all pass on the
+current feature-branch head and again on the integrated `main` result.
