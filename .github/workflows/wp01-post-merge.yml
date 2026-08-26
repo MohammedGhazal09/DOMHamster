@@ -1,0 +1,208 @@
+name: WP01 integrated-main checkpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/domain/**
+      - tests/domain/**
+      - scripts/print-fixture-hash.mjs
+      - docs/execution/WP01_STATUS.md
+      - .github/workflows/wp01-post-merge.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wp01-integrated-main-checkpoint
+  cancel-in-progress: false
+
+jobs:
+  verify-and-record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install the committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Verify formatting
+        run: npm run format:check
+
+      - name: Verify lint
+        run: npm run lint
+
+      - name: Verify strict types
+        run: npm run typecheck
+
+      - name: Verify the complete Vitest suite
+        run: npm run test:run
+
+      - name: Verify the canonical fixture hash
+        shell: bash
+        run: |
+          node --experimental-strip-types scripts/print-fixture-hash.mjs | tee wp01-fixture-hash.txt
+          test "$(cat wp01-fixture-hash.txt)" = "60bb55c22165fa885318a7646ad3241b517f56cf24b902b281c4ddcc5e5a56fb"
+
+      - name: Verify production build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Playwright smoke test
+        run: npm run test:e2e
+
+      - name: Verify dependency audit
+        run: npm audit --audit-level=high --json > npm-audit.json
+
+      - name: Record WP01 completion checkpoint
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          main_sha = os.environ['GITHUB_SHA']
+          run_id = os.environ['GITHUB_RUN_ID']
+
+          status_path = Path('docs/execution/WP01_STATUS.md')
+          status = status_path.read_text(encoding='utf-8')
+          branch_run_match = re.search(r'\*\*Branch verification run:\*\* `([^`]+)`', status)
+          branch_run = branch_run_match.group(1) if branch_run_match else 'recorded in branch history'
+          status_path.write_text(f'''# WP01 Execution Status
+
+          **Work package:** WP01 — domain types and frozen fictional fixture
+
+          **Status:** **Complete**
+
+          **Integrated main commit:** `{main_sha}`
+
+          **Branch verification run:** `{branch_run}`
+
+          **Integrated-main verification run:** `{run_id}`
+
+          **Date:** 2026-08-26 (Asia/Riyadh)
+
+          ## Verified evidence
+
+          | Priority | Gate | Result |
+          |---:|---|---|
+          | P0 | RED workflow `32993039065` | Expected missing fixture import confirmed |
+          | P0 | Canonical requests | 8 with stable IDs `R-101`–`R-108` |
+          | P0 | Canonical volunteers | 5 with stable IDs `V-01`–`V-05` |
+          | P0 | Fixture hash | `60bb55c22165fa885318a7646ad3241b517f56cf24b902b281c4ddcc5e5a56fb` |
+          | P0 | Fictional contact policy | Passed |
+          | P0 | Public-record restricted-field scan | Passed |
+          | P0 | Formatting, lint, strict types | Passed |
+          | P0 | Complete Vitest suite | Passed |
+          | P0 | Production build | Passed |
+          | P0 | Playwright Chromium | Passed |
+          | P0 | Dependency audit | Passed |
+
+          WP02 — the deterministic assignment validation engine — is next.
+          ''', encoding='utf-8')
+
+          master_path = Path('MASTERPLAN.md')
+          master = master_path.read_text(encoding='utf-8')
+          master = master.replace('> **Version:** 0.14.0', '> **Version:** 0.15.0', 1)
+          master = re.sub(
+              r'(?m)^> \*\*Checkpoint:\*\* .+$',
+              '> **Checkpoint:** Phase 14 in progress; WP00 and WP01 complete; WP02 next',
+              master,
+              count=1,
+          )
+
+          checkpoint = f'''## 30. Execution checkpoint — 0.15.0
+
+          **Recorded:** 2026-08-26 (Asia/Riyadh)
+
+          WP01 is complete. The exact fictional fixture, branded domain types, privacy separation, canonical serialization, and fixed hash passed on the feature branch and the integrated `main` result.
+
+          | Evidence | Verified result |
+          |---|---|
+          | RED workflow | Run `32993039065` confirmed the missing fixture module |
+          | Canonical requests | 8 with IDs `R-101`–`R-108` |
+          | Canonical volunteers | 5 with IDs `V-01`–`V-05` |
+          | Fixture hash | `60bb55c22165fa885318a7646ad3241b517f56cf24b902b281c4ddcc5e5a56fb` |
+          | Integrated main commit | `{main_sha}` |
+          | Integrated-main GREEN run | `{run_id}` |
+          | WP01 gate | **Passed** |
+          | Next work package | **WP02 — deterministic assignment validation engine** |
+
+          '''
+          next_action = '''## 31. Immediate next action
+
+          Begin WP02 test-first: add one failing case per hard validation rule, implement pure deterministic issue evaluation without early exit, add warning and boundary tests, and integrate only after the exact feature and main regression gates pass.
+          '''
+          if '## 30. Execution checkpoint — 0.15.0' not in master:
+              marker = '## 29. Immediate next action'
+              if marker not in master:
+                  raise SystemExit('Expected WP01 immediate-next-action marker is missing.')
+              master = master.split(marker, 1)[0].rstrip() + '\n\n' + checkpoint + next_action
+
+          row = '| 0.15.0 | 2026-08-26 | Phase 14 WP01 completion checkpoint | Added the exact fictional domain fixture, canonical serialization/hash, privacy tests, and integrated-main evidence. |'
+          if row not in master:
+              anchor = '| 0.14.0 | 2026-08-26 | Phase 14 WP00 completion checkpoint | Recorded public RED-before-GREEN evidence, exact branch and main verification, committed dependency graph, and opened WP01. |'
+              if anchor not in master:
+                  raise SystemExit('Expected 0.14.0 change-log row is missing.')
+              master = master.replace(anchor, anchor + '\n' + row, 1)
+          master_path.write_text(master, encoding='utf-8')
+
+          readme_path = Path('README.md')
+          readme = readme_path.read_text(encoding='utf-8')
+          start = readme.index('## Current status')
+          end = readme.index('## Project controls')
+          current = '''## Current status
+
+          WP00 and WP01 are complete and verified on public `main`. DOMHamster now has its pinned Node 24 toolchain plus the exact immutable fictional scenario: eight requests, five volunteers, explicit private-contact placeholders, untrusted notes, canonical serialization, and a fixed SHA-256 identity.
+
+          WP02 — the deterministic assignment validation engine — is next. No deployment or hackathon-submission completion claim is made until the later release gates pass.
+
+          '''
+          readme_path.write_text(readme[:start] + current + readme[end:], encoding='utf-8')
+
+          changelog_path = Path('CHANGELOG.md')
+          changelog = changelog_path.read_text(encoding='utf-8')
+          entry = '''
+          ## 0.0.0-wp01-complete — 2026-08-26
+
+          - Added branded coordination domain types and legal workflow-state variants.
+          - Added the exact eight-request/five-volunteer fictional scenario and private-contact map.
+          - Added canonical JSON and the locked SHA-256 fixture identity.
+          - Passed fictionality, privacy, formatting, lint, strict typing, build, Playwright, and audit gates on integrated main.
+          '''
+          if '## 0.0.0-wp01-complete' not in changelog:
+              changelog += entry
+          changelog_path.write_text(changelog, encoding='utf-8')
+          PY
+
+      - name: Remove temporary WP01 automation
+        run: |
+          rm -f .github/workflows/wp01-red.yml
+          rm -f .github/workflows/wp01-style-autofix.yml
+          rm -f .github/workflows/wp01-complete.yml
+          rm -f .github/workflows/wp01-post-merge.yml
+          rm -f docs/execution/WP01_COMPLETE_TRIGGER.md
+
+      - name: Commit the checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          npm run format
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: record verified WP01 completion checkpoint'
+          git push origin HEAD:main
