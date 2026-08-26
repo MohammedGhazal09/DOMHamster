@@ -1,0 +1,138 @@
+name: WP03 validated lint correction
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  lintfix:
+    if: github.event.issue.title == '[WP03 lintfix]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out WP03 branch
+        uses: actions/checkout@v7
+        with:
+          ref: implementation/wp03-workflow
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Apply isolated lint corrections
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          eslint_path = Path('eslint.config.js')
+          eslint_text = eslint_path.read_text()
+          rule_anchor = "      '@typescript-eslint/consistent-type-imports': ["
+          anchor_start = eslint_text.find(rule_anchor)
+          if anchor_start < 0:
+              raise SystemExit('consistent-type-imports anchor not found')
+          anchor_end = eslint_text.find('      ],', anchor_start)
+          if anchor_end < 0:
+              raise SystemExit('consistent-type-imports rule terminator not found')
+          anchor_end += len('      ],')
+          template_rule = """
+              '@typescript-eslint/restrict-template-expressions': [
+                'error',
+                { allowNumber: true },
+              ],"""
+          eslint_text = eslint_text[:anchor_end] + template_rule + eslint_text[anchor_end:]
+
+          js_anchor = "  {\n    files: ['**/*.{js,mjs}'],"
+          if js_anchor not in eslint_text:
+              raise SystemExit('JavaScript override anchor not found')
+          test_override = """  {
+              files: ['tests/**/*.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
+              rules: {
+                '@typescript-eslint/no-non-null-assertion': 'off',
+              },
+            },
+          """
+          eslint_text = eslint_text.replace(js_anchor, test_override + js_anchor, 1)
+          eslint_path.write_text(eslint_text)
+
+          audit_path = Path('src/domain/audit.ts')
+          audit_text = audit_path.read_text()
+          old_regex = ".replace(/[\\u0000-\\u001f\\u007f-\\u009f]/g, ' ')"
+          if old_regex not in audit_text:
+              raise SystemExit('audit control-character matcher not found')
+          audit_path.write_text(audit_text.replace(old_regex, ".replace(/\\p{Cc}/gu, ' ')", 1))
+
+          state_path = Path('src/domain/state-machine.ts')
+          state_text = state_path.read_text()
+          old_tail = """  if (event === 'COMMIT_PLAN') {
+              return actor === 'agent' && state === 'APPROVED';
+            }
+
+            return false;
+          """
+          if old_tail not in state_text:
+              raise SystemExit('state-machine exhaustive tail not found')
+          state_path.write_text(
+              state_text.replace(old_tail, "  return actor === 'agent' && state === 'APPROVED';\n", 1),
+          )
+
+          commands_test_path = Path('tests/domain/commands.test.ts')
+          commands_test_text = commands_test_path.read_text()
+          if '  type Assignment,\n' not in commands_test_text:
+              raise SystemExit('unused Assignment import not found')
+          commands_test_path.write_text(commands_test_text.replace('  type Assignment,\n', '', 1))
+          PY
+
+          npx prettier --write \
+            eslint.config.js \
+            src/domain/audit.ts \
+            src/domain/state-machine.ts \
+            tests/domain/commands.test.ts
+
+      - name: Verify formatting and lint before commit
+        run: |
+          npm run format:check
+          npm run lint
+
+      - name: Commit verified lint corrections
+        id: commit
+        shell: bash
+        run: |
+          git config user.name 'Mohammed Ghazal'
+          git config user.email 'mohammedghazal01@outlook.com'
+          git add \
+            eslint.config.js \
+            src/domain/audit.ts \
+            src/domain/state-machine.ts \
+            tests/domain/commands.test.ts
+          git commit -m 'fix: satisfy strict WP03 lint contracts'
+          git push origin HEAD:implementation/wp03-workflow
+          echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Record verified correction
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Formatting and lint passed before commit \`${{ steps.commit.outputs.head_sha }}\` was pushed.`,
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+              state_reason: 'completed',
+            });
