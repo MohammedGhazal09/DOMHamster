@@ -100,11 +100,7 @@ describe('draft creation and revision commands', () => {
     assignments[0] = { ...assignments[0]!, status: 'committed' };
 
     expectFailure(
-      reduceCommand(
-        state,
-        { type: 'CREATE_DRAFT', actor: 'agent', assignments },
-        deps,
-      ),
+      reduceCommand(state, { type: 'CREATE_DRAFT', actor: 'agent', assignments }, deps),
       'INVALID_INPUT',
       state,
     );
