@@ -8,6 +8,8 @@ on:
       - docs/execution/WP00_MAIN_TRIGGER.md
   pull_request:
     branches: [main]
+  issues:
+    types: [opened]
   workflow_dispatch:
 
 permissions:
@@ -15,6 +17,7 @@ permissions:
 
 jobs:
   red-contract:
+    if: github.event_name != 'issues' || startsWith(github.event.issue.title, '[WP00 trigger]')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
