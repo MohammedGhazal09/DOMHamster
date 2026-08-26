@@ -1,0 +1,58 @@
+name: WP03 RED evidence
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - .wp03-red
+      - src/domain/audit.ts
+      - src/domain/commands.ts
+      - src/domain/state-machine.ts
+      - tests/domain/approval.test.ts
+      - tests/domain/audit.test.ts
+      - tests/domain/commands.test.ts
+      - tests/domain/state-machine.test.ts
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-red:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out pull request
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Observe the expected missing-workflow RED result
+        if: hashFiles('.wp03-red') != ''
+        shell: bash
+        run: |
+          set +e
+          npm run test:run -- \
+            tests/domain/state-machine.test.ts \
+            tests/domain/commands.test.ts \
+            tests/domain/approval.test.ts \
+            tests/domain/audit.test.ts \
+            > wp03-red-test.log 2>&1
+          test_status=$?
+          set -e
+          cat wp03-red-test.log
+
+          test "$test_status" -ne 0
+          grep -Eqi '(failed to resolve import|cannot find module|could not resolve).*(src/domain/(state-machine|commands|audit)|\.\./\.\./src/domain/(state-machine|commands|audit))' wp03-red-test.log
+          echo 'DOMHAMSTER_WP03_EXPECTED_RED_CONFIRMED'
+
+      - name: Confirm RED was already recorded for GREEN revisions
+        if: hashFiles('.wp03-red') == ''
+        run: echo 'WP03 RED evidence was already recorded; normal CI owns GREEN verification.'
