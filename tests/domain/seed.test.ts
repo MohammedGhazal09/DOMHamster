@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalJson, sha256Hex } from '../../src/domain/canonical-json';
 import { CANONICAL_SCENARIO } from '../../src/domain/seed';
+import { canonicalJson, sha256Hex } from '../../src/domain/canonical-json';
 import { requestId, volunteerId } from '../../src/domain/types';
 
 const EXPECTED_CANONICAL_HASH =
