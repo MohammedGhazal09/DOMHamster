@@ -1,0 +1,59 @@
+name: WP01 RED evidence
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - .wp01-red
+      - src/domain/**
+      - tests/domain/**
+      - scripts/print-fixture-hash.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture-red:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out pull request
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Observe the expected missing-domain RED result
+        if: hashFiles('.wp01-red') != ''
+        shell: bash
+        run: |
+          set +e
+          npm run test:run -- tests/domain/seed.test.ts > wp01-red-test.log 2>&1
+          test_status=$?
+          set -e
+          cat wp01-red-test.log
+
+          test "$test_status" -ne 0
+          grep -Eqi '(failed to resolve import|cannot find module|could not resolve).*(src/domain/seed|\.\./\.\./src/domain/seed)' wp01-red-test.log
+          echo 'DOMHAMSTER_WP01_EXPECTED_RED_CONFIRMED'
+
+      - name: Confirm the RED marker has been removed for GREEN revisions
+        if: hashFiles('.wp01-red') == ''
+        run: echo 'WP01 RED evidence was already recorded; the normal CI gate owns GREEN verification.'
+
+      - name: Upload RED evidence
+        if: always() && hashFiles('.wp01-red') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp01-red-evidence
+          path: wp01-red-test.log
+          retention-days: 7
+          if-no-files-found: error
