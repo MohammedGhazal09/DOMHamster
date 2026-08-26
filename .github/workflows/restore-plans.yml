@@ -40,10 +40,9 @@ jobs:
               for part_name in parts:
                   part = Path(part_name)
                   encoded = part.read_text(encoding='utf-8').strip()
-                  if not encoded or len(encoded) % 4 != 0:
-                      raise RuntimeError(
-                          f'{part_name}: invalid Base64 length {len(encoded)}'
-                      )
+                  if not encoded:
+                      raise RuntimeError(f'{part_name}: empty Base64 payload')
+                  encoded += '=' * (-len(encoded) % 4)
                   compressed_parts.append(base64.b64decode(encoded, validate=True))
 
               data = gzip.decompress(b''.join(compressed_parts))
