@@ -1,0 +1,30 @@
+{
+  "masterplan": {
+    "output_bytes": 255089,
+    "output_sha256": "dff34cfbc038e541382b0f6a09e9a793630b95cc2d8e18e2995f9f5197e22e55",
+    "gzip_bytes": 81386,
+    "gzip_sha256": "169550356a00ca5b163c50fd356dd856b6bbbc11f482448ff4c18ce385794f5b",
+    "chunks": 3
+  },
+  "implementation-plan": {
+    "output_bytes": 53886,
+    "output_sha256": "696b5669e47687ac4aaf269c735f27633da80b1bd662eba28c408f261dd9a622",
+    "gzip_bytes": 18057,
+    "gzip_sha256": "de8074babe6a5689ee63de9548de8a37a3dc570e641e591b3163c9daafb1771e",
+    "chunks": 1
+  },
+  "readme": {
+    "output_bytes": 1732,
+    "output_sha256": "eb23c8cb4fa51486146ddbaa6e102c7c22cec4aeb82b18a4aad05dc11ba277d7",
+    "gzip_bytes": 919,
+    "gzip_sha256": "f144cc8ab115c2074cdae50de873b147bdb68e27e83a6fc8341f0ad80dd7c1b0",
+    "chunks": 1
+  },
+  "wp03-status": {
+    "output_bytes": 1840,
+    "output_sha256": "4def0ddd17c4874b3fd4b00c8b14e06b2b952ae86c503c59077970961c630e39",
+    "gzip_bytes": 1001,
+    "gzip_sha256": "6ff167c8a6efd908e07a4ff34c49a3e44a58a76852309fd38ab9d365e2ed334e",
+    "chunks": 1
+  }
+}
