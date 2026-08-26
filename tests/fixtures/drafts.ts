@@ -98,7 +98,9 @@ export function omitAssignment(
   assignments: readonly Assignment[],
   id: Assignment['requestId'],
 ): Assignment[] {
-  return assignments.filter(({ requestId: candidate }) => candidate !== id).map((entry) => ({
-    ...entry,
-  }));
+  return assignments
+    .filter(({ requestId: candidate }) => candidate !== id)
+    .map((entry) => ({
+      ...entry,
+    }));
 }
