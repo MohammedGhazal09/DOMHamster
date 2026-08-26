@@ -1,4 +1,4 @@
-name: Restore approved governance master plan
+name: Recover governance payload evidence
 
 on:
   push:
@@ -7,10 +7,10 @@ on:
       - .github/workflows/restore-plans.yml
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  restore:
+  recover:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -20,7 +20,7 @@ jobs:
           ref: governance/restore-plans
           fetch-depth: 0
 
-      - name: Restore and verify the master plan
+      - name: Recover the intact master plan and partial implementation plan
         shell: bash
         run: |
           python - <<'PY'
@@ -28,8 +28,19 @@ jobs:
           import base64
           import gzip
           import hashlib
+          import zlib
 
-          parts = [
+          def decoded_parts(parts: list[str]) -> bytes:
+              compressed = []
+              for part_name in parts:
+                  encoded = Path(part_name).read_text(encoding='utf-8').strip()
+                  if not encoded:
+                      raise RuntimeError(f'{part_name}: empty Base64 payload')
+                  encoded += '=' * (-len(encoded) % 4)
+                  compressed.append(base64.b64decode(encoded, validate=True))
+              return b''.join(compressed)
+
+          master_compressed = decoded_parts([
               '.plan-payload/master/00.b64',
               '.plan-payload/master/01.b64',
               '.plan-payload/master/02.b64',
@@ -43,47 +54,39 @@ jobs:
               '.plan-payload/fix/master06/02.b64',
               '.plan-payload/master/07.b64',
               '.plan-payload/master/08.b64',
-          ]
-          compressed = []
-          for part_name in parts:
-              encoded = Path(part_name).read_text(encoding='utf-8').strip()
-              if not encoded:
-                  raise RuntimeError(f'{part_name}: empty Base64 payload')
-              encoded += '=' * (-len(encoded) % 4)
-              compressed.append(base64.b64decode(encoded, validate=True))
+          ])
+          master = gzip.decompress(master_compressed)
+          if len(master) != 252003:
+              raise RuntimeError(f'Unexpected master size: {len(master)}')
+          if hashlib.sha256(master).hexdigest() != '644a52f898cd68dfb4fad70203e2888556d8e5c98a45999da5a88db375ad4a54':
+              raise RuntimeError('Unexpected master hash')
+          Path('MASTERPLAN.md').write_bytes(master)
 
-          data = gzip.decompress(b''.join(compressed))
-          actual_hash = hashlib.sha256(data).hexdigest()
-          expected_hash = '644a52f898cd68dfb4fad70203e2888556d8e5c98a45999da5a88db375ad4a54'
-          expected_size = 252003
-          if len(data) != expected_size:
-              raise RuntimeError(f'MASTERPLAN.md: size {len(data)} does not match {expected_size}')
-          if actual_hash != expected_hash:
-              raise RuntimeError(f'MASTERPLAN.md: sha256 {actual_hash} does not match {expected_hash}')
-
-          Path('MASTERPLAN.md').write_bytes(data)
-          print(f'Restored MASTERPLAN.md: {len(data)} bytes, sha256={actual_hash}')
+          impl_compressed = decoded_parts([
+              '.plan-payload/impl/00.b64',
+              '.plan-payload/fix/impl01/00.b64',
+              '.plan-payload/fix/impl01/01.b64',
+              '.plan-payload/fix/impl01/02.b64',
+          ])
+          decoder = zlib.decompressobj(16 + zlib.MAX_WBITS)
+          partial = decoder.decompress(impl_compressed)
+          Path('IMPLEMENTATION_PLAN.partial.md').write_bytes(partial)
+          Path('IMPLEMENTATION_PLAN.recovery.txt').write_text(
+              f'compressed_bytes={len(impl_compressed)}\n'
+              f'partial_bytes={len(partial)}\n'
+              f'eof={decoder.eof}\n'
+              f'partial_sha256={hashlib.sha256(partial).hexdigest()}\n',
+              encoding='utf-8',
+          )
+          print(Path('IMPLEMENTATION_PLAN.recovery.txt').read_text(encoding='utf-8'))
           PY
 
-      - name: Upload recovered master plan evidence
+      - name: Upload recovered governance evidence
         uses: actions/upload-artifact@v7
         with:
-          name: recovered-governance-master
-          path: MASTERPLAN.md
+          name: recovered-governance-payloads
+          path: |
+            MASTERPLAN.md
+            IMPLEMENTATION_PLAN.partial.md
+            IMPLEMENTATION_PLAN.recovery.txt
           retention-days: 7
-
-      - name: Remove damaged transfer payload
-        shell: bash
-        run: |
-          rm -rf .plan-payload
-          rm .github/workflows/restore-plans.yml
-
-      - name: Commit recovered master plan
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git diff --cached --check
-          git commit -m 'docs: recover approved master plan baseline'
-          git push origin HEAD:governance/restore-plans
