@@ -1,4 +1,4 @@
-name: Restore approved governance plans
+name: Restore approved governance master plan
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
           ref: governance/restore-plans
           fetch-depth: 0
 
-      - name: Restore and verify plans
+      - name: Restore and verify the master plan
         shell: bash
         run: |
           python - <<'PY'
@@ -29,81 +29,61 @@ jobs:
           import gzip
           import hashlib
 
-          def restore(
-              parts: list[str],
-              destination: str,
-              expected_hash: str,
-              expected_size: int,
-          ) -> None:
-              compressed_parts: list[bytes] = []
+          parts = [
+              '.plan-payload/master/00.b64',
+              '.plan-payload/master/01.b64',
+              '.plan-payload/master/02.b64',
+              '.plan-payload/fix/master03/00.b64',
+              '.plan-payload/fix/master03/01.b64',
+              '.plan-payload/fix/master03/02.b64',
+              '.plan-payload/master/04.b64',
+              '.plan-payload/master/05.b64',
+              '.plan-payload/fix/master06/00.b64',
+              '.plan-payload/fix/master06/01.b64',
+              '.plan-payload/fix/master06/02.b64',
+              '.plan-payload/master/07.b64',
+              '.plan-payload/master/08.b64',
+          ]
+          compressed = []
+          for part_name in parts:
+              encoded = Path(part_name).read_text(encoding='utf-8').strip()
+              if not encoded:
+                  raise RuntimeError(f'{part_name}: empty Base64 payload')
+              encoded += '=' * (-len(encoded) % 4)
+              compressed.append(base64.b64decode(encoded, validate=True))
 
-              for part_name in parts:
-                  part = Path(part_name)
-                  encoded = part.read_text(encoding='utf-8').strip()
-                  if not encoded:
-                      raise RuntimeError(f'{part_name}: empty Base64 payload')
-                  encoded += '=' * (-len(encoded) % 4)
-                  compressed_parts.append(base64.b64decode(encoded, validate=True))
+          data = gzip.decompress(b''.join(compressed))
+          actual_hash = hashlib.sha256(data).hexdigest()
+          expected_hash = '644a52f898cd68dfb4fad70203e2888556d8e5c98a45999da5a88db375ad4a54'
+          expected_size = 252003
+          if len(data) != expected_size:
+              raise RuntimeError(f'MASTERPLAN.md: size {len(data)} does not match {expected_size}')
+          if actual_hash != expected_hash:
+              raise RuntimeError(f'MASTERPLAN.md: sha256 {actual_hash} does not match {expected_hash}')
 
-              data = gzip.decompress(b''.join(compressed_parts))
-              actual_hash = hashlib.sha256(data).hexdigest()
-
-              if len(data) != expected_size:
-                  raise RuntimeError(
-                      f'{destination}: size {len(data)} does not match {expected_size}'
-                  )
-              if actual_hash != expected_hash:
-                  raise RuntimeError(
-                      f'{destination}: sha256 {actual_hash} does not match {expected_hash}'
-                  )
-
-              path = Path(destination)
-              path.parent.mkdir(parents=True, exist_ok=True)
-              path.write_bytes(data)
-              print(f'Restored {destination}: {len(data)} bytes, sha256={actual_hash}')
-
-          restore(
-              [
-                  '.plan-payload/master/00.b64',
-                  '.plan-payload/master/01.b64',
-                  '.plan-payload/master/02.b64',
-                  '.plan-payload/fix/master03/00.b64',
-                  '.plan-payload/fix/master03/01.b64',
-                  '.plan-payload/fix/master03/02.b64',
-                  '.plan-payload/master/04.b64',
-                  '.plan-payload/master/05.b64',
-                  '.plan-payload/fix/master06/00.b64',
-                  '.plan-payload/fix/master06/01.b64',
-                  '.plan-payload/fix/master06/02.b64',
-                  '.plan-payload/master/07.b64',
-                  '.plan-payload/master/08.b64',
-              ],
-              'MASTERPLAN.md',
-              '644a52f898cd68dfb4fad70203e2888556d8e5c98a45999da5a88db375ad4a54',
-              252003,
-          )
-          restore(
-              [
-                  '.plan-payload/impl/00.b64',
-                  '.plan-payload/fix/impl01/00.b64',
-                  '.plan-payload/fix/impl01/01.b64',
-                  '.plan-payload/fix/impl01/02.b64',
-              ],
-              'docs/superpowers/plans/2026-08-26-domhamster-implementation.md',
-              '252bc313b4ecaa4bacc64870907cd78f0d0345a929d34fb4b8bb537856e015bd',
-              53608,
-          )
+          Path('MASTERPLAN.md').write_bytes(data)
+          print(f'Restored MASTERPLAN.md: {len(data)} bytes, sha256={actual_hash}')
           PY
 
+      - name: Upload recovered master plan evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: recovered-governance-master
+          path: MASTERPLAN.md
+          retention-days: 7
+
+      - name: Remove damaged transfer payload
+        shell: bash
+        run: |
           rm -rf .plan-payload
           rm .github/workflows/restore-plans.yml
 
-      - name: Commit restored plans
+      - name: Commit recovered master plan
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           git diff --cached --check
-          git commit -m 'docs: restore approved master and implementation plans'
+          git commit -m 'docs: recover approved master plan baseline'
           git push origin HEAD:governance/restore-plans
