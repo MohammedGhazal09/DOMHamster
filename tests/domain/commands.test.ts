@@ -4,7 +4,6 @@ import {
   requestId,
   volunteerId,
   type AppState,
-  type Assignment,
   type AuditEventId,
   type PlanId,
   type ReadyState,

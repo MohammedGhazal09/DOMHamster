@@ -40,7 +40,7 @@ export interface ResetAuditInput {
 
 function sanitizeSummary(value: string): string {
   const normalized = value
-    .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')
+    .replace(/\p{Cc}/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   const safe = normalized.length > 0 ? normalized : 'No additional details.';

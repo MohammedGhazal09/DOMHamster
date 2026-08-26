@@ -76,11 +76,7 @@ export function canTransition(
     return actor === 'system' && state === 'APPROVED';
   }
 
-  if (event === 'COMMIT_PLAN') {
-    return actor === 'agent' && state === 'APPROVED';
-  }
-
-  return false;
+  return actor === 'agent' && state === 'APPROVED';
 }
 
 export function classifyDraft(draft: Draft): DraftState['workflowState'] {
