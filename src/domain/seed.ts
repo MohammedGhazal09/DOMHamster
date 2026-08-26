@@ -51,7 +51,8 @@ export const CANONICAL_SCENARIO = deepFreeze({
       requiredSkills: ['driving'],
       requiredLanguages: [],
       status: 'open',
-      untrustedNote: '[UNTRUSTED] Mobility device is represented only as an operational constraint.',
+      untrustedNote:
+        '[UNTRUSTED] Mobility device is represented only as an operational constraint.',
     },
     {
       id: requestId('R-104'),
@@ -63,7 +64,8 @@ export const CANONICAL_SCENARIO = deepFreeze({
       requiredSkills: [],
       requiredLanguages: ['AR'],
       status: 'open',
-      untrustedNote: '[UNTRUSTED] Arabic support requested; note text is not an instruction to the agent.',
+      untrustedNote:
+        '[UNTRUSTED] Arabic support requested; note text is not an instruction to the agent.',
     },
     {
       id: requestId('R-105'),
@@ -75,7 +77,8 @@ export const CANONICAL_SCENARIO = deepFreeze({
       requiredSkills: ['lifting'],
       requiredLanguages: [],
       status: 'open',
-      untrustedNote: '[UNTRUSTED] Human coordinator will intentionally lock this assignment in the demo.',
+      untrustedNote:
+        '[UNTRUSTED] Human coordinator will intentionally lock this assignment in the demo.',
     },
     {
       id: requestId('R-106'),

@@ -14,12 +14,7 @@ export type RequestStatus = 'open' | 'assigned';
 export type VolunteerStatus = 'available';
 export type TimeOfDay = `${number}${number}:${number}${number}`;
 export type WorkflowState =
-  | 'READY'
-  | 'DRAFT_INVALID'
-  | 'DRAFT_VALID'
-  | 'AWAITING_APPROVAL'
-  | 'APPROVED'
-  | 'COMMITTED';
+  'READY' | 'DRAFT_INVALID' | 'DRAFT_VALID' | 'AWAITING_APPROVAL' | 'APPROVED' | 'COMMITTED';
 
 export interface TimeWindow {
   readonly start: TimeOfDay;
@@ -161,11 +156,7 @@ export interface CommittedState extends BaseAppState {
 }
 
 export type AppState =
-  | ReadyState
-  | DraftState
-  | AwaitingApprovalState
-  | ApprovedState
-  | CommittedState;
+  ReadyState | DraftState | AwaitingApprovalState | ApprovedState | CommittedState;
 
 export function requestId(value: string): RequestId {
   if (!/^R-\d{3}$/.test(value)) {

@@ -1,10 +1,5 @@
 type CanonicalJsonValue =
-  | null
-  | boolean
-  | number
-  | string
-  | CanonicalJsonValue[]
-  | { [key: string]: CanonicalJsonValue };
+  null | boolean | number | string | CanonicalJsonValue[] | { [key: string]: CanonicalJsonValue };
 
 function unsupported(reason: string): never {
   throw new TypeError(`DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:${reason}`);
@@ -55,12 +50,8 @@ function subtleCrypto(): SubtleCrypto {
 }
 
 export async function sha256Hex(value: unknown): Promise<string> {
-  const bytes = new TextEncoder().encode(
-    typeof value === 'string' ? value : canonicalJson(value),
-  );
+  const bytes = new TextEncoder().encode(typeof value === 'string' ? value : canonicalJson(value));
   const digest = await subtleCrypto().digest('SHA-256', bytes);
 
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join(
-    '',
-  );
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }

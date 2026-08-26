@@ -3,8 +3,7 @@ import { CANONICAL_SCENARIO } from '../../src/domain/seed';
 import { canonicalJson, sha256Hex } from '../../src/domain/canonical-json';
 import { requestId, volunteerId } from '../../src/domain/types';
 
-const EXPECTED_CANONICAL_HASH =
-  'b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1';
+const EXPECTED_CANONICAL_HASH = 'b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1';
 
 describe('canonical scenario', () => {
   it('contains exactly eight requests and five volunteers with unique stable IDs', () => {
@@ -88,9 +87,7 @@ describe('canonical JSON', () => {
     expect(() => canonicalJson(new Date('2026-08-26T00:00:00Z'))).toThrowError(
       'DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:non-plain-object',
     );
-    expect(() => canonicalJson(1n)).toThrowError(
-      'DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:bigint',
-    );
+    expect(() => canonicalJson(1n)).toThrowError('DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:bigint');
   });
 
   it('hashes a raw string with the standard SHA-256 result', async () => {
