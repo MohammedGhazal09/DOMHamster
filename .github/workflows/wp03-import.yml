@@ -88,6 +88,92 @@ jobs:
                 tests/domain/state-machine.test.ts
               git commit -m 'style: format WP03 workflow implementation'
               ;;
+            '[WP03 import LINTFIX]')
+              npm ci --ignore-scripts
+              python3 - <<'PY'
+          from pathlib import Path
+
+          eslint_path = Path('eslint.config.js')
+          eslint_text = eslint_path.read_text()
+          consistent_rule = """      '@typescript-eslint/consistent-type-imports': [
+                'error',
+                { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+              ],
+          """
+          if consistent_rule not in eslint_text:
+              raise SystemExit('expected consistent-type-imports rule not found')
+          eslint_text = eslint_text.replace(
+              consistent_rule,
+              consistent_rule
+              + """      '@typescript-eslint/restrict-template-expressions': [
+                'error',
+                { allowNumber: true },
+              ],
+          """,
+              1,
+          )
+          js_block = """  {
+              files: ['**/*.{js,mjs}'],
+          """
+          if js_block not in eslint_text:
+              raise SystemExit('expected JavaScript override not found')
+          eslint_text = eslint_text.replace(
+              js_block,
+              """  {
+              files: ['tests/**/*.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
+              rules: {
+                '@typescript-eslint/no-non-null-assertion': 'off',
+              },
+            },
+          """ + js_block,
+              1,
+          )
+          eslint_path.write_text(eslint_text)
+
+          audit_path = Path('src/domain/audit.ts')
+          audit_text = audit_path.read_text()
+          old_regex = ".replace(/[\\u0000-\\u001f\\u007f-\\u009f]/g, ' ')"
+          if old_regex not in audit_text:
+              raise SystemExit('expected audit control-character regex not found')
+          audit_path.write_text(audit_text.replace(old_regex, ".replace(/\\p{Cc}/gu, ' ')", 1))
+
+          state_path = Path('src/domain/state-machine.ts')
+          state_text = state_path.read_text()
+          old_tail = """  if (event === 'COMMIT_PLAN') {
+              return actor === 'agent' && state === 'APPROVED';
+            }
+
+            return false;
+          """
+          if old_tail not in state_text:
+              raise SystemExit('expected exhaustive COMMIT_PLAN tail not found')
+          state_path.write_text(
+              state_text.replace(
+                  old_tail,
+                  """  return actor === 'agent' && state === 'APPROVED';
+          """,
+                  1,
+              ),
+          )
+
+          commands_test_path = Path('tests/domain/commands.test.ts')
+          commands_test_text = commands_test_path.read_text()
+          if '  type Assignment,\n' not in commands_test_text:
+              raise SystemExit('expected unused Assignment import not found')
+          commands_test_path.write_text(commands_test_text.replace('  type Assignment,\n', '', 1))
+          PY
+              npx prettier --write \
+                eslint.config.js \
+                src/domain/audit.ts \
+                src/domain/state-machine.ts \
+                tests/domain/commands.test.ts
+              git add \
+                eslint.config.js \
+                src/domain/audit.ts \
+                src/domain/state-machine.ts \
+                tests/domain/commands.test.ts
+              git commit -m 'fix: satisfy strict WP03 lint contracts'
+              ;;
             '[WP03 import RED2]')
               git cherry-pick 481bc4f
               ;;
