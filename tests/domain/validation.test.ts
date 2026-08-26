@@ -371,7 +371,7 @@ describe('validation determinism and purity', () => {
     assignments.push({
       ...assignmentFor(assignments, requestId('R-101')),
       volunteerId: volunteerId('V-99'),
-      startTime: '25:00' as TimeOfDay,
+      startTime: '25:00',
     });
 
     const result = validateDraft(buildContext(assignments));
