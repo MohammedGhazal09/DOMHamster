@@ -64,8 +64,8 @@ describe('domain identifier factories', () => {
   it('accepts only the frozen request and volunteer ID shapes', () => {
     expect(requestId('R-101')).toBe('R-101');
     expect(volunteerId('V-01')).toBe('V-01');
-    expect(() => requestId('request-101')).toThrowError('DOMHAMSTER_INVALID_REQUEST_ID');
-    expect(() => volunteerId('V-001')).toThrowError('DOMHAMSTER_INVALID_VOLUNTEER_ID');
+    expect(() => requestId('request-101')).toThrow('DOMHAMSTER_INVALID_REQUEST_ID');
+    expect(() => volunteerId('V-001')).toThrow('DOMHAMSTER_INVALID_VOLUNTEER_ID');
   });
 });
 
@@ -81,13 +81,13 @@ describe('canonical JSON', () => {
   });
 
   it('rejects unsupported values instead of silently changing the fixture', () => {
-    expect(() => canonicalJson({ value: undefined })).toThrowError(
+    expect(() => canonicalJson({ value: undefined })).toThrow(
       'DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:undefined',
     );
-    expect(() => canonicalJson(new Date('2026-08-26T00:00:00Z'))).toThrowError(
+    expect(() => canonicalJson(new Date('2026-08-26T00:00:00Z'))).toThrow(
       'DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:non-plain-object',
     );
-    expect(() => canonicalJson(1n)).toThrowError('DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:bigint');
+    expect(() => canonicalJson(1n)).toThrow('DOMHAMSTER_UNSUPPORTED_CANONICAL_VALUE:bigint');
   });
 
   it('hashes a raw string with the standard SHA-256 result', async () => {
