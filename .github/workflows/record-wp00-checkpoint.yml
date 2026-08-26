@@ -1,0 +1,45 @@
+name: Record verified WP00 checkpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/record-wp00-checkpoint.yml
+      - .bootstrap/wp00-record-trigger.txt
+  pull_request:
+    branches: [main]
+    types: [synchronize]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.ref == 'implementation/wp00-toolchain'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Record the verified checkpoint
+        run: python scripts/record-wp00-checkpoint.py
+
+      - name: Remove one-time transfer files
+        run: |
+          rm -rf .bootstrap
+          rm -f scripts/record-wp00-checkpoint.py
+          rm -f .github/workflows/record-wp00-checkpoint.yml
+
+      - name: Commit the checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: record verified WP00 completion checkpoint'
+          git push origin HEAD:main
