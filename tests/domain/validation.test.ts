@@ -5,7 +5,6 @@ import {
   requestId,
   volunteerId,
   type Assignment,
-  type Scenario,
   type TimeOfDay,
   type ValidationIssue,
 } from '../../src/domain/types';
@@ -433,7 +432,7 @@ describe('validation determinism and purity', () => {
   });
 
   it('accepts an equivalent cloned scenario', () => {
-    const clonedScenario = structuredClone(CANONICAL_SCENARIO) as Scenario;
+    const clonedScenario = structuredClone(CANONICAL_SCENARIO);
     const result = validateDraft(buildContext(undefined, { scenario: clonedScenario }));
 
     expect(result.errors).toHaveLength(0);
