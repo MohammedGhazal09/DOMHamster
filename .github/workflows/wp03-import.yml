@@ -23,6 +23,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
       - name: Restore verified local commit bundles
         shell: bash
         run: |
@@ -65,6 +71,22 @@ jobs:
               git rm .wp03-red
               git cherry-pick --no-commit bc3ba50
               git commit -m 'feat: implement coordination workflow commands'
+              ;;
+            '[WP03 import FORMAT]')
+              npm ci --ignore-scripts
+              npx prettier --write \
+                src/domain/commands.ts \
+                src/domain/state-machine.ts \
+                tests/domain/approval.test.ts \
+                tests/domain/commands.test.ts \
+                tests/domain/state-machine.test.ts
+              git add \
+                src/domain/commands.ts \
+                src/domain/state-machine.ts \
+                tests/domain/approval.test.ts \
+                tests/domain/commands.test.ts \
+                tests/domain/state-machine.test.ts
+              git commit -m 'style: format WP03 workflow implementation'
               ;;
             '[WP03 import RED2]')
               git cherry-pick 481bc4f
