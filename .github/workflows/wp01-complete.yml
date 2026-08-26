@@ -1,0 +1,145 @@
+name: WP01 verified completion
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wp01-domain-fixture-completion
+  cancel-in-progress: false
+
+jobs:
+  verify-and-integrate:
+    if: github.event.pull_request.head.ref == 'implementation/wp01-domain-fixture'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Check out the WP01 branch
+        uses: actions/checkout@v7
+        with:
+          ref: implementation/wp01-domain-fixture
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Reconcile verified main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+
+      - name: Install the committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Apply deterministic style fixes
+        run: |
+          npm run format
+          npm run lint -- --fix || true
+
+      - name: Publish style-only corrections when needed
+        id: style
+        shell: bash
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --cached --check
+          git commit -m 'style: apply verified WP01 formatting'
+          git push origin HEAD:implementation/wp01-domain-fixture
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Stop after publishing style corrections
+        if: steps.style.outputs.changed == 'true'
+        run: echo 'A synchronized follow-up run will execute the complete GREEN gate.'
+
+      - name: Verify formatting
+        if: steps.style.outputs.changed != 'true'
+        run: npm run format:check
+
+      - name: Verify lint
+        if: steps.style.outputs.changed != 'true'
+        run: npm run lint
+
+      - name: Verify strict types
+        if: steps.style.outputs.changed != 'true'
+        run: npm run typecheck
+
+      - name: Verify the complete Vitest suite
+        if: steps.style.outputs.changed != 'true'
+        run: npm run test:run
+
+      - name: Verify the canonical fixture hash
+        if: steps.style.outputs.changed != 'true'
+        shell: bash
+        run: |
+          node --experimental-strip-types scripts/print-fixture-hash.mjs | tee wp01-fixture-hash.txt
+          test "$(cat wp01-fixture-hash.txt)" = "60bb55c22165fa885318a7646ad3241b517f56cf24b902b281c4ddcc5e5a56fb"
+
+      - name: Verify production build
+        if: steps.style.outputs.changed != 'true'
+        run: npm run build
+
+      - name: Install Chromium
+        if: steps.style.outputs.changed != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Playwright smoke test
+        if: steps.style.outputs.changed != 'true'
+        run: npm run test:e2e
+
+      - name: Verify dependency audit
+        if: steps.style.outputs.changed != 'true'
+        run: npm audit --audit-level=high --json > npm-audit.json
+
+      - name: Record branch GREEN evidence
+        if: steps.style.outputs.changed != 'true'
+        run: |
+          cat > docs/execution/WP01_STATUS.md <<EOF
+          # WP01 Execution Status
+
+          **Work package:** WP01 — domain types and frozen fictional fixture
+
+          **Status:** **Branch GREEN verified; integrated-main verification pending**
+
+          **Branch:** \`implementation/wp01-domain-fixture\`
+
+          **Branch commit:** \`$(git rev-parse HEAD)\`
+
+          **Branch verification run:** \`${GITHUB_RUN_ID}\`
+
+          **Date:** 2026-08-26 (Asia/Riyadh)
+
+          ## Verified evidence
+
+          - RED workflow run \`32993039065\` proved the unresolved fixture import before production code.
+          - The canonical fixture contains exactly eight requests and five volunteers.
+          - Stable IDs, explicit fictional contacts, untrusted-note markers, and privacy boundaries pass.
+          - Canonical fixture hash: \`60bb55c22165fa885318a7646ad3241b517f56cf24b902b281c4ddcc5e5a56fb\`.
+          - Formatting, lint, strict type checking, the complete Vitest suite, production build, Playwright Chromium, and audit passed on this branch.
+
+          WP01 is not complete until the exact integrated \`main\` result passes the same gate.
+          EOF
+          git add docs/execution/WP01_STATUS.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'docs: record WP01 branch verification'
+            git push origin HEAD:implementation/wp01-domain-fixture
+          fi
+
+      - name: Merge the verified branch into main
+        if: steps.style.outputs.changed != 'true'
+        run: |
+          git fetch origin main implementation/wp01-domain-fixture
+          git checkout -B main origin/main
+          git merge --no-ff origin/implementation/wp01-domain-fixture -m 'merge: complete WP01 canonical domain fixture'
+          git push origin HEAD:main
