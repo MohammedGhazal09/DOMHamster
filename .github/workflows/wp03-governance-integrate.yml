@@ -1,0 +1,139 @@
+name: WP03 governance integration
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  integrate:
+    if: github.event.issue.title == '[WP03 governance integrate]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      GOVERNANCE_BRANCH: governance/wp03-finalize
+      PLAN_SHA256: 14b25898e667a95bea048889f0eaf8294dc6425e48c33ff85097bccff9ad7438
+    steps:
+      - name: Check out governance branch
+        uses: actions/checkout@v7
+        with:
+          ref: governance/wp03-finalize
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Synchronize latest main without rewriting history
+        id: sync
+        shell: bash
+        run: |
+          git config user.name 'Mohammed Ghazal'
+          git config user.email 'mohammedghazal01@outlook.com'
+          git fetch origin main
+          main_sha=$(git rev-parse origin/main)
+          echo "main_sha=$main_sha" >> "$GITHUB_OUTPUT"
+          git merge --no-edit origin/main
+
+      - name: Verify restored governance documents
+        shell: bash
+        run: |
+          test -s MASTERPLAN.md
+          test -s README.md
+          test -s docs/execution/WP03_STATUS.md
+          test -s docs/superpowers/plans/2026-08-26-domhamster-implementation.md
+          echo "$PLAN_SHA256  docs/superpowers/plans/2026-08-26-domhamster-implementation.md" \
+            | sha256sum --check
+          grep -Fq '**Version:** 0.17.0' MASTERPLAN.md
+          grep -Fq 'WP00 through WP03 are complete' README.md
+          grep -Fq '33016239969' docs/execution/WP03_STATUS.md
+          grep -Fq 'Task 5: WP04' docs/superpowers/plans/2026-08-26-domhamster-implementation.md
+
+      - name: Remove temporary WP03 transfer infrastructure
+        shell: bash
+        run: |
+          rm -rf \
+            .github/governance \
+            .github/governance-safe \
+            .github/governance-binary \
+            .github/wp03-base \
+            .github/wp03-import
+          rm -f \
+            .github/workflows/wp03-import.yml \
+            .github/workflows/wp03-invariant-import.yml \
+            .github/workflows/wp03-lintfix.yml \
+            .github/workflows/wp03-red.yml \
+            .github/workflows/wp03-red2.yml \
+            .github/workflows/wp03-governance-finalize.yml \
+            .github/workflows/wp03-governance-finalize-v2.yml \
+            .github/workflows/wp03-governance-integrate.yml
+
+      - name: Record governance completion marker
+        shell: bash
+        run: |
+          cat > docs/execution/WP03_GOVERNANCE_COMPLETE.md <<EOF
+          # WP03 Governance Completion
+
+          WP03 implementation and governance checkpoint 0.17.0 were integrated only after:
+
+          - formal missing-module RED run \`33014526107\`;
+          - first complete GREEN runs \`33015481233\` and \`33015481223\`;
+          - formal draft-status RED run \`33015830859\`;
+          - final feature GREEN runs \`33016006929\` and \`33016006987\`;
+          - exact merged-main CI run \`33016239969\`;
+          - full governance integration verification in workflow run \`${GITHUB_RUN_ID}\`.
+
+          The next authorized package is WP04: serialized store, privacy-bounded selectors, and resilient versioned persistence.
+          EOF
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Format governed Markdown surfaces
+        run: npx prettier --write README.md docs/execution/WP03_STATUS.md docs/execution/WP03_GOVERNANCE_COMPLETE.md
+
+      - name: Run complete verification before any push
+        shell: bash
+        run: |
+          npm run format:check
+          npm run lint
+          npm run typecheck
+          npm run test:run
+          npm run build
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+          npm audit --audit-level=high
+
+      - name: Commit and fast-forward verified governance checkpoint
+        id: commit
+        shell: bash
+        run: |
+          git add -A
+          git commit -m 'docs: record WP03 completion and restore project plans'
+          head_sha=$(git rev-parse HEAD)
+          git push origin "HEAD:$GOVERNANCE_BRANCH"
+          git push origin "HEAD:main"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Record verified result
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Governance checkpoint 0.17.0 passed the complete gate and fast-forwarded both branches to \`${{ steps.commit.outputs.head_sha }}\`.`,
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+              state_reason: 'completed',
+            });
