@@ -252,10 +252,18 @@ function structurallyValidVersion(value: number): boolean {
   return Number.isInteger(value) && value > 0;
 }
 
+function containsCommittedDraftStatus(assignments: readonly Assignment[]): boolean {
+  return assignments.some(({ status }) => status === 'committed');
+}
+
 function accountingError(
   scenario: Scenario,
   assignments: readonly Assignment[],
 ): CommandErrorCode | null {
+  if (containsCommittedDraftStatus(assignments)) {
+    return 'INVALID_INPUT';
+  }
+
   const knownRequests = new Set(scenario.requests.map(({ id }) => id));
   const knownVolunteers = new Set(scenario.volunteers.map(({ id }) => id));
   const counts = new Map<RequestId, number>();
@@ -424,10 +432,12 @@ function editAssignment(
   if (current === undefined) return failure(state, 'ASSIGNMENT_NOT_FOUND');
   if (current.lockedByHuman) return failure(state, 'LOCKED_ASSIGNMENT_CHANGE');
 
+  const editedAssignment = updatedAssignment(current, command.patch);
+  if (editedAssignment.status === 'committed') {
+    return failure(state, 'INVALID_INPUT');
+  }
   const assignments = state.draft.assignments.map((assignment, candidateIndex) =>
-    candidateIndex === index
-      ? updatedAssignment(assignment, command.patch)
-      : Object.freeze({ ...assignment }),
+    candidateIndex === index ? editedAssignment : Object.freeze({ ...assignment }),
   );
   const version = state.draft.version + 1;
   const draft = freezeDraft(
@@ -459,6 +469,9 @@ function changeLock(
   if (index < 0) return failure(state, 'ASSIGNMENT_NOT_FOUND');
   const current = state.draft.assignments[index];
   if (current === undefined) return failure(state, 'ASSIGNMENT_NOT_FOUND');
+  if (containsCommittedDraftStatus(state.draft.assignments)) {
+    return failure(state, 'INVALID_INPUT');
+  }
   const locking = command.type === 'LOCK_ASSIGNMENT';
   if (locking && (current.status === 'unassigned' || current.lockedByHuman)) {
     return failure(state, 'INVALID_INPUT');
@@ -525,6 +538,12 @@ function prepareApproval(
 ): CommandResult {
   if (!exactVersion(state, command.expectedDraftVersion)) {
     return failure(state, 'STALE_DRAFT_VERSION');
+  }
+  if (containsCommittedDraftStatus(state.draft.assignments)) {
+    return failure(state, 'INVALID_INPUT');
+  }
+  if (containsCommittedDraftStatus(state.draft.assignments)) {
+    return failure(state, 'DRAFT_INVALID');
   }
   const validation = validate(state.scenario, state.draft.assignments);
   if (!validation.valid) return failure(state, 'DRAFT_INVALID');
