@@ -139,7 +139,7 @@ describe('WebMCP tool handlers', () => {
     expect(store.getState().workflowState).toBe('DRAFT_VALID');
 
     const draft = expectSuccess(await handlers.get_assignment_draft({ includeIssues: true }));
-    expect(draft?.assignments).toHaveLength(8);
+    expect(draft.assignments).toHaveLength(8);
     noPrivateData(draft);
 
     const validation = expectSuccess(
@@ -244,7 +244,7 @@ describe('WebMCP tool handlers', () => {
         summary: 'All constraints pass.',
       }),
     );
-    expect(prepared?.workflowState).toBe('AWAITING_APPROVAL');
+    expect(prepared.workflowState).toBe('AWAITING_APPROVAL');
 
     expectFailure(
       await handlers.commit_assignment_plan({ expectedDraftVersion: 1 }),

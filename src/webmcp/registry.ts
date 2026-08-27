@@ -94,7 +94,6 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
     }
 
     for (const name of desired) {
-      if (!active || runGeneration !== generation) return;
       const existing = registrations.get(name);
       if (existing?.registered === true && !existing.controller.signal.aborted) continue;
 
@@ -113,7 +112,7 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
         );
 
         const latestDesired = currentDesired();
-        if (!active || runGeneration !== generation || !latestDesired.includes(name)) {
+        if (runGeneration !== generation || !latestDesired.includes(name)) {
           controller.abort();
           registrations.delete(name);
           return;
