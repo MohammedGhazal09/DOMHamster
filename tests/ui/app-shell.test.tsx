@@ -91,7 +91,7 @@ describe('judge-facing application shell', () => {
       ['Unassigned', '8'],
       ['Hard errors', '0'],
       ['Warnings', '0'],
-    ]) {
+    ] as const) {
       const metric = within(summary).getByTestId(
         `metric-${label.toLowerCase().replaceAll(' ', '-')}`,
       );
