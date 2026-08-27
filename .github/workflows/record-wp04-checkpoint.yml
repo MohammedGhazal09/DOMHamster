@@ -27,6 +27,21 @@ jobs:
       - name: Record checkpoint 0.18.0
         run: python scripts/record-wp04-checkpoint.py
 
+      - name: Normalize generated Markdown
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for name in (
+              'MASTERPLAN.md',
+              'README.md',
+              'docs/execution/WP04_STATUS.md',
+              'docs/superpowers/plans/2026-08-26-domhamster-implementation.md',
+          ):
+              path = Path(name)
+              lines = path.read_text(encoding='utf-8').splitlines()
+              path.write_text('\n'.join(line.rstrip() for line in lines) + '\n', encoding='utf-8')
+          PY
+
       - name: Remove one-time checkpoint files
         run: |
           rm scripts/record-wp04-checkpoint.py
