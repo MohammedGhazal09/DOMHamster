@@ -1,7 +1,7 @@
 import type { BuildInfoPort } from '../app/ports.ts';
 import type { AppState } from '../domain/types.ts';
-import type { ToolName } from '../webmcp/contracts.ts';
 import type { WebMcpCapabilityStatus } from '../webmcp/capability.ts';
+import type { ToolName } from '../webmcp/contracts.ts';
 
 export type PersistenceStatus = 'READY' | 'DEGRADED' | 'UNAVAILABLE';
 
@@ -31,7 +31,27 @@ export interface DiagnosticsSnapshot {
   readonly recentErrorCodes: readonly string[];
 }
 
-const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_]{0,63}$/;
+const SAFE_ERROR_CODES = new Set([
+  'INVALID_STATE',
+  'INVALID_INPUT',
+  'STALE_DRAFT_VERSION',
+  'LOCKED_ASSIGNMENT_CHANGE',
+  'UNKNOWN_REQUEST',
+  'UNKNOWN_VOLUNTEER',
+  'ASSIGNMENT_NOT_FOUND',
+  'REQUEST_NOT_ASSIGNED',
+  'APPROVAL_NOT_EXPIRED',
+  'APPROVAL_EXPIRED',
+  'DRAFT_INVALID',
+  'COMMIT_ALREADY_COMPLETED',
+  'PERSISTENCE_WRITE_FAILED',
+  'INTERNAL_ERROR',
+  'TOOL_REGISTRATION_FAILED',
+  'REGISTRY_STATE_READ_FAILED',
+  'INSECURE_CONTEXT',
+  'API_UNAVAILABLE',
+  'ACCESS_ERROR',
+]);
 
 function bounded(value: string, maximum: number): string {
   return value.slice(0, maximum);
@@ -42,7 +62,7 @@ function boundedTools(values: readonly ToolName[]): readonly ToolName[] {
 }
 
 function safeErrors(values: readonly string[]): readonly string[] {
-  return Object.freeze(values.filter((value) => SAFE_ERROR_CODE.test(value)).slice(-10));
+  return Object.freeze(values.filter((value) => SAFE_ERROR_CODES.has(value)).slice(-10));
 }
 
 export function createDiagnosticsSnapshot(input: DiagnosticsInput): DiagnosticsSnapshot {
