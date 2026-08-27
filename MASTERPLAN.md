@@ -1,9 +1,9 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.17.1
-> **Checkpoint:** Phase 14 in progress; WP00–WP03 complete on public `main`; WP04 locally verified with exact-base RED/GREEN publication patches prepared
-> **Last updated:** 2026-08-26 (Asia/Riyadh)
+> **Version:** 0.18.0
+> **Checkpoint:** Phase 14 in progress; WP00–WP04 complete on public `main`; WP05 WebMCP contracts next
+> **Last updated:** 2026-08-27 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
 
@@ -58,7 +58,8 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.15.0 | Phase 14 — WP01 domain types and frozen fictional fixture | Passed |
 | 0.16.0 | Phase 14 — WP02 deterministic assignment validation | Passed |
 | 0.17.0 | Phase 14 — WP03 workflow commands, approval, commit, and audit | Passed |
-| 0.17.1 | Phase 14 — WP04 local store/persistence checkpoint and exact-base publication package | In progress — publication gate pending |
+| 0.17.1 | Phase 14 — WP04 local store/persistence checkpoint and exact-base publication package | Recorded |
+| 0.18.0 | Phase 14 — WP04 serialized store, privacy selectors, and resilient persistence | Passed |
 
 ---
 
@@ -78,7 +79,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP03 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP04 now has a locally verified test-first implementation plus exact-public-base RED and GREEN patch artifacts whose sequential application and final file identity were verified. WP04 is not complete until those changes are published and the exact feature and integrated `main` commits pass the Node 24 repository gates. WebMCP, UI, deployment, media, release, and submission remain incomplete. |
+| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP04 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP05 WebMCP contracts and schemas are the next authorized work package. UI, deployment, media, release, and submission remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3388,3 +3389,39 @@ Publish WP04 from the exact public `main` commit `991d7089903786f76c99c578397d93
 6. advance the master plan to 0.18.0 only after that public integrated-main evidence exists.
 
 Do not begin WP05 until the WP04 public gate passes. No WebMCP, UI, deployment, release, media, or submission milestone may be reported complete until its own later work-package gates pass.
+
+---
+
+## Execution checkpoint — v0.18.0
+
+Recorded: `2026-08-27` (`Asia/Riyadh`)
+
+WP04 passed its public test-first and integration gates.
+
+| Evidence | Verified result |
+|---|---|
+| Public branch | `implementation/wp04-store-persistence` |
+| Pull request | `#22` |
+| RED test-only head | `7f01dc1d915eb5ae3ead84064051790df62e664b` |
+| RED workflow | `33024818082` with `DOMHAMSTER_WP04_EXPECTED_RED_CONFIRMED` |
+| Final feature head | `3f8d5806b5076528649cf8d6a3c1d0badd5f571b` |
+| Feature GREEN | `33026297884` |
+| Feature CI | `33026297882` |
+| RED-history check | `33026297883` |
+| Merge commit | `4a740996ab5cc5d2c5bcabb8ef80068579f629bb` |
+| Exact integrated-main CI | `33026459964` |
+| Result | **WP04 passed; WP05 is next** |
+
+### Locked WP04 outcomes
+
+- Commands are reduced serially against the latest committed state.
+- A candidate state is persisted before it becomes visible to subscribers.
+- Rejected commands and failed persistence writes preserve the prior visible state.
+- Privacy-bounded selectors construct outputs through explicit allowlists.
+- Fictional contacts remain unavailable before commit and require explicit unique assigned request IDs afterward.
+- Persistence uses the versioned `domhamster:v1` envelope and validates schema, fixture identity, timestamps, audit history, workflow shape, and assignment invariants.
+- Pending or approved authorization is invalidated on reload and never survives as commit authority.
+
+### Next authorized work
+
+WP05 freezes the twelve WebMCP tool contracts, strict JSON Schemas, annotations, sanitized errors, privacy-bounded outputs, and exact state-specific tool sets before any runtime registration code is written.

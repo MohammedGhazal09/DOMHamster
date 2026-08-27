@@ -8,9 +8,9 @@
 
 **Tech Stack:** Node.js 24 LTS, npm, React 19, TypeScript 6.0.3, Vite 8, Ajv, Vitest, React Testing Library, Playwright, ESLint flat config, Prettier, plain CSS, GitHub Actions, and Netlify.
 
-**Spec:** `MASTERPLAN.md` (execution checkpoint 0.17.1; product contracts remain those approved in 0.12.0)
+**Spec:** `MASTERPLAN.md` (execution checkpoint 0.18.0; product contracts remain those approved in 0.12.0)
 
-## Execution status — checkpoint 0.17.1
+## Execution status — checkpoint 0.18.0
 
 The checklists below remain the approved procedure. Completion is controlled by the public commit and workflow evidence in this table, not by projected or unchecked steps.
 
@@ -20,8 +20,9 @@ The checklists below remain the approved procedure. Completion is controlled by 
 | P0 | WP01 — domain types/frozen fixture | **Complete** | RED `33000968431`; feature GREEN `33002223190` and `33002223215`; merge `bdde92f98f4e951ead4e973d4cbe1d045ff9c9fb`; main GREEN `33002443496`; hash `b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1` |
 | P0 | WP02 — deterministic validation | **Complete** | RED `33003950723`; feature GREEN `33005698434` and `33005698437`; merge `b28e1a9e901904016e817602799a383be804d9ff`; main GREEN `33006222521` |
 | P0 | WP03 — state/commands/approval/commit/audit | **Complete** | RED `33014526107`; GREEN `33015481233`/`33015481223`; second RED `33015830859`; final GREEN `33016006929`/`33016006987`; merge `991d7089903786f76c99c578397d936ca7d4fed7`; main GREEN `33016239969` |
-| P0 | WP04 — store/selectors/persistence | **In progress** | Local RED `3523672`, GREEN `902c3d8`, 58-test regression, and exact-base RED/GREEN patch verification are complete; public branch and Node 24 CI remain required |
-| P0/P1 | WP05–WP13 | Not started | Later gates remain authoritative |
+| P0 | WP04 — store/selectors/persistence | **Complete** | RED `33024818082`; final feature GREEN `33026297884` and CI `33026297882`; merge `4a740996ab5cc5d2c5bcabb8ef80068579f629bb`; exact-main CI `33026459964` |
+| P0 | WP05 — WebMCP contracts and schemas | **Next** | Begin only from verified `main` after checkpoint 0.18.0 |
+| P0/P1 | WP06–WP13 | Not started | Later gates remain authoritative |
 
 
 ## Global Constraints
