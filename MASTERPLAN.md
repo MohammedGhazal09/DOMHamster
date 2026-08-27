@@ -1,8 +1,8 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.18.0
-> **Checkpoint:** Phase 14 in progress; WP00–WP04 complete on public `main`; WP05 WebMCP contracts next
+> **Version:** 0.19.0
+> **Checkpoint:** Phase 14 in progress; WP00–WP05 complete on public `main`; WP06 WebMCP runtime next
 > **Last updated:** 2026-08-27 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
@@ -60,6 +60,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.17.0 | Phase 14 — WP03 workflow commands, approval, commit, and audit | Passed |
 | 0.17.1 | Phase 14 — WP04 local store/persistence checkpoint and exact-base publication package | Recorded |
 | 0.18.0 | Phase 14 — WP04 serialized store, privacy selectors, and resilient persistence | Passed |
+| 0.19.0 | Phase 14 — WP05 exact WebMCP contracts, strict schemas, and lifecycle matrix | Passed |
 
 ---
 
@@ -79,7 +80,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP04 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP05 WebMCP contracts and schemas are the next authorized work package. UI, deployment, media, release, and submission remain incomplete. |
+| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP05 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP06 tool handlers, capability detection, registry reconciliation, and diagnostics are the next authorized work package. UI, deployment, media, release, and submission remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3425,3 +3426,23 @@ WP04 passed its public test-first and integration gates.
 ### Next authorized work
 
 WP05 freezes the twelve WebMCP tool contracts, strict JSON Schemas, annotations, sanitized errors, privacy-bounded outputs, and exact state-specific tool sets before any runtime registration code is written.
+---
+
+## Execution checkpoint — v0.19.0
+
+Recorded: `2026-08-27` (Asia/Riyadh)
+
+| Item | Verified result |
+|---|---|
+| Work package | WP05 — exact WebMCP contracts, schemas, and lifecycle matrix |
+| Test-first RED commit | `b6658f807e5197f0a1b372c0796990cd669893d5` |
+| RED workflow | `33028104459` — expected missing `src/webmcp` modules confirmed |
+| Final feature head | `82fd231c90fdcaf5a71386261c63e0f96e2c7fee` |
+| Branch GREEN workflow | `33028795419` — passed |
+| Repository CI | `33028795405` — passed |
+| Vitest result | 14 files; 146 tests passed; 0 failed |
+| Integrated main commit | `e2b1ffe5dcfc47e99e0a71a413267eaf2de7a8ee` |
+| Integrated-main CI | `33028946892` — passed |
+| Frozen tool contracts | 12 |
+| Lifecycle state counts | 5, 7, 8, 3, 4, 3 |
+| Next work package | WP06 — handlers, capability adapter, registry, diagnostics |
