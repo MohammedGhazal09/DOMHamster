@@ -49,17 +49,17 @@ export function VolunteerPanel({ volunteers }: VolunteerPanelProps) {
             </div>
             <div
               className="volunteer-load"
-              aria-label={`${volunteer.currentLoad} of ${volunteer.capacity} tasks`}
+              aria-label={`${volunteer.assignedCount} of ${volunteer.capacity} tasks`}
             >
               <span>Load</span>
               <strong className="mono">
-                {volunteer.currentLoad} / {volunteer.capacity}
+                {volunteer.assignedCount} / {volunteer.capacity}
               </strong>
               <span className="load-track" aria-hidden="true">
                 <span
                   className="load-fill"
                   style={{
-                    width: `${Math.min(100, (volunteer.currentLoad / volunteer.capacity) * 100)}%`,
+                    width: `${Math.min(100, (volunteer.assignedCount / volunteer.capacity) * 100)}%`,
                   }}
                 />
               </span>
