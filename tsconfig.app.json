@@ -33,6 +33,7 @@
     "tests/persistence/**/*.ts",
     "tests/fixtures/**/*.ts",
     "tests/helpers/**/*.ts",
+    "tests/security/**/*.ts",
     "tests/webmcp/**/*.ts",
     "tests/diagnostics/**/*.ts",
     "tests/ui/**/*.tsx"

@@ -1,6 +1,6 @@
 # DOMHamster verification traceability
 
-This index maps the 24 frozen acceptance scenarios to the source of executable evidence. A row marked **planned in WP11** identifies a committed contract that still requires a fully provisioned Node 24 and browser run before release selection.
+This index maps the 24 frozen acceptance scenarios to committed executable evidence. Release selection still requires the commands below to pass against one exact source commit and deployed build.
 
 | ID | Scenario | Primary evidence |
 |---|---|---|
@@ -11,8 +11,8 @@ This index maps the 24 frozen acceptance scenarios to the source of executable e
 | AC-005 | Incomplete draft rejection | `tests/domain/commands.test.ts`, `tests/webmcp/handlers.test.ts` |
 | AC-006 | Hard-conflict classification | `tests/domain/validation.test.ts` |
 | AC-007 | Warnings do not block | `tests/domain/validation.test.ts`, `tests/webmcp/lifecycle.test.ts` |
-| AC-008 | Human-created visible conflict | `tests/ui/assignment-table.test.tsx`, `tests/e2e/canonical.spec.ts` |
-| AC-009 | Human lock | `tests/ui/assignment-table.test.tsx`, `tests/e2e/keyboard.spec.ts` |
+| AC-008 | Human-created visible conflict | `tests/ui/assignment-editor.test.tsx`, `tests/e2e/canonical.spec.ts` |
+| AC-009 | Human lock | `tests/ui/assignment-editor.test.tsx`, `tests/e2e/keyboard.spec.ts` |
 | AC-010 | Locked revision rejected | `tests/domain/commands.test.ts`, `tests/webmcp/handlers.test.ts`, `tests/security/human-authority.test.ts` |
 | AC-011 | Stale revision rejected | `tests/domain/commands.test.ts`, `tests/webmcp/handlers.test.ts` |
 | AC-012 | Successful replan | `tests/webmcp/handlers.test.ts`, `tests/e2e/canonical.spec.ts` |
@@ -37,6 +37,7 @@ This index maps the 24 frozen acceptance scenarios to the source of executable e
 | Accessibility contracts | `npm run test:accessibility` | No critical semantic contract failures |
 | Security contracts | `npm run test:security` | Authority, privacy, and injection boundaries pass |
 | Browser journeys | `npm run test:e2e` | Canonical, lifecycle, keyboard, responsive, reload, and privacy journeys pass |
+| Evidence traceability | `npm run verify:traceability` | Every referenced test/eval path exists and no planned-only evidence remains |
 | Tool metadata | `npm run verify:metadata` | 12 exact contracts and 5/7/8/3/4/3 lifecycle counts |
 | Source safety | `npm run verify:safety` | No secrets, network clients, telemetry, unsafe logging, or DOM business logic |
 | Bundle | `npm run verify:bundle` | Built JS/CSS gzip total is at most 300 KiB |

@@ -30,10 +30,11 @@
     "verify:licenses": "node scripts/check-licenses.mjs",
     "verify:deployment": "node scripts/check-netlify-config.mjs",
     "verify:docs": "node tests/docs/documentation-contract.test.mjs",
+    "verify:traceability": "node tests/toolchain/verification-traceability-contract.test.mjs",
     "eval": "node scripts/run-agent-evals.mjs",
     "release:manifest": "node scripts/create-release-manifest.mjs",
     "release:verify": "node scripts/verify-release.mjs",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run verify:metadata && npm run verify:safety && npm run verify:deployment && npm run verify:docs && npm run build",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run verify:metadata && npm run verify:safety && npm run verify:deployment && npm run verify:docs && npm run verify:traceability && npm run build",
     "verify:release": "npm run verify && npm run test:e2e && npm run verify:bundle && npm run verify:licenses && npm run eval"
   },
   "dependencies": {
