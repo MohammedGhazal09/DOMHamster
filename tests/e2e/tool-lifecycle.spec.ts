@@ -25,9 +25,8 @@ test('reconciles the exact six-state tool lifecycle and rejects stale captured t
   expect(created.ok).toBe(true);
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.DRAFT_VALID);
 
-  const r105Start = page.getByLabel('Start time for R-105');
-  await r105Start.fill('13:00');
-  await r105Start.blur();
+  await page.getByLabel('Volunteer for R-105').selectOption('V-03');
+  await expect(page.getByRole('heading', { name: 'Draft v2' })).toBeVisible();
   await page.getByRole('button', { name: 'Lock assignment for R-105' }).click();
   await expect(page.getByRole('heading', { name: 'Draft v3' })).toBeVisible();
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.DRAFT_INVALID);
