@@ -2,6 +2,8 @@
 
 The WP04 missing-module RED result was confirmed in workflow run `33024818082` with marker `DOMHAMSTER_WP04_EXPECTED_RED_CONFIRMED`.
 
-The store, selector, and persistence modules were added only after that RED result. A formatting-only correction was applied by the one-time workflow and the workflow removed itself in commit `6653e95d177940ccb03c16aaa77035020eaeebbf`.
+The store, selector, and persistence modules were added only after that RED result. Formatting and strict-lint findings were investigated from their workflow logs and corrected without changing the approved behavior contracts.
 
-This owner-authored commit requests the complete Node 24 GREEN gate for the exact WP04 branch head.
+The complete correction workflow `33026198689` passed formatting, strict lint, TypeScript, all Vitest tests, production build, Chromium Playwright, and dependency audit before producing commit `8337b1c7cc3e352e2dc43602ce480e7b5f23bc1e`.
+
+This owner-authored commit requests the repository-standard Node 24 GREEN gates for the final WP04 branch tree.
