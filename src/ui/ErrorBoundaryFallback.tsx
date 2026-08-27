@@ -123,7 +123,7 @@ export class ApplicationErrorBoundary extends Component<
     };
   }
 
-  componentDidCatch(_error: unknown, _info: ErrorInfo): void {
+  override componentDidCatch(_error: unknown, _info: ErrorInfo): void {
     // Rendering exceptions are intentionally not serialized or displayed.
   }
 
@@ -156,7 +156,7 @@ export class ApplicationErrorBoundary extends Component<
     }
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (!this.state.hasError) return this.props.children;
 
     return (
