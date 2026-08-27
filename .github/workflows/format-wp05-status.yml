@@ -1,0 +1,45 @@
+name: Format WP05 status
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/format-wp05-status.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Format WP05 status
+        run: npx prettier --write docs/execution/WP05_STATUS.md
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/format-wp05-status.yml
+
+      - name: Commit formatting
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'style: format WP05 execution status'
+          git push origin HEAD:main
