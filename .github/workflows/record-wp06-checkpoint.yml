@@ -1,0 +1,137 @@
+name: Record WP06 completion checkpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/record-wp06-checkpoint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Record WP06 governance and evidence
+        shell: python
+        run: |
+          from pathlib import Path
+
+          master_path = Path('MASTERPLAN.md')
+          master = master_path.read_text(encoding='utf-8')
+          replacements = {
+              '> **Version:** 0.19.0': '> **Version:** 0.20.0',
+              '> **Checkpoint:** Phase 14 in progress; WP00–WP05 complete on public `main`; WP06 WebMCP runtime next': '> **Checkpoint:** Phase 14 in progress; WP00–WP06 complete on public `main`; WP07 judge-facing application shell next',
+              '| 0.19.0 | Phase 14 — WP05 exact WebMCP contracts, strict schemas, and lifecycle matrix | Passed |': '| 0.19.0 | Phase 14 — WP05 exact WebMCP contracts, strict schemas, and lifecycle matrix | Passed |\n| 0.20.0 | Phase 14 — WP06 store-backed WebMCP handlers, registry, capability detection, and diagnostics | Passed |',
+              'WP00 through WP05 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP06 tool handlers, capability detection, registry reconciliation, and diagnostics are the next authorized work package.': 'WP00 through WP06 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP07 judge-facing shell, coordination brief, summary metrics, and unsupported-browser state are the next authorized work package.',
+          }
+          for old, new in replacements.items():
+              if master.count(old) != 1:
+                  raise SystemExit(f'expected one master-plan phrase: {old}')
+              master = master.replace(old, new)
+
+          checkpoint = [
+              '',
+              '---',
+              '',
+              '## Execution checkpoint — v0.20.0',
+              '',
+              'Recorded: `2026-08-27` (Asia/Riyadh)',
+              '',
+              '| Item | Verified result |',
+              '|---|---|',
+              '| Work package | WP06 — store-backed WebMCP runtime, capability detection, registry, and diagnostics |',
+              '| Test-first RED commit | `1d18143bc23cd40627bf240b942c57643eb0d512` |',
+              '| RED workflow | `33029970534` — expected missing runtime modules confirmed |',
+              '| Final feature head | `f35d60d8ff086afa753b704faf3a669a09844df6` |',
+              '| Full branch GREEN | `33031275298` — passed |',
+              '| Repository CI | `33031275285` — passed |',
+              '| Vitest result | 19 files; 179 tests passed; 0 failed |',
+              '| Browser smoke | Playwright Chromium passed |',
+              '| Dependency audit | 0 vulnerabilities |',
+              '| Integrated main commit | `715c8e2713b00fd857cc99ceb017bde11b0114d6` |',
+              '| Integrated-main CI | `33031417287` — passed |',
+              '| Next work package | WP07 — judge-facing application shell and summary workspace |',
+              '',
+          ]
+          if '## Execution checkpoint — v0.20.0' not in master:
+              master = master.rstrip() + '\n'.join(checkpoint)
+          master_path.write_text(master, encoding='utf-8')
+
+          status = '''# WP06 Execution Status
+
+**Work package:** WP06 — Store-backed WebMCP handlers, capability detection, registry reconciliation, and diagnostics  
+**Final feature head:** `f35d60d8ff086afa753b704faf3a669a09844df6`  
+**Integrated main commit:** `715c8e2713b00fd857cc99ceb017bde11b0114d6`  
+**Status:** Complete
+
+## Test-first evidence
+
+| Gate | Evidence |
+|---|---|
+| Missing-runtime RED commit | `1d18143bc23cd40627bf240b942c57643eb0d512` |
+| Trusted RED workflow | `33029970534` |
+| Final feature GREEN | `33031275298` |
+| Final feature CI | `33031275285` |
+| Integrated-main CI | `33031417287` |
+| Vitest | 19 files; 179 tests passed; 0 failed |
+| Browser smoke | Playwright Chromium passed |
+| Dependency audit | 0 vulnerabilities |
+
+## Delivered runtime behavior
+
+- Twelve handlers delegate to the shared store and privacy-bounded selectors rather than the rendered DOM.
+- Input validation, lifecycle authorization, identifiers, draft versions, human locks, approval, and commit are enforced before mutations.
+- Post-commit fictional contact access is explicit and audited through the `ACCESS_CONTACTS` command.
+- Capability detection fails safely in insecure, unavailable, and throwing environments.
+- Registry reconciliation serializes state changes, uses per-tool AbortControllers, retries safe failures, and prevents stale generations from surviving.
+- Diagnostics expose only bounded build identity, workflow state, tool sets, persistence status, and allowlisted error codes.
+
+WP07 is next: the judge-facing application shell, coordination brief, summary metrics, and unsupported-browser experience.
+'''
+          Path('docs/execution/WP06_STATUS.md').write_text(status, encoding='utf-8')
+
+          readme_path = Path('README.md')
+          readme = readme_path.read_text(encoding='utf-8')
+          readme_replacements = {
+              'WP00 through WP05 are complete on public `main` with preserved RED-before-GREEN evidence and successful exact-main CI.': 'WP00 through WP06 are complete on public `main` with preserved RED-before-GREEN evidence and successful exact-main CI.',
+              '- WP06 is next: connect the contracts to store-backed handlers, safe capability detection, serialized tool registration, and diagnostics.': '- WP06 connected all twelve contracts to the shared store, added safe capability detection, serialized abort-based registration, audited contact access, and bounded diagnostics.\n- WP07 is next: build the judge-facing application shell, coordination brief, summary metrics, and unsupported-browser state.',
+              '- [WP05 execution status](docs/execution/WP05_STATUS.md)': '- [WP05 execution status](docs/execution/WP05_STATUS.md)\n- [WP06 execution status](docs/execution/WP06_STATUS.md)',
+          }
+          for old, new in readme_replacements.items():
+              if readme.count(old) != 1:
+                  raise SystemExit(f'expected one README phrase: {old}')
+              readme = readme.replace(old, new)
+          readme_path.write_text(readme, encoding='utf-8')
+
+      - name: Format changed documents
+        run: npx prettier --write MASTERPLAN.md README.md docs/execution/WP06_STATUS.md
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/record-wp06-checkpoint.yml
+
+      - name: Commit the checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: record WP06 completion checkpoint'
+          git push origin HEAD:main
