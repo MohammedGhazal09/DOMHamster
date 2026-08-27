@@ -6,17 +6,27 @@ import {
   selectCoordinationOverview,
   selectDispatchContacts,
   selectOpenRequests,
+  type AssignmentDraftView,
+  type AuditEventView,
+  type CommittedPlanView,
+  type CoordinationOverviewView,
+  type DispatchContactView,
+  type PublicRequestView,
+  type PublicValidationIssueView,
+  type PublicVolunteerView,
 } from '../app/selectors.ts';
 import type { AppStore, StoreDispatchResult } from '../app/store.ts';
 import {
   requestId,
   volunteerId,
   type AppState,
+  type ApprovedState,
   type Assignment,
+  type AwaitingApprovalState,
+  type DraftState,
   type Priority,
   type RequestId,
   type TimeOfDay,
-  type VolunteerId,
   type Zone,
 } from '../domain/types.ts';
 import { TOOL_NAMES, type ToolName } from './contracts.ts';
@@ -47,14 +57,40 @@ export interface ToolExecutionFailure {
   readonly nextActions: readonly ToolName[];
 }
 
-export type ToolExecutionResult<Data = unknown> = ToolExecutionSuccess<Data> | ToolExecutionFailure;
+export type ToolExecutionResult<Data = unknown> =
+  | ToolExecutionSuccess<Data>
+  | ToolExecutionFailure;
 
-export type ToolHandler = (
+export interface DraftValidationView {
+  readonly draftVersion: number;
+  readonly valid: boolean;
+  readonly errors: readonly PublicValidationIssueView[];
+  readonly warnings: readonly PublicValidationIssueView[];
+}
+
+export interface ToolOutputMap {
+  readonly get_coordination_overview: CoordinationOverviewView;
+  readonly list_open_requests: readonly PublicRequestView[];
+  readonly list_available_volunteers: readonly PublicVolunteerView[];
+  readonly create_assignment_draft: AssignmentDraftView;
+  readonly get_assignment_draft: AssignmentDraftView;
+  readonly validate_assignment_draft: DraftValidationView;
+  readonly revise_assignment_draft: AssignmentDraftView;
+  readonly prepare_plan_approval: AssignmentDraftView;
+  readonly commit_assignment_plan: CommittedPlanView;
+  readonly get_committed_plan: CommittedPlanView;
+  readonly access_dispatch_contacts: readonly DispatchContactView[];
+  readonly get_audit_history: readonly AuditEventView[];
+}
+
+export type ToolHandler<Name extends ToolName = ToolName> = (
   input: unknown,
   options?: ToolHandlerOptions,
-) => Promise<ToolExecutionResult>;
+) => Promise<ToolExecutionResult<ToolOutputMap[Name]>>;
 
-export type ToolHandlerMap = Readonly<Record<ToolName, ToolHandler>>;
+export type ToolHandlerMap = Readonly<{
+  readonly [Name in ToolName]: ToolHandler<Name>;
+}>;
 
 export interface ToolHandlerDependencies {
   readonly nextErrorReference: () => string;
@@ -73,6 +109,8 @@ interface RevisionInput {
   readonly startTime?: string;
 }
 
+type DraftBearingState = DraftState | AwaitingApprovalState | ApprovedState;
+
 const PRIORITY_FILTERS = Object.freeze({
   URGENT: 'high',
   HIGH: 'medium',
@@ -86,8 +124,77 @@ const ZONE_FILTERS = Object.freeze({
   SOUTH: 'south',
 } satisfies Record<string, Zone>);
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
 function objectInput(value: unknown): Record<string, unknown> {
-  return value as Record<string, unknown>;
+  if (!isRecord(value)) throw new Error('DOMHAMSTER_SCHEMA_OBJECT_INVARIANT');
+  return value;
+}
+
+function requiredString(record: Record<string, unknown>, key: string): string {
+  const value = record[key];
+  if (typeof value !== 'string') throw new Error('DOMHAMSTER_SCHEMA_STRING_INVARIANT');
+  return value;
+}
+
+function requiredNumber(record: Record<string, unknown>, key: string): number {
+  const value = record[key];
+  if (typeof value !== 'number') throw new Error('DOMHAMSTER_SCHEMA_NUMBER_INVARIANT');
+  return value;
+}
+
+function optionalString(record: Record<string, unknown>, key: string): string | undefined {
+  const value = record[key];
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string') throw new Error('DOMHAMSTER_SCHEMA_STRING_INVARIANT');
+  return value;
+}
+
+function assignedDraftInputs(value: unknown): readonly AssignedDraftInput[] {
+  if (!Array.isArray(value)) throw new Error('DOMHAMSTER_SCHEMA_ARRAY_INVARIANT');
+  return value.map((entry) => {
+    const record = objectInput(entry);
+    return Object.freeze({
+      requestId: requiredString(record, 'requestId'),
+      volunteerId: requiredString(record, 'volunteerId'),
+      startTime: requiredString(record, 'startTime'),
+    });
+  });
+}
+
+function revisionInputs(value: unknown): readonly RevisionInput[] {
+  if (!Array.isArray(value)) throw new Error('DOMHAMSTER_SCHEMA_ARRAY_INVARIANT');
+  return value.map((entry) => {
+    const record = objectInput(entry);
+    const action = requiredString(record, 'action');
+    if (action !== 'SET_ASSIGNMENT' && action !== 'SET_UNASSIGNED') {
+      throw new Error('DOMHAMSTER_SCHEMA_ACTION_INVARIANT');
+    }
+    return Object.freeze({
+      action,
+      requestId: requiredString(record, 'requestId'),
+      ...(optionalString(record, 'volunteerId') === undefined
+        ? {}
+        : { volunteerId: optionalString(record, 'volunteerId') }),
+      ...(optionalString(record, 'startTime') === undefined
+        ? {}
+        : { startTime: optionalString(record, 'startTime') }),
+    });
+  });
+}
+
+function requestIdInputs(value: unknown): readonly RequestId[] {
+  if (!Array.isArray(value)) throw new Error('DOMHAMSTER_SCHEMA_ARRAY_INVARIANT');
+  return value.map((entry) => {
+    if (typeof entry !== 'string') throw new Error('DOMHAMSTER_SCHEMA_STRING_INVARIANT');
+    return requestId(entry);
+  });
+}
+
+function isDraftBearingState(state: AppState): state is DraftBearingState {
+  return state.draft !== null;
 }
 
 function boundedActions(state: AppState, currentName?: ToolName): readonly ToolName[] {
@@ -181,8 +288,8 @@ function requestDuration(state: AppState, id: RequestId): number {
 }
 
 function createAssignments(state: AppState, input: Record<string, unknown>): readonly Assignment[] {
-  const assigned = input.assignments as readonly AssignedDraftInput[];
-  const unassigned = input.unassignedRequestIds as readonly string[];
+  const assigned = assignedDraftInputs(input.assignments);
+  const unassigned = requestIdInputs(input.unassignedRequestIds);
 
   return Object.freeze([
     ...assigned.map(({ requestId: requestValue, volunteerId: volunteerValue, startTime }) => {
@@ -196,25 +303,24 @@ function createAssignments(state: AppState, input: Record<string, unknown>): rea
         lockedByHuman: false,
       });
     }),
-    ...unassigned.map((requestValue) => {
-      const id = requestId(requestValue);
-      return Object.freeze({
+    ...unassigned.map((id) =>
+      Object.freeze({
         requestId: id,
         volunteerId: null,
         startTime: null,
         durationMinutes: requestDuration(state, id),
         status: 'unassigned' as const,
         lockedByHuman: false,
-      });
-    }),
+      }),
+    ),
   ]);
 }
 
 function reviseAssignments(
-  state: Extract<AppState, { readonly draft: NonNullable<AppState['draft']> }>,
+  state: DraftBearingState,
   input: Record<string, unknown>,
 ): readonly Assignment[] | ToolExecutionFailure {
-  const changes = input.changes as readonly RevisionInput[];
+  const changes = revisionInputs(input.changes);
   const changesByRequest = new Map<RequestId, RevisionInput>();
   const knownRequests = new Set(state.scenario.requests.map(({ id }) => id));
 
@@ -250,12 +356,17 @@ function reviseAssignments(
   );
 }
 
-function withGuard(
-  name: ToolName,
+function withGuard<Name extends ToolName>(
+  name: Name,
   store: AppStore,
   dependencies: ToolHandlerDependencies,
-  operation: (input: Record<string, unknown>, state: AppState) => Promise<ToolExecutionResult>,
-): ToolHandler {
+  operation: (
+    input: Record<string, unknown>,
+    state: AppState,
+  ) =>
+    | ToolExecutionResult<ToolOutputMap[Name]>
+    | Promise<ToolExecutionResult<ToolOutputMap[Name]>>,
+): ToolHandler<Name> {
   return async (input) => {
     const validation = validateToolInput(name, input);
     if (!validation.ok) {
@@ -278,16 +389,24 @@ function withGuard(
   };
 }
 
+function draftOrFailure(
+  state: AppState,
+  name: 'create_assignment_draft' | 'get_assignment_draft' | 'revise_assignment_draft' | 'prepare_plan_approval',
+): AssignmentDraftView | ToolExecutionFailure {
+  const draft = selectAssignmentDraft(state);
+  return draft ?? failure('INTERNAL_ERROR', state, name);
+}
+
 export function createToolHandlers(
   store: AppStore,
   dependencies: ToolHandlerDependencies,
 ): ToolHandlerMap {
-  const handlers = {
+  const handlers: { readonly [Name in ToolName]: ToolHandler<Name> } = {
     get_coordination_overview: withGuard(
       'get_coordination_overview',
       store,
       dependencies,
-      async (_input, state) =>
+      (_input, state) =>
         success(selectCoordinationOverview(state), state, 'get_coordination_overview'),
     ),
 
@@ -295,9 +414,9 @@ export function createToolHandlers(
       'list_open_requests',
       store,
       dependencies,
-      async (input, state) => {
-        const priority = input.priority as string | undefined;
-        const zone = input.zone as string | undefined;
+      (input, state) => {
+        const priority = optionalString(input, 'priority');
+        const zone = optionalString(input, 'zone');
         const requests = selectOpenRequests(state).filter(
           (request) =>
             (priority === undefined ||
@@ -313,8 +432,8 @@ export function createToolHandlers(
       'list_available_volunteers',
       store,
       dependencies,
-      async (input, state) => {
-        const zone = input.zone as string | undefined;
+      (input, state) => {
+        const zone = optionalString(input, 'zone');
         const volunteers = selectAvailableVolunteers(state).filter(
           (volunteer) =>
             zone === undefined || zone === 'ANY' || volunteer.zone === ZONE_FILTERS[zone],
@@ -334,11 +453,10 @@ export function createToolHandlers(
           assignments: createAssignments(state, input),
         });
         if (!result.ok) return storeFailure(result, 'create_assignment_draft');
-        return success(
-          selectAssignmentDraft(result.state),
-          result.state,
-          'create_assignment_draft',
-        );
+        const draft = draftOrFailure(result.state, 'create_assignment_draft');
+        return 'ok' in draft
+          ? draft
+          : success(draft, result.state, 'create_assignment_draft');
       },
     ),
 
@@ -346,7 +464,7 @@ export function createToolHandlers(
       'get_assignment_draft',
       store,
       dependencies,
-      async (input, state) => {
+      (input, state) => {
         const draft = selectAssignmentDraft(state);
         if (draft === null) return failure('INVALID_STATE', state, 'get_assignment_draft');
         if (input.includeIssues === false) {
@@ -368,11 +486,11 @@ export function createToolHandlers(
       'validate_assignment_draft',
       store,
       dependencies,
-      async (input, state) => {
+      (input, state) => {
         if (state.draft === null) {
           return failure('INVALID_STATE', state, 'validate_assignment_draft');
         }
-        const expectedVersion = input.expectedDraftVersion as number;
+        const expectedVersion = requiredNumber(input, 'expectedDraftVersion');
         if (state.draft.version !== expectedVersion) {
           return failure('STALE_DRAFT_VERSION', state, 'validate_assignment_draft', {
             retryable: true,
@@ -396,27 +514,21 @@ export function createToolHandlers(
       store,
       dependencies,
       async (input, state) => {
-        if (state.draft === null) {
+        if (!isDraftBearingState(state)) {
           return failure('INVALID_STATE', state, 'revise_assignment_draft');
         }
-        const assignments = reviseAssignments(
-          state as Extract<AppState, { readonly draft: NonNullable<AppState['draft']> }>,
-          input,
-        );
+        const assignments = reviseAssignments(state, input);
         if ('ok' in assignments) return assignments;
 
         const result = await store.dispatch({
           type: 'REVISE_DRAFT',
           actor: 'agent',
-          expectedDraftVersion: input.expectedDraftVersion as number,
+          expectedDraftVersion: requiredNumber(input, 'expectedDraftVersion'),
           assignments,
         });
         if (!result.ok) return storeFailure(result, 'revise_assignment_draft');
-        return success(
-          selectAssignmentDraft(result.state),
-          result.state,
-          'revise_assignment_draft',
-        );
+        const draft = draftOrFailure(result.state, 'revise_assignment_draft');
+        return 'ok' in draft ? draft : success(draft, result.state, 'revise_assignment_draft');
       },
     ),
 
@@ -428,10 +540,11 @@ export function createToolHandlers(
         const result = await store.dispatch({
           type: 'PREPARE_APPROVAL',
           actor: 'agent',
-          expectedDraftVersion: input.expectedDraftVersion as number,
+          expectedDraftVersion: requiredNumber(input, 'expectedDraftVersion'),
         });
         if (!result.ok) return storeFailure(result, 'prepare_plan_approval');
-        return success(selectAssignmentDraft(result.state), result.state, 'prepare_plan_approval');
+        const draft = draftOrFailure(result.state, 'prepare_plan_approval');
+        return 'ok' in draft ? draft : success(draft, result.state, 'prepare_plan_approval');
       },
     ),
 
@@ -443,7 +556,7 @@ export function createToolHandlers(
         const result = await store.dispatch({
           type: 'COMMIT_PLAN',
           actor: 'agent',
-          expectedDraftVersion: input.expectedDraftVersion as number,
+          expectedDraftVersion: requiredNumber(input, 'expectedDraftVersion'),
         });
         if (!result.ok) return storeFailure(result, 'commit_assignment_plan');
         const plan = selectCommittedPlan(result.state);
@@ -456,7 +569,7 @@ export function createToolHandlers(
       'get_committed_plan',
       store,
       dependencies,
-      async (_input, state) => {
+      (_input, state) => {
         const plan = selectCommittedPlan(state);
         return plan === null
           ? failure('INVALID_STATE', state, 'get_committed_plan')
@@ -469,7 +582,7 @@ export function createToolHandlers(
       store,
       dependencies,
       async (input, state) => {
-        const ids = (input.requestIds as readonly string[]).map(requestId);
+        const ids = requestIdInputs(input.requestIds);
         const selected = selectDispatchContacts(state, ids);
         if (!selected.ok) {
           return failure(selected.error.code, state, 'access_dispatch_contacts');
@@ -485,15 +598,21 @@ export function createToolHandlers(
       },
     ),
 
-    get_audit_history: withGuard('get_audit_history', store, dependencies, async (input, state) => {
-      const limit = (input.limit as number | undefined) ?? 20;
-      return success(
-        Object.freeze(selectAuditHistory(state).slice(-limit)),
-        state,
-        'get_audit_history',
-      );
-    }),
-  } satisfies Record<ToolName, ToolHandler>;
+    get_audit_history: withGuard(
+      'get_audit_history',
+      store,
+      dependencies,
+      (input, state) => {
+        const limitValue = input.limit;
+        const limit = typeof limitValue === 'number' ? limitValue : 20;
+        return success(
+          Object.freeze(selectAuditHistory(state).slice(-limit)),
+          state,
+          'get_audit_history',
+        );
+      },
+    ),
+  };
 
   const ordered = Object.fromEntries(TOOL_NAMES.map((name) => [name, handlers[name]]));
   return Object.freeze(ordered) as unknown as ToolHandlerMap;
