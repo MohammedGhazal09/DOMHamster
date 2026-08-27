@@ -1,19 +1,35 @@
 # Changelog
 
-All notable DOMHamster project checkpoints are recorded here.
+All notable DOMHamster changes are recorded here. The project has not selected `v1.0.0`; entries remain under **Unreleased** until the complete release and official-client gates pass.
 
-## 0.0.0-wp00-public — 2026-08-26
+## Unreleased
 
-- Initialized the public repository.
-- Corrected the published dependency pins and current GitHub Action majors.
-- Prepared the target Node 24 lockfile and RED workflow while preserving the missing production `App` boundary.
+### Planning and governance
 
-## 0.13.2 — 2026-08-26
+- Approved the waterfall master plan, human-agent responsibility model, deterministic demonstration journey, security boundaries, and release gates.
 
-- Reconciled the implementation plan and package preparation.
-- Kept WP00 incomplete until dependency-backed RED and GREEN evidence exists.
+### Application core
 
-## 0.13.0 — 2026-08-26
+- Added the canonical eight-request, five-volunteer fictional fixture and deterministic fixture identity.
+- Added deterministic validation for accounting, windows, availability, overlap, workload, skill, language, and human locks.
+- Added six-state workflow commands, exact-version approval, 120-second expiry, one-shot commit, and bounded audit history.
+- Added a serialized store, privacy-bounded selectors, resilient versioned persistence, and deterministic reset.
 
-- Recorded explicit entrant approval of Master Plan 0.12.0.
-- Authorized Phase 14 implementation under the frozen scope.
+### WebMCP
+
+- Added twelve strict tool contracts with closed JSON Schemas and six exact state-specific registration sets.
+- Added store-backed tool handlers, capability detection, serialized registration reconciliation, stale-generation cleanup, and sanitized diagnostics.
+
+### Interface
+
+- Added the judge-facing workspace, request and volunteer panels, editable assignment table, human-only locks, validation navigation, approval review, committed summary, activity and diagnostics drawers, and responsive/accessibility hardening.
+
+### Verification and release preparation
+
+- Added acceptance traceability, security checks, tool-metadata checks, bundle and license gates, thirty agent-evaluation cases, and release-manifest verification.
+- Added source-controlled Netlify configuration, deployment identity fields, official-client evidence templates, and the release-candidate checklist.
+- Added judge-first repository documentation and documentation drift checks.
+
+## Release selection rule
+
+A version entry will be added only after the exact tagged commit passes dependency-backed verification, browser tests, official WebMCP-enabled Chrome testing, ChatGPT in-app browser testing, public deployment checks, and release-identity verification.
