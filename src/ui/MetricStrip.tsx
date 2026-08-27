@@ -21,10 +21,10 @@ export function MetricStrip({ overview }: MetricStripProps) {
       <div className="metric-strip__grid">
         <Metric label="Open requests" value={overview.requestCount} />
         <Metric label="Available volunteers" value={overview.volunteerCount} />
-        <Metric label="Assigned" value={overview.assignedCount} />
-        <Metric label="Unassigned" value={overview.unassignedCount} />
-        <Metric label="Hard errors" value={overview.errorCount} />
-        <Metric label="Warnings" value={overview.warningCount} />
+        <Metric label="Assigned" value={overview.assignedRequestCount} />
+        <Metric label="Unassigned" value={overview.unassignedRequestCount} />
+        <Metric label="Hard errors" value={overview.validationErrorCount} />
+        <Metric label="Warnings" value={overview.validationWarningCount} />
       </div>
     </section>
   );
