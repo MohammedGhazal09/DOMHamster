@@ -1,0 +1,45 @@
+name: Format WP05 contracts
+
+on:
+  push:
+    branches: [implementation/wp05-webmcp-contracts]
+    paths:
+      - .github/workflows/wp05-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out WP05 branch
+        uses: actions/checkout@v7
+        with:
+          ref: implementation/wp05-webmcp-contracts
+          fetch-depth: 0
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Format WP05 files
+        run: npx prettier --write src/types/webmcp.d.ts src/webmcp/lifecycle.ts src/webmcp/schemas.ts tests/webmcp/lifecycle.test.ts
+
+      - name: Remove one-time formatter
+        run: rm .github/workflows/wp05-format.yml
+
+      - name: Commit formatting
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'style: format WP05 contracts'
+          git push origin HEAD:implementation/wp05-webmcp-contracts
