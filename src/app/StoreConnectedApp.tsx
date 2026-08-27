@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useSyncExternalStore } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { App, type AppProps } from './App.tsx';
 import type { AppStore } from './store.ts';
 import type { ToolName } from '../webmcp/contracts.ts';
@@ -50,15 +50,8 @@ export function StoreConnectedApp({
     () => registrySnapshotKey(registrySource?.getSnapshot() ?? null),
     [registrySource],
   );
-  const registryKey = useSyncExternalStore(
-    subscribeToRegistry,
-    readRegistryKey,
-    readRegistryKey,
-  );
-  const registrySnapshot = useMemo(
-    () => registrySource?.getSnapshot() ?? null,
-    [registryKey, registrySource],
-  );
+  useSyncExternalStore(subscribeToRegistry, readRegistryKey, readRegistryKey);
+  const registrySnapshot = registrySource?.getSnapshot() ?? null;
 
   return (
     <App
