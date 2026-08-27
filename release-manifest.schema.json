@@ -3,15 +3,54 @@
   "$id": "https://domhamster.example/release-manifest.schema.json",
   "title": "DOMHamster release manifest",
   "type": "object",
-  "required": ["schemaVersion", "product", "releaseVersion", "sourceCommit", "generatedAt", "runtime", "fixture", "tools", "hashes", "build"],
+  "required": [
+    "schemaVersion",
+    "product",
+    "releaseVersion",
+    "sourceCommit",
+    "generatedAt",
+    "runtime",
+    "deployment",
+    "fixture",
+    "tools",
+    "hashes",
+    "build"
+  ],
   "properties": {
     "schemaVersion": { "const": 1 },
     "product": { "const": "DOMHamster" },
     "releaseVersion": { "type": "string", "minLength": 1 },
     "sourceCommit": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|unknown)$" },
     "generatedAt": { "type": "string", "format": "date-time" },
-    "runtime": { "type": "object", "additionalProperties": false, "required": ["node", "packageManager"], "properties": { "node": { "type": "string" }, "packageManager": { "type": "string" } } },
-    "fixture": { "type": "object", "additionalProperties": false, "required": ["sha256", "requests", "volunteers"], "properties": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "requests": { "const": 8 }, "volunteers": { "const": 5 } } },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node", "packageManager"],
+      "properties": {
+        "node": { "type": "string" },
+        "packageManager": { "type": "string" }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context", "deployId", "deployUrl"],
+      "properties": {
+        "context": { "type": "string", "minLength": 1 },
+        "deployId": { "type": ["string", "null"] },
+        "deployUrl": { "type": ["string", "null"] }
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "requests", "volunteers"],
+      "properties": {
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "requests": { "const": 8 },
+        "volunteers": { "const": 5 }
+      }
+    },
     "tools": { "type": "object" },
     "hashes": { "type": "object" },
     "build": { "type": "object" }
