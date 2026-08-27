@@ -1,26 +1,32 @@
 import { useState } from 'react';
 import type {
   AssignmentDraftView,
+  CommittedPlanView,
   PublicRequestView,
   PublicVolunteerView,
 } from '../app/selectors.ts';
 import type { AppState } from '../domain/types.ts';
 import type { ToolName } from '../webmcp/contracts.ts';
-import {
-  AssignmentTable,
-  type HumanDraftCommandHandler,
-} from './AssignmentTable.tsx';
+import { ApprovedBanner } from './ApprovedBanner.tsx';
+import { AssignmentTable } from './AssignmentTable.tsx';
+import { CommittedSummary } from './CommittedSummary.tsx';
 import { CANONICAL_DEMO_PROMPT } from './JudgeBrief.tsx';
 import { HamsterMark } from './HamsterMark.tsx';
+import { ReadonlyAssignmentTable } from './ReadonlyAssignmentTable.tsx';
 import { ValidationPanel } from './ValidationPanel.tsx';
+import type { WorkflowCommandHandler } from './workflow-commands.ts';
 
 export interface PlanWorkspaceProps {
   readonly state: AppState;
   readonly draft: AssignmentDraftView | null;
+  readonly committedPlan?: CommittedPlanView | null;
   readonly requests: readonly PublicRequestView[];
   readonly volunteers: readonly PublicVolunteerView[];
   readonly toolNames: readonly ToolName[];
-  readonly onCommand?: HumanDraftCommandHandler;
+  readonly onCommand?: WorkflowCommandHandler;
+  readonly onRequestDiscard?: () => void;
+  readonly onRequestCancelApproval?: () => void;
+  readonly now?: () => number;
 }
 
 const MUTATING_TOOLS = new Set<ToolName>([
@@ -31,8 +37,12 @@ const MUTATING_TOOLS = new Set<ToolName>([
   'access_dispatch_contacts',
 ]);
 
-function ignoreHumanDraftCommand(): void {
+function ignoreWorkflowCommand(): void {
   // Store-connected rendering supplies the real shared command dispatcher.
+}
+
+function noOperation(): void {
+  // Static rendering keeps human actions inert until a shared store is supplied.
 }
 
 function isEditableDraft(draft: AssignmentDraftView): boolean {
@@ -42,14 +52,20 @@ function isEditableDraft(draft: AssignmentDraftView): boolean {
 export function PlanWorkspace({
   state,
   draft,
+  committedPlan = null,
   requests,
   volunteers,
   toolNames,
-  onCommand = ignoreHumanDraftCommand,
+  onCommand = ignoreWorkflowCommand,
+  onRequestDiscard = noOperation,
+  onRequestCancelApproval = noOperation,
+  now = Date.now,
 }: PlanWorkspaceProps) {
   const [announcement, setAnnouncement] = useState('');
   const assignedCount =
-    draft?.assignments.filter((assignment) => assignment.status !== 'unassigned').length ?? 0;
+    draft?.assignments.filter(
+      (assignment) => assignment.status !== 'unassigned' && assignment.volunteerId !== null,
+    ).length ?? 0;
   const unassignedCount = (draft?.assignments.length ?? 0) - assignedCount;
 
   async function copyPrompt(): Promise<void> {
@@ -64,12 +80,16 @@ export function PlanWorkspace({
   return (
     <section className="workspace-panel plan-workspace surface" aria-labelledby="plan-heading">
       <header className="workspace-panel__header">
-        <h2 id="plan-heading">Assignment plan</h2>
+        <h2 id="plan-heading" tabIndex={-1}>
+          Assignment plan
+        </h2>
         <p>Shared agent + coordinator workspace</p>
       </header>
 
       <div className="plan-workspace__body">
-        {draft === null ? (
+        {state.workflowState === 'COMMITTED' && committedPlan !== null ? (
+          <CommittedSummary plan={committedPlan} requests={requests} />
+        ) : draft === null ? (
           <section className="empty-plan" aria-labelledby="empty-plan-heading">
             <HamsterMark decorative className="empty-plan__mark" />
             <div>
@@ -121,15 +141,61 @@ export function PlanWorkspace({
               onAnnouncement={setAnnouncement}
             />
             <ValidationPanel errors={draft.errors} warnings={draft.warnings} />
+            <div className="draft-human-actions">
+              <button
+                id="discard-draft-action"
+                type="button"
+                className="button button--danger"
+                onClick={onRequestDiscard}
+              >
+                Discard draft
+              </button>
+            </div>
+          </section>
+        ) : state.workflowState === 'APPROVED' ? (
+          <section className="readonly-draft" aria-labelledby="approved-draft-heading">
+            <ApprovedBanner
+              approval={state.approval}
+              draftVersion={draft.version}
+              onCommand={onCommand}
+              onRequestCancelApproval={onRequestCancelApproval}
+              onRequestDiscard={onRequestDiscard}
+              onAnnouncement={setAnnouncement}
+              now={now}
+            />
+            <div className="readonly-draft__heading">
+              <div>
+                <h3 id="approved-draft-heading">Approved assignment plan</h3>
+                <p>
+                  This exact version is read-only while the agent commit authorization is active.
+                </p>
+              </div>
+              <span className="mono">v{draft.version}</span>
+            </div>
+            <ReadonlyAssignmentTable
+              assignments={draft.assignments}
+              requests={requests}
+              accessibleName="Approved assignment plan"
+            />
           </section>
         ) : (
-          <section className="draft-placeholder" aria-labelledby="draft-placeholder-heading">
-            <h3 id="draft-placeholder-heading">Draft v{draft.version}</h3>
-            <p>
-              {assignedCount} assigned · {unassignedCount} unassigned · {draft.errors.length} hard
-              errors · {draft.warnings.length} warnings
-            </p>
-            <p>This exact version is read-only while the human approval workflow is active.</p>
+          <section className="readonly-draft" aria-labelledby="awaiting-draft-heading">
+            <div className="readonly-draft__heading">
+              <div>
+                <span className="eyebrow">Human decision required</span>
+                <h3 id="awaiting-draft-heading">Draft v{draft.version} is under review</h3>
+                <p>
+                  The background workspace is read-only until the coordinator approves, rejects,
+                  or cancels this review.
+                </p>
+              </div>
+              <span className="mono">AWAITING_APPROVAL</span>
+            </div>
+            <ReadonlyAssignmentTable
+              assignments={draft.assignments}
+              requests={requests}
+              accessibleName="Assignment plan awaiting approval"
+            />
           </section>
         )}
 
@@ -148,12 +214,12 @@ export function PlanWorkspace({
           </ul>
         </section>
 
-        <aside className="human-authority">
+        <div className="human-authority" role="note" aria-label="Human authority boundary">
           <strong>Human authority is enforced</strong>
           <span>
             Lock, approval, rejection, discard and reset are never exposed as agent tools.
           </span>
-        </aside>
+        </div>
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">

@@ -54,7 +54,11 @@ export function canTransition(
     return actor === 'agent' && isDraftState(state);
   }
 
-  if (event === 'EDIT_ASSIGNMENT' || event === 'LOCK_ASSIGNMENT' || event === 'UNLOCK_ASSIGNMENT') {
+  if (
+    event === 'EDIT_ASSIGNMENT' ||
+    event === 'LOCK_ASSIGNMENT' ||
+    event === 'UNLOCK_ASSIGNMENT'
+  ) {
     return actor === 'human' && isDraftState(state);
   }
 
@@ -69,8 +73,12 @@ export function canTransition(
     return actor === 'agent' && state === 'DRAFT_VALID';
   }
 
-  if (event === 'APPROVE' || event === 'REJECT' || event === 'CANCEL_APPROVAL') {
+  if (event === 'APPROVE' || event === 'REJECT') {
     return actor === 'human' && state === 'AWAITING_APPROVAL';
+  }
+
+  if (event === 'CANCEL_APPROVAL') {
+    return actor === 'human' && (state === 'AWAITING_APPROVAL' || state === 'APPROVED');
   }
 
   if (event === 'APPROVAL_EXPIRES') {
@@ -81,7 +89,11 @@ export function canTransition(
     return actor === 'agent' && state === 'COMMITTED';
   }
 
-  return actor === 'agent' && state === 'APPROVED';
+  if (event === 'COMMIT_PLAN') {
+    return actor === 'agent' && state === 'APPROVED';
+  }
+
+  return false;
 }
 
 export function classifyDraft(draft: Draft): DraftState['workflowState'] {

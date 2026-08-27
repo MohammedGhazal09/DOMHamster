@@ -36,14 +36,14 @@ const BASE_ASSIGNMENTS = [
   {
     requestId: requestId('R-105'),
     volunteerId: volunteerId('V-01'),
-    startTime: '12:30',
+    startTime: '13:00',
     durationMinutes: 45,
     status: 'planned',
     lockedByHuman: false,
   },
   {
     requestId: requestId('R-106'),
-    volunteerId: volunteerId('V-04'),
+    volunteerId: volunteerId('V-03'),
     startTime: '13:00',
     durationMinutes: 30,
     status: 'planned',
@@ -59,7 +59,7 @@ const BASE_ASSIGNMENTS = [
   },
   {
     requestId: requestId('R-108'),
-    volunteerId: volunteerId('V-03'),
+    volunteerId: volunteerId('V-04'),
     startTime: '15:00',
     durationMinutes: 45,
     status: 'planned',

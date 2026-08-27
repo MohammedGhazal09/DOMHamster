@@ -68,7 +68,7 @@ describe('human assignment editor', () => {
     expect(within(table).getAllByRole('row')).toHaveLength(9);
     expect(within(table).getByRole('rowheader', { name: /R-105/ })).toBeVisible();
     expect(screen.getByRole('combobox', { name: 'Volunteer for R-105' })).toHaveValue('V-01');
-    expect(screen.getByLabelText('Start time for R-105')).toHaveValue('12:30');
+    expect(screen.getByLabelText('Start time for R-105')).toHaveValue('13:00');
     expect(screen.getByRole('button', { name: 'Lock assignment for R-105' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -94,7 +94,7 @@ describe('human assignment editor', () => {
       requestId: requestId('R-105'),
       patch: {
         volunteerId: volunteerId('V-03'),
-        startTime: '12:30',
+        startTime: '13:00',
         status: 'planned',
       },
     });
@@ -105,7 +105,7 @@ describe('human assignment editor', () => {
     renderDraft(workflowStates().DRAFT_VALID, onCommand);
 
     fireEvent.change(screen.getByLabelText('Start time for R-105'), {
-      target: { value: '13:00' },
+      target: { value: '13:15' },
     });
 
     expect(onCommand).toHaveBeenCalledTimes(1);
@@ -116,7 +116,7 @@ describe('human assignment editor', () => {
       requestId: requestId('R-105'),
       patch: {
         volunteerId: volunteerId('V-01'),
-        startTime: '13:00',
+        startTime: '13:15',
         status: 'planned',
       },
     });
@@ -190,7 +190,7 @@ describe('human assignment editor', () => {
     });
   });
 
-  it('re-renders accepted human commands from the shared application store', async () => {
+  it('runs the exact v1–v4 conflict, lock, and agent repair journey through the shared store', async () => {
     const initialState = workflowStates().DRAFT_VALID;
     const { store } = createTestStore(initialState);
     const user = userEvent.setup();
@@ -208,11 +208,46 @@ describe('human assignment editor', () => {
       'V-03',
     );
     expect(await screen.findByText('Draft v2')).toBeVisible();
+    expect(
+      screen.getByText(
+        'This draft has blocking conflicts. Resolve every error before approval can begin.',
+      ),
+    ).toBeVisible();
 
     await user.click(screen.getByRole('button', { name: 'Lock assignment for R-105' }));
     expect(await screen.findByText('Draft v3')).toBeVisible();
     expect(screen.getByRole('combobox', { name: 'Volunteer for R-105' })).toBeDisabled();
-    expect(store.getState().draft?.version).toBe(3);
+
+    const stateV3 = store.getState();
+    if (stateV3.draft === null) throw new Error('TEST_EXPECTED_V3_DRAFT');
+    const repairedAssignments = stateV3.draft.assignments.map((assignment) =>
+      assignment.requestId === requestId('R-106')
+        ? {
+            ...assignment,
+            volunteerId: volunteerId('V-05'),
+            startTime: '13:00' as const,
+          }
+        : { ...assignment },
+    );
+    const repaired = await store.dispatch({
+      type: 'REVISE_DRAFT',
+      actor: 'agent',
+      expectedDraftVersion: 3,
+      assignments: repairedAssignments,
+    });
+    expect(repaired.ok).toBe(true);
+
+    expect(await screen.findByText('Draft v4')).toBeVisible();
+    expect(
+      screen.getByText('This draft passes all hard constraints and is ready for human review.'),
+    ).toBeVisible();
+    expect(screen.getByRole('combobox', { name: 'Volunteer for R-105' })).toHaveValue('V-03');
+    expect(screen.getByLabelText('Start time for R-105')).toHaveValue('13:00');
+    expect(screen.getByRole('combobox', { name: 'Volunteer for R-106' })).toHaveValue('V-05');
+    expect(store.getState()).toMatchObject({
+      workflowState: 'DRAFT_VALID',
+      draft: { version: 4, validation: { valid: true, errors: [] } },
+    });
   });
 
   it('renders blocking validation evidence and links issues back to affected rows', async () => {

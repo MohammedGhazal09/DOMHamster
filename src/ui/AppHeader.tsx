@@ -58,13 +58,28 @@ export function AppHeader({
       </div>
 
       <nav className="global-actions" aria-label="Application actions">
-        <button type="button" className="button button--secondary" onClick={onOpenActivity}>
+        <button
+          id="activity-action"
+          type="button"
+          className="button button--secondary"
+          onClick={onOpenActivity}
+        >
           Activity
         </button>
-        <button type="button" className="button button--secondary" onClick={onOpenDiagnostics}>
+        <button
+          id="diagnostics-action"
+          type="button"
+          className="button button--secondary"
+          onClick={onOpenDiagnostics}
+        >
           Diagnostics
         </button>
-        <button type="button" className="button button--danger" onClick={onReset}>
+        <button
+          id="reset-action"
+          type="button"
+          className="button button--danger"
+          onClick={onReset}
+        >
           Reset
         </button>
       </nav>

@@ -1,4 +1,3 @@
-import type { StoreDispatchResult } from '../app/ports.ts';
 import type {
   AssignmentDraftView,
   PublicAssignmentView,
@@ -22,15 +21,14 @@ import {
   type Zone,
 } from '../domain/types.ts';
 import { validationIssueDomId } from './validation-ids.ts';
+import type { WorkflowCommandHandler } from './workflow-commands.ts';
 
 export type HumanDraftCommand =
   | EditAssignmentCommand
   | LockAssignmentCommand
   | UnlockAssignmentCommand;
 
-export type HumanDraftCommandHandler = (
-  command: HumanDraftCommand,
-) => StoreDispatchResult | void | Promise<StoreDispatchResult | void>;
+export type HumanDraftCommandHandler = WorkflowCommandHandler;
 
 export interface AssignmentTableProps {
   readonly draft: AssignmentDraftView;
@@ -189,8 +187,9 @@ export function AssignmentTable({
   return (
     <div
       className="assignment-table-scroll"
-      tabIndex={0}
+      role="region"
       aria-label="Scrollable assignment editor"
+      tabIndex={0}
     >
       <table className="assignment-table" aria-label="Assignment editor">
         <thead>

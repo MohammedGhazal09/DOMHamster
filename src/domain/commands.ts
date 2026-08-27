@@ -549,9 +549,6 @@ function prepareApproval(
   if (containsCommittedDraftStatus(state.draft.assignments)) {
     return failure(state, 'INVALID_INPUT');
   }
-  if (containsCommittedDraftStatus(state.draft.assignments)) {
-    return failure(state, 'DRAFT_INVALID');
-  }
   const validation = validate(state.scenario, state.draft.assignments);
   if (!validation.valid) return failure(state, 'DRAFT_INVALID');
   const draft = freezeDraft(
@@ -588,7 +585,7 @@ function prepareApproval(
 }
 
 function decideApproval(
-  state: Extract<AppState, { workflowState: 'AWAITING_APPROVAL' }>,
+  state: Extract<AppState, { workflowState: 'AWAITING_APPROVAL' | 'APPROVED' }>,
   command: ApprovalDecisionCommand,
   dependencies: CommandDependencies,
 ): CommandResult {
@@ -601,6 +598,9 @@ function decideApproval(
   }
 
   if (command.type === 'APPROVE') {
+    if (state.workflowState !== 'AWAITING_APPROVAL') {
+      return failure(state, 'INVALID_STATE');
+    }
     const approval = Object.freeze({
       draftVersion: state.draft.version,
       status: 'approved',
@@ -628,7 +628,12 @@ function decideApproval(
     );
   }
 
+  if (command.type === 'REJECT' && state.workflowState !== 'AWAITING_APPROVAL') {
+    return failure(state, 'INVALID_STATE');
+  }
+
   const rejected = command.type === 'REJECT';
+  const wasApproved = state.workflowState === 'APPROVED';
   const auditHistory = append(
     state,
     rejected ? 'APPROVAL_REJECTED' : 'APPROVAL_CANCELLED',
@@ -636,7 +641,9 @@ function decideApproval(
     state.draft.version,
     rejected
       ? `Human rejected draft version ${state.draft.version}.`
-      : `Human cancelled approval review for draft version ${state.draft.version}.`,
+      : wasApproved
+        ? `Human cancelled approval for draft version ${state.draft.version}.`
+        : `Human cancelled approval review for draft version ${state.draft.version}.`,
     dependencies,
   );
   return success(buildDraftState(state, state.draft, auditHistory));
@@ -761,7 +768,10 @@ function accessContacts(
   );
 }
 
-function resetDemo(command: ResetDemoCommand, dependencies: CommandDependencies): CommandResult {
+function resetDemo(
+  command: ResetDemoCommand,
+  dependencies: CommandDependencies,
+): CommandResult {
   return success(
     Object.freeze({
       workflowState: 'READY',
@@ -818,12 +828,16 @@ export function reduceCommand(
         dependencies,
       );
     case 'PREPARE_APPROVAL':
-      return prepareApproval(state as DraftState, command, dependencies);
+      return prepareApproval(
+        state as DraftState,
+        command,
+        dependencies,
+      );
     case 'APPROVE':
     case 'REJECT':
     case 'CANCEL_APPROVAL':
       return decideApproval(
-        state as Extract<AppState, { workflowState: 'AWAITING_APPROVAL' }>,
+        state as Extract<AppState, { workflowState: 'AWAITING_APPROVAL' | 'APPROVED' }>,
         command,
         dependencies,
       );
