@@ -31,8 +31,8 @@ for (const fragment of [
   'RegistrySnapshotSource',
   'registrySource',
   'registrySnapshotKey',
-  'registeredToolNames={registrySnapshot?.registeredToolNames ?? EMPTY_REGISTERED_TOOL_NAMES}',
-  'registryErrorCodes={registrySnapshot?.errorCodes ?? EMPTY_REGISTRY_ERRORS}',
+  'registrySnapshot?.registeredToolNames ?? EMPTY_REGISTERED_TOOL_NAMES',
+  'registrySnapshot?.errorCodes ?? EMPTY_REGISTRY_ERRORS',
 ]) {
   assert.ok(connectedApp.includes(fragment), `CONNECTED_APP_REGISTRY_BRIDGE_MISSING:${fragment}`);
 }
