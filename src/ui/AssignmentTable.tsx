@@ -21,7 +21,7 @@ import {
   type TimeOfDay,
   type Zone,
 } from '../domain/types.ts';
-import { validationIssueDomId } from './ValidationPanel.tsx';
+import { validationIssueDomId } from './validation-ids.ts';
 
 export type HumanDraftCommand =
   | EditAssignmentCommand
