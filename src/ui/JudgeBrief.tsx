@@ -4,11 +4,7 @@ export const CANONICAL_DEMO_PROMPT =
   'Build today’s plan. Prioritize urgent food deliveries, keep every volunteer at three tasks or fewer, and make sure R-104 has an Arabic-speaking volunteer.';
 
 async function copyText(value: string): Promise<void> {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value);
-    return;
-  }
-  throw new Error('DOMHAMSTER_CLIPBOARD_UNAVAILABLE');
+  await navigator.clipboard.writeText(value);
 }
 
 export function JudgeBrief() {
