@@ -38,6 +38,16 @@ assert.equal(
   'node scripts/run-release-gate.mjs',
   'RELEASE_GATE_PACKAGE_SCRIPT_MISMATCH',
 );
+assert.equal(
+  packageJson.scripts?.['verify:release-runner'],
+  'node --test tests/toolchain/release-gate-runner.test.mjs && node tests/toolchain/release-gate-contract.test.mjs',
+  'RELEASE_GATE_SELF_TEST_SCRIPT_MISMATCH',
+);
+assert.match(
+  packageJson.scripts?.verify ?? '',
+  /npm run verify:release-runner/u,
+  'RELEASE_GATE_SELF_TEST_NOT_IN_VERIFY',
+);
 for (const document of [testingDocs, evalDocs]) {
   assert.match(
     document,
