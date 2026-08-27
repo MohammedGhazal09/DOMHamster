@@ -38,7 +38,11 @@ export function JudgeBrief() {
           <span>Demo prompt</span>
           <code>{CANONICAL_DEMO_PROMPT}</code>
         </div>
-        <button type="button" className="button button--secondary" onClick={() => void copyPrompt()}>
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={() => void copyPrompt()}
+        >
           Copy prompt
         </button>
       </div>

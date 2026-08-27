@@ -1,6 +1,11 @@
 :root {
   font-family:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   color: #17212b;
   background: #f7f5f0;
   font-synthesis: none;
@@ -51,7 +56,7 @@ button {
 
 button:focus-visible,
 a:focus-visible,
-[tabindex="-1"]:focus-visible {
+[tabindex='-1']:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -665,7 +670,7 @@ code {
 
 .app-footer span + span::before {
   margin-right: 8px;
-  content: "·";
+  content: '·';
 }
 
 @media (max-width: 1279px) {

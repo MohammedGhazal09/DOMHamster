@@ -47,7 +47,10 @@ export function VolunteerPanel({ volunteers }: VolunteerPanelProps) {
               <p>{ZONE_LABELS[volunteer.zone]}</p>
               <span className="constraint-badge">{capabilityLabel(volunteer)}</span>
             </div>
-            <div className="volunteer-load" aria-label={`${volunteer.currentLoad} of ${volunteer.capacity} tasks`}>
+            <div
+              className="volunteer-load"
+              aria-label={`${volunteer.currentLoad} of ${volunteer.capacity} tasks`}
+            >
               <span>Load</span>
               <strong className="mono">
                 {volunteer.currentLoad} / {volunteer.capacity}
@@ -55,7 +58,9 @@ export function VolunteerPanel({ volunteers }: VolunteerPanelProps) {
               <span className="load-track" aria-hidden="true">
                 <span
                   className="load-fill"
-                  style={{ width: `${Math.min(100, (volunteer.currentLoad / volunteer.capacity) * 100)}%` }}
+                  style={{
+                    width: `${Math.min(100, (volunteer.currentLoad / volunteer.capacity) * 100)}%`,
+                  }}
                 />
               </span>
             </div>

@@ -49,7 +49,9 @@ export function App({
   const resolvedCapability = capabilityStatus ?? browserCapabilityStatus();
   const visibleToolNames =
     registeredToolNames ??
-    (resolvedCapability === 'AVAILABLE' ? desiredToolNames(state.workflowState) : Object.freeze([]));
+    (resolvedCapability === 'AVAILABLE'
+      ? desiredToolNames(state.workflowState)
+      : Object.freeze([]));
   const overview = selectCoordinationOverview(state);
   const requests = selectOpenRequests(state);
   const volunteers = selectAvailableVolunteers(state);

@@ -15,14 +15,7 @@ export function HamsterMark({ decorative = false, className }: HamsterMarkProps)
     >
       <circle cx="14" cy="12" r="8" fill="#c9885b" stroke="#6b3f24" />
       <circle cx="34" cy="12" r="8" fill="#c9885b" stroke="#6b3f24" />
-      <circle
-        cx="24"
-        cy="25"
-        r="19"
-        fill="#d9a06d"
-        stroke="#6b3f24"
-        strokeWidth="1.5"
-      />
+      <circle cx="24" cy="25" r="19" fill="#d9a06d" stroke="#6b3f24" strokeWidth="1.5" />
       <ellipse cx="24" cy="30" rx="12" ry="10" fill="#f2d2af" />
       <circle cx="17" cy="22" r="2" fill="#17212b" />
       <circle cx="31" cy="22" r="2" fill="#17212b" />
