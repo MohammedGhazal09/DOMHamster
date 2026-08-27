@@ -78,9 +78,9 @@ jobs:
           status_lines = [
               '# WP06 Execution Status',
               '',
-              '**Work package:** WP06 — Store-backed WebMCP handlers, capability detection, registry reconciliation, and diagnostics  ',
-              '**Final feature head:** `f35d60d8ff086afa753b704faf3a669a09844df6`  ',
-              '**Integrated main commit:** `715c8e2713b00fd857cc99ceb017bde11b0114d6`  ',
+              '**Work package:** WP06 — Store-backed WebMCP handlers, capability detection, registry reconciliation, and diagnostics',
+              '**Final feature head:** `f35d60d8ff086afa753b704faf3a669a09844df6`',
+              '**Integrated main commit:** `715c8e2713b00fd857cc99ceb017bde11b0114d6`',
               '**Status:** Complete',
               '',
               '## Test-first evidence',
