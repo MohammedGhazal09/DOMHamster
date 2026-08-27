@@ -1,5 +1,6 @@
 import type { PublicValidationIssueView } from '../app/selectors.ts';
 import type { RequestId } from '../domain/types.ts';
+import { validationIssueDomId } from './validation-ids.ts';
 
 export interface ValidationPanelProps {
   readonly errors: readonly PublicValidationIssueView[];
@@ -10,14 +11,17 @@ const REMEDIATION_BY_CODE: Readonly<Record<string, string>> = Object.freeze({
   DUPLICATE_REQUEST_ASSIGNMENT: 'Keep exactly one assignment row for this request.',
   UNKNOWN_REQUEST: 'Restore the canonical request identifier.',
   UNKNOWN_VOLUNTEER: 'Choose a volunteer from the canonical scenario.',
-  INVALID_ASSIGNMENT_TIME: 'Choose a volunteer and a valid start time, or leave the request unassigned.',
+  INVALID_ASSIGNMENT_TIME:
+    'Choose a volunteer and a valid start time, or leave the request unassigned.',
   MISSING_REQUIRED_SKILL: 'Choose a volunteer who has every required skill.',
   MISSING_REQUIRED_LANGUAGE: 'Choose a volunteer who speaks every required language.',
   REQUEST_TIME_WINDOW_VIOLATION: 'Move the start time inside the request window.',
   VOLUNTEER_UNAVAILABLE: 'Choose a time inside the volunteer availability window.',
   VOLUNTEER_WORKLOAD_EXCEEDED: 'Move one or more requests to another volunteer.',
-  VOLUNTEER_TIME_OVERLAP: 'Move one of the overlapping assignments to another time or volunteer.',
-  HUMAN_LOCK_VIOLATION: 'Restore the coordinator-locked volunteer, time, duration, and status.',
+  VOLUNTEER_TIME_OVERLAP:
+    'Move one of the overlapping assignments to another time or volunteer.',
+  HUMAN_LOCK_VIOLATION:
+    'Restore the coordinator-locked volunteer, time, duration, and status.',
   ZONE_INEFFICIENCY: 'Consider a volunteer whose home zone matches the request.',
   REQUEST_UNASSIGNED: 'Assign a volunteer when the request can be covered.',
   WORKLOAD_IMBALANCE: 'Consider redistributing work across available volunteers.',
@@ -40,17 +44,11 @@ function focusElement(id: string): void {
   if (element instanceof HTMLElement) element.focus();
 }
 
-export function validationIssueDomId(
-  issue: PublicValidationIssueView,
-  index: number,
-): string {
-  return `validation-issue-${issue.severity}-${index}-${issue.code
-    .toLowerCase()
-    .replaceAll('_', '-')}`;
-}
-
 function remediation(issue: PublicValidationIssueView): string {
-  return REMEDIATION_BY_CODE[issue.code] ?? 'Review the affected assignment and resolve the constraint.';
+  return (
+    REMEDIATION_BY_CODE[issue.code] ??
+    'Review the affected assignment and resolve the constraint.'
+  );
 }
 
 export function ValidationPanel({ errors, warnings }: ValidationPanelProps) {
@@ -96,7 +94,9 @@ export function ValidationPanel({ errors, warnings }: ValidationPanelProps) {
         <ul className="validation-list">
           {issues.map((issue, index) => (
             <li
-              key={`${issue.severity}-${issue.code}-${issue.requestIds.join('-')}-${issue.volunteerId ?? ''}`}
+              key={`${issue.severity}-${issue.code}-${issue.requestIds.join('-')}-${
+                issue.volunteerId ?? ''
+              }`}
               id={validationIssueDomId(issue, index)}
               className={`validation-item validation-item--${issue.severity}`}
               tabIndex={-1}
@@ -107,7 +107,10 @@ export function ValidationPanel({ errors, warnings }: ValidationPanelProps) {
               </div>
               <p>{issue.message}</p>
               <p className="validation-item__remediation">{remediation(issue)}</p>
-              <div className="validation-item__entities" aria-label={`Affected IDs for ${issue.code}`}>
+              <div
+                className="validation-item__entities"
+                aria-label={`Affected IDs for ${issue.code}`}
+              >
                 {issue.requestIds.map((requestId) => (
                   <span key={requestId} className="mono">
                     {requestId}
