@@ -32,6 +32,7 @@
     "tests/persistence/**/*.ts",
     "tests/fixtures/**/*.ts",
     "tests/helpers/**/*.ts",
-    "tests/webmcp/**/*.ts"
+    "tests/webmcp/**/*.ts",
+    "tests/diagnostics/**/*.ts"
   ]
 }

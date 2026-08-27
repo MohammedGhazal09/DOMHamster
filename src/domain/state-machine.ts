@@ -26,7 +26,8 @@ export type WorkflowEvent =
   | 'REJECT'
   | 'CANCEL_APPROVAL'
   | 'APPROVAL_EXPIRES'
-  | 'COMMIT_PLAN';
+  | 'COMMIT_PLAN'
+  | 'ACCESS_CONTACTS';
 
 function isDraftState(state: WorkflowState): state is 'DRAFT_INVALID' | 'DRAFT_VALID' {
   return state === 'DRAFT_INVALID' || state === 'DRAFT_VALID';
@@ -74,6 +75,10 @@ export function canTransition(
 
   if (event === 'APPROVAL_EXPIRES') {
     return actor === 'system' && state === 'APPROVED';
+  }
+
+  if (event === 'ACCESS_CONTACTS') {
+    return actor === 'agent' && state === 'COMMITTED';
   }
 
   return actor === 'agent' && state === 'APPROVED';
