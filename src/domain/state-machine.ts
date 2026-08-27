@@ -69,8 +69,12 @@ export function canTransition(
     return actor === 'agent' && state === 'DRAFT_VALID';
   }
 
-  if (event === 'APPROVE' || event === 'REJECT' || event === 'CANCEL_APPROVAL') {
+  if (event === 'APPROVE' || event === 'REJECT') {
     return actor === 'human' && state === 'AWAITING_APPROVAL';
+  }
+
+  if (event === 'CANCEL_APPROVAL') {
+    return actor === 'human' && (state === 'AWAITING_APPROVAL' || state === 'APPROVED');
   }
 
   if (event === 'APPROVAL_EXPIRES') {
