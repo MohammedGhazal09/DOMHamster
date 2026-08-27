@@ -83,9 +83,7 @@ describe('WebMCP tool handlers', () => {
     expect(requests.map(({ id }) => id)).toEqual([requestId('R-101')]);
     noPrivateData(requests);
 
-    const volunteers = expectSuccess(
-      await handlers.list_available_volunteers({ zone: 'EAST' }),
-    );
+    const volunteers = expectSuccess(await handlers.list_available_volunteers({ zone: 'EAST' }));
     expect(volunteers.map(({ id }) => id)).toEqual([volunteerId('V-03')]);
     noPrivateData(volunteers);
 
@@ -137,9 +135,7 @@ describe('WebMCP tool handlers', () => {
       nextErrorReference: () => 'ERROR-1',
     });
 
-    const created = expectSuccess(
-      await handlers.create_assignment_draft(validDraftToolInput()),
-    );
+    const created = expectSuccess(await handlers.create_assignment_draft(validDraftToolInput()));
     expect(created).toMatchObject({ version: 1, workflowState: 'DRAFT_VALID', valid: true });
     expect(store.getState().workflowState).toBe('DRAFT_VALID');
 

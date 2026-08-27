@@ -1,16 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  ModelContextPort,
-  ModelContextRegistrationOptions,
-} from '../../src/app/ports.ts';
+import type { ModelContextPort, ModelContextRegistrationOptions } from '../../src/app/ports.ts';
 import { TOOL_NAMES, type ToolName } from '../../src/webmcp/contracts.ts';
 import { createWebMcpRegistry } from '../../src/webmcp/registry.ts';
 import type { ToolHandlerMap } from '../../src/webmcp/handlers.ts';
 import { desiredToolNames } from '../../src/webmcp/lifecycle.ts';
-import {
-  createMutableStateStore,
-  workflowStates,
-} from '../helpers/webmcp-fixtures.ts';
+import { createMutableStateStore, workflowStates } from '../helpers/webmcp-fixtures.ts';
 
 interface RegistrationCall {
   readonly name: ToolName;
@@ -36,10 +30,7 @@ class FakeModelContext implements ModelContextPort {
   readonly failOnce = new Set<ToolName>();
   blocked: Deferred | null = null;
 
-  async registerTool(
-    value: unknown,
-    options?: ModelContextRegistrationOptions,
-  ): Promise<void> {
+  async registerTool(value: unknown, options?: ModelContextRegistrationOptions): Promise<void> {
     const tool = value as ModelContextTool;
     const name = tool.name as ToolName;
     this.calls.push({ name, tool, signal: options?.signal });
@@ -118,9 +109,7 @@ describe('state-aware WebMCP registry', () => {
     expect(registry.getSnapshot().desiredToolNames).toEqual(desiredToolNames('COMMITTED'));
     expect(registry.getSnapshot().registeredToolNames).toEqual(desiredToolNames('COMMITTED'));
     expect(
-      modelContext.calls
-        .filter(({ signal }) => signal?.aborted === false)
-        .map(({ name }) => name),
+      modelContext.calls.filter(({ signal }) => signal?.aborted === false).map(({ name }) => name),
     ).toEqual(desiredToolNames('COMMITTED'));
   });
 
@@ -166,9 +155,7 @@ describe('state-aware WebMCP registry', () => {
     expect(registry.getSnapshot().desiredToolNames).toEqual(desiredToolNames('COMMITTED'));
     expect(registry.getSnapshot().registeredToolNames).toEqual(desiredToolNames('COMMITTED'));
     expect(
-      modelContext.calls
-        .filter(({ signal }) => signal?.aborted === false)
-        .map(({ name }) => name),
+      modelContext.calls.filter(({ signal }) => signal?.aborted === false).map(({ name }) => name),
     ).toEqual(desiredToolNames('COMMITTED'));
   });
 
@@ -185,17 +172,15 @@ describe('state-aware WebMCP registry', () => {
 
     await registry.start();
     expect(registry.getSnapshot().errorCodes).toContain('TOOL_REGISTRATION_FAILED');
-    expect(registry.getSnapshot().registeredToolNames).not.toContain(
-      'get_coordination_overview',
-    );
+    expect(registry.getSnapshot().registeredToolNames).not.toContain('get_coordination_overview');
 
     store.emit();
     await registry.whenIdle();
 
     expect(registry.getSnapshot().registeredToolNames).toEqual(desiredToolNames('READY'));
-    expect(modelContext.calls.filter(({ name }) => name === 'get_coordination_overview')).toHaveLength(
-      2,
-    );
+    expect(
+      modelContext.calls.filter(({ name }) => name === 'get_coordination_overview'),
+    ).toHaveLength(2);
     expect(JSON.stringify(registry.getSnapshot())).not.toContain('DO_NOT_EXPOSE');
   });
 

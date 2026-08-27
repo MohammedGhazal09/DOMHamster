@@ -47,9 +47,7 @@ export interface ToolExecutionFailure {
   readonly nextActions: readonly ToolName[];
 }
 
-export type ToolExecutionResult<Data = unknown> =
-  | ToolExecutionSuccess<Data>
-  | ToolExecutionFailure;
+export type ToolExecutionResult<Data = unknown> = ToolExecutionSuccess<Data> | ToolExecutionFailure;
 
 export type ToolHandler = (
   input: unknown,
@@ -177,7 +175,9 @@ function internalFailure(
 }
 
 function requestDuration(state: AppState, id: RequestId): number {
-  return state.scenario.requests.find(({ id: candidate }) => candidate === id)?.durationMinutes ?? 1;
+  return (
+    state.scenario.requests.find(({ id: candidate }) => candidate === id)?.durationMinutes ?? 1
+  );
 }
 
 function createAssignments(state: AppState, input: Record<string, unknown>): readonly Assignment[] {
@@ -431,11 +431,7 @@ export function createToolHandlers(
           expectedDraftVersion: input.expectedDraftVersion as number,
         });
         if (!result.ok) return storeFailure(result, 'prepare_plan_approval');
-        return success(
-          selectAssignmentDraft(result.state),
-          result.state,
-          'prepare_plan_approval',
-        );
+        return success(selectAssignmentDraft(result.state), result.state, 'prepare_plan_approval');
       },
     ),
 
@@ -489,19 +485,14 @@ export function createToolHandlers(
       },
     ),
 
-    get_audit_history: withGuard(
-      'get_audit_history',
-      store,
-      dependencies,
-      async (input, state) => {
-        const limit = (input.limit as number | undefined) ?? 20;
-        return success(
-          Object.freeze(selectAuditHistory(state).slice(-limit)),
-          state,
-          'get_audit_history',
-        );
-      },
-    ),
+    get_audit_history: withGuard('get_audit_history', store, dependencies, async (input, state) => {
+      const limit = (input.limit as number | undefined) ?? 20;
+      return success(
+        Object.freeze(selectAuditHistory(state).slice(-limit)),
+        state,
+        'get_audit_history',
+      );
+    }),
   } satisfies Record<ToolName, ToolHandler>;
 
   const ordered = Object.fromEntries(TOOL_NAMES.map((name) => [name, handlers[name]]));

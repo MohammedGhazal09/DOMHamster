@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  reduceCommand,
-  type Command,
-} from '../../src/domain/commands.ts';
+import { reduceCommand, type Command } from '../../src/domain/commands.ts';
 import { requestId } from '../../src/domain/types.ts';
-import {
-  commandDependencies,
-  workflowStates,
-} from '../helpers/webmcp-fixtures.ts';
+import { commandDependencies, workflowStates } from '../helpers/webmcp-fixtures.ts';
 
 function accessCommand(
   actor: 'agent' | 'human' | 'system',
@@ -24,11 +18,7 @@ describe('post-commit contact-access audit command', () => {
   it('appends a safe audit event while preserving the committed plan', () => {
     const dependencies = commandDependencies();
     const state = workflowStates().COMMITTED;
-    const result = reduceCommand(
-      state,
-      accessCommand('agent', ['R-101', 'R-104']),
-      dependencies,
-    );
+    const result = reduceCommand(state, accessCommand('agent', ['R-101', 'R-104']), dependencies);
 
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error(result.error.code);

@@ -1,10 +1,6 @@
 import type { ModelContextPort } from '../app/ports.ts';
 import type { AppStore } from '../app/store.ts';
-import {
-  TOOL_CONTRACT_BY_NAME,
-  type ToolName,
-  type WebMcpToolContract,
-} from './contracts.ts';
+import { TOOL_CONTRACT_BY_NAME, type ToolName, type WebMcpToolContract } from './contracts.ts';
 import type { ToolHandlerMap } from './handlers.ts';
 import { desiredToolNames } from './lifecycle.ts';
 
@@ -54,9 +50,7 @@ function registrationTool(
   });
 }
 
-export function createWebMcpRegistry(
-  dependencies: WebMcpRegistryDependencies,
-): WebMcpRegistry {
+export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): WebMcpRegistry {
   const registrations = new Map<ToolName, RegistrationRecord>();
   const errors: string[] = [];
   let active = false;

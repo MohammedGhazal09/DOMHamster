@@ -32,6 +32,7 @@ export type CommandErrorCode =
   | 'UNKNOWN_REQUEST'
   | 'UNKNOWN_VOLUNTEER'
   | 'ASSIGNMENT_NOT_FOUND'
+  | 'REQUEST_NOT_ASSIGNED'
   | 'APPROVAL_NOT_EXPIRED'
   | 'APPROVAL_EXPIRED'
   | 'DRAFT_INVALID'
@@ -112,6 +113,11 @@ export interface CommitPlanCommand extends CommandBase {
   readonly expectedDraftVersion: number;
 }
 
+export interface AccessContactsCommand extends CommandBase {
+  readonly type: 'ACCESS_CONTACTS';
+  readonly requestIds: readonly RequestId[];
+}
+
 export type Command =
   | ResetDemoCommand
   | CreateDraftCommand
@@ -123,7 +129,8 @@ export type Command =
   | PrepareApprovalCommand
   | ApprovalDecisionCommand
   | ApprovalExpiresCommand
-  | CommitPlanCommand;
+  | CommitPlanCommand
+  | AccessContactsCommand;
 
 export type CommandResult =
   | {
@@ -702,6 +709,58 @@ function commitPlan(
   );
 }
 
+function accessContacts(
+  state: Extract<AppState, { workflowState: 'COMMITTED' }>,
+  command: AccessContactsCommand,
+  dependencies: CommandDependencies,
+): CommandResult {
+  const requestIds = command.requestIds;
+  if (
+    requestIds.length === 0 ||
+    requestIds.length > state.scenario.requests.length ||
+    new Set(requestIds).size !== requestIds.length
+  ) {
+    return failure(state, 'INVALID_INPUT');
+  }
+
+  const knownRequests = new Set(state.scenario.requests.map(({ id }) => id));
+  const assignmentsByRequest = new Map(
+    state.committedPlan.assignments.map((assignment) => [assignment.requestId, assignment]),
+  );
+
+  for (const id of requestIds) {
+    if (!knownRequests.has(id)) {
+      return failure(state, 'UNKNOWN_REQUEST');
+    }
+    const assignment = assignmentsByRequest.get(id);
+    if (assignment?.status !== 'committed' || assignment.volunteerId === null) {
+      return failure(state, 'REQUEST_NOT_ASSIGNED');
+    }
+  }
+
+  const auditHistory = append(
+    state,
+    'CONTACTS_ACCESSED',
+    command.actor,
+    state.committedPlan.draftVersion,
+    `Agent accessed dispatch contacts for ${requestIds.length} assigned request${
+      requestIds.length === 1 ? '' : 's'
+    }.`,
+    dependencies,
+  );
+
+  return success(
+    Object.freeze({
+      workflowState: 'COMMITTED',
+      scenario: state.scenario,
+      draft: null,
+      approval: null,
+      committedPlan: state.committedPlan,
+      auditHistory,
+    }),
+  );
+}
+
 function resetDemo(command: ResetDemoCommand, dependencies: CommandDependencies): CommandResult {
   return success(
     Object.freeze({
@@ -735,6 +794,12 @@ export function reduceCommand(
   }
 
   switch (command.type) {
+    case 'ACCESS_CONTACTS':
+      return accessContacts(
+        state as Extract<AppState, { workflowState: 'COMMITTED' }>,
+        command,
+        dependencies,
+      );
     case 'RESET_DEMO':
       return resetDemo(command, dependencies);
     case 'CREATE_DRAFT':

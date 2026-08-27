@@ -42,9 +42,7 @@ function boundedTools(values: readonly ToolName[]): readonly ToolName[] {
 }
 
 function safeErrors(values: readonly string[]): readonly string[] {
-  return Object.freeze(
-    values.filter((value) => SAFE_ERROR_CODE.test(value)).slice(-10),
-  );
+  return Object.freeze(values.filter((value) => SAFE_ERROR_CODE.test(value)).slice(-10));
 }
 
 export function createDiagnosticsSnapshot(input: DiagnosticsInput): DiagnosticsSnapshot {

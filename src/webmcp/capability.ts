@@ -1,10 +1,7 @@
 import type { ModelContextPort } from '../app/ports.ts';
 
 export type WebMcpCapabilityStatus =
-  | 'AVAILABLE'
-  | 'INSECURE_CONTEXT'
-  | 'API_UNAVAILABLE'
-  | 'ACCESS_ERROR';
+  'AVAILABLE' | 'INSECURE_CONTEXT' | 'API_UNAVAILABLE' | 'ACCESS_ERROR';
 
 export type WebMcpCapability =
   | {
@@ -26,12 +23,14 @@ export interface LocationLike {
 function secureLocation(location: LocationLike): boolean {
   if (location.protocol === 'https:') return true;
   if (location.protocol !== 'http:') return false;
-  return location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '::1';
+  return (
+    location.hostname === 'localhost' ||
+    location.hostname === '127.0.0.1' ||
+    location.hostname === '::1'
+  );
 }
 
-function unavailable(
-  status: Exclude<WebMcpCapabilityStatus, 'AVAILABLE'>,
-): WebMcpCapability {
+function unavailable(status: Exclude<WebMcpCapabilityStatus, 'AVAILABLE'>): WebMcpCapability {
   return Object.freeze({ available: false, status });
 }
 

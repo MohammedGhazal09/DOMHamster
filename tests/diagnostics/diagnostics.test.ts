@@ -56,11 +56,7 @@ describe('sanitized diagnostics', () => {
     const sentinel = 'DO_NOT_EXPOSE_DIAGNOSTIC_SECRET';
     const snapshot = createDiagnosticsSnapshot(
       input({
-        recentErrorCodes: [
-          'INTERNAL_ERROR',
-          sentinel,
-          'Error: secret\n    at forbidden stack',
-        ],
+        recentErrorCodes: ['INTERNAL_ERROR', sentinel, 'Error: secret\n    at forbidden stack'],
       }),
     );
     const serialized = JSON.stringify(snapshot);
@@ -83,14 +79,8 @@ describe('sanitized diagnostics', () => {
           builtAt: 'b'.repeat(200),
           fixtureHash: 'f'.repeat(200),
         },
-        desiredToolNames: Array.from(
-          { length: 40 },
-          () => 'get_coordination_overview' as const,
-        ),
-        registeredToolNames: Array.from(
-          { length: 40 },
-          () => 'get_audit_history' as const,
-        ),
+        desiredToolNames: Array.from({ length: 40 }, () => 'get_coordination_overview' as const),
+        registeredToolNames: Array.from({ length: 40 }, () => 'get_audit_history' as const),
         recentErrorCodes: Array.from({ length: 40 }, (_, index) => `SAFE_${index}`),
       }),
     );

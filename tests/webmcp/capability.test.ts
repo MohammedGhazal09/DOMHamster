@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ModelContextPort } from '../../src/app/ports.ts';
-import {
-  detectWebMcpCapability,
-  type WebMcpCapability,
-} from '../../src/webmcp/capability.ts';
+import { detectWebMcpCapability, type WebMcpCapability } from '../../src/webmcp/capability.ts';
 
 const availableContext: ModelContextPort = {
   registerTool() {
