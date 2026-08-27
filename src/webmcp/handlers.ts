@@ -247,6 +247,17 @@ function failure(
   });
 }
 
+function executionAborted(options?: ToolHandlerOptions): boolean {
+  return options?.signal?.aborted === true;
+}
+
+function executionAbortedFailure(currentName: ToolName): ToolExecutionFailure {
+  return failure('EXECUTION_ABORTED', null, currentName, {
+    message: 'The tool execution was cancelled before it began.',
+    retryable: true,
+  });
+}
+
 function storeFailure(
   result: Extract<StoreDispatchResult, { readonly ok: false }>,
   currentName: ToolName,
@@ -361,7 +372,9 @@ function withGuard<Name extends ToolName>(
     state: AppState,
   ) => ToolExecutionResult<ToolOutputMap[Name]> | Promise<ToolExecutionResult<ToolOutputMap[Name]>>,
 ): ToolHandler<Name> {
-  return async (input) => {
+  return async (input, options) => {
+    if (executionAborted(options)) return executionAbortedFailure(name);
+
     const validation = validateToolInput(name, input);
     if (!validation.ok) {
       return failure('INVALID_INPUT', safeState(store), name, {
@@ -371,10 +384,18 @@ function withGuard<Name extends ToolName>(
       });
     }
 
+    if (executionAborted(options)) return executionAbortedFailure(name);
+
     try {
       const state = store.getState();
       if (!desiredToolNames(state.workflowState).includes(name)) {
         return failure('INVALID_STATE', state, name);
+      }
+      if (executionAborted(options)) {
+        return failure('EXECUTION_ABORTED', state, name, {
+          message: 'The tool execution was cancelled before it began.',
+          retryable: true,
+        });
       }
       return await operation(objectInput(validation.value), state);
     } catch {
