@@ -30,10 +30,10 @@ test('completes the canonical human conflict, lock, and agent repair journey', a
   await r105Start.blur();
   await expect(page.getByRole('heading', { name: 'Draft v2' })).toBeVisible();
 
-  const r105Lock = page.getByRole('button', { name: 'Lock assignment for R-105' });
-  await r105Lock.click();
+  await page.getByRole('button', { name: 'Lock assignment for R-105' }).click();
   await expect(page.getByRole('heading', { name: 'Draft v3' })).toBeVisible();
-  await expect(r105Lock).toHaveAttribute('aria-pressed', 'true');
+  const r105Unlock = page.getByRole('button', { name: 'Unlock assignment for R-105' });
+  await expect(r105Unlock).toHaveAttribute('aria-pressed', 'true');
   await expect(
     page.getByText(
       'Locked by the coordinator. Agent revisions cannot change this assignment.',
