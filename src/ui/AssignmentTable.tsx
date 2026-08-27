@@ -106,7 +106,9 @@ function volunteerOptionLabel(
   request: PublicRequestView,
   volunteer: PublicVolunteerView,
 ): string {
-  const constraintHint = volunteerMatches(request, volunteer) ? 'matches requirements' : 'review constraints';
+  const constraintHint = volunteerMatches(request, volunteer)
+    ? 'matches requirements'
+    : 'review constraints';
   return `${volunteer.id} — ${ZONE_LABELS[volunteer.zone]}; ${capabilityText(volunteer)}; ${
     volunteer.assignedCount
   }/${volunteer.capacity} tasks; ${constraintHint}`;
@@ -120,7 +122,9 @@ function requirementText(request: PublicRequestView): string {
   return requirements.length === 0 ? 'No special capability' : requirements.join(', ');
 }
 
-function issuesByRequest(draft: AssignmentDraftView): ReadonlyMap<RequestId, readonly IndexedIssue[]> {
+function issuesByRequest(
+  draft: AssignmentDraftView,
+): ReadonlyMap<RequestId, readonly IndexedIssue[]> {
   const result = new Map<RequestId, IndexedIssue[]>();
   const issues = [...draft.errors, ...draft.warnings];
 
@@ -178,10 +182,16 @@ export function AssignmentTable({
 }: AssignmentTableProps) {
   const assignments = assignmentByRequest(draft);
   const indexedIssues = issuesByRequest(draft);
-  const orderedVolunteers = [...volunteers].sort((left, right) => compareText(left.id, right.id));
+  const orderedVolunteers = [...volunteers].sort((left, right) =>
+    compareText(left.id, right.id),
+  );
 
   return (
-    <div className="assignment-table-scroll" tabIndex={0} aria-label="Scrollable assignment editor">
+    <div
+      className="assignment-table-scroll"
+      tabIndex={0}
+      aria-label="Scrollable assignment editor"
+    >
       <table className="assignment-table" aria-label="Assignment editor">
         <thead>
           <tr>
@@ -203,7 +213,8 @@ export function AssignmentTable({
             const hintId = `assignment-hint-${request.id}`;
             const lockHelperId = `assignment-lock-helper-${request.id}`;
             const describedBy = assignment.lockedByHuman ? `${hintId} ${lockHelperId}` : hintId;
-            const unassigned = assignment.status === 'unassigned' || assignment.volunteerId === null;
+            const unassigned =
+              assignment.status === 'unassigned' || assignment.volunteerId === null;
 
             return (
               <tr key={request.id} className={rowIssues.length > 0 ? 'has-issues' : undefined}>
@@ -221,8 +232,8 @@ export function AssignmentTable({
                     </div>
                     <strong>{TYPE_LABELS[request.type]}</strong>
                     <span>
-                      {ZONE_LABELS[request.zone]} · {request.timeWindow.start}–{request.timeWindow.end}{' '}
-                      · {request.durationMinutes} min
+                      {ZONE_LABELS[request.zone]} · {request.timeWindow.start}–
+                      {request.timeWindow.end} · {request.durationMinutes} min
                     </span>
                     <span className="assignment-requirement">{requirementText(request)}</span>
                   </div>
@@ -327,14 +338,20 @@ export function AssignmentTable({
                     aria-pressed={assignment.lockedByHuman}
                     disabled={unassigned}
                     onClick={() => {
-                      const command: LockAssignmentCommand | UnlockAssignmentCommand = {
-                        type: assignment.lockedByHuman
-                          ? 'UNLOCK_ASSIGNMENT'
-                          : 'LOCK_ASSIGNMENT',
-                        actor: 'human',
-                        expectedDraftVersion: draft.version,
-                        requestId: request.id,
-                      };
+                      const command: LockAssignmentCommand | UnlockAssignmentCommand =
+                        assignment.lockedByHuman
+                          ? {
+                              type: 'UNLOCK_ASSIGNMENT',
+                              actor: 'human',
+                              expectedDraftVersion: draft.version,
+                              requestId: request.id,
+                            }
+                          : {
+                              type: 'LOCK_ASSIGNMENT',
+                              actor: 'human',
+                              expectedDraftVersion: draft.version,
+                              requestId: request.id,
+                            };
                       void executeCommand(
                         onCommand,
                         onAnnouncement,
