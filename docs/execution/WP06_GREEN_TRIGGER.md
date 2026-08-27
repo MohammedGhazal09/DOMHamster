@@ -8,4 +8,6 @@ The first trusted GREEN run reached strict lint and identified type precision an
 
 A second trusted run narrowed the remaining findings to four compiler-provable redundant checks. Those were removed without changing behavior in bot commit `34abb85245ed429d3573bc4dce44103a52afef0c`, and the one-time cleanup removed itself.
 
+The next trusted run passed formatting and lint, then exposed four strict TypeScript narrowing issues. The filter maps and exact-optional revision parsing were corrected in bot commit `3031e5926dab9a665913fa0a9526c0198b556dc0`, and its one-time workflow removed itself.
+
 This owner-authored commit requests the complete WP06 GREEN gate under Node 24.19.0: formatting, strict lint, type checking, all Vitest tests, production build, Chromium Playwright, dependency audit, and recorded RED-history verification.
