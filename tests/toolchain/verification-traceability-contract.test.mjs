@@ -38,6 +38,18 @@ assert.doesNotMatch(
   'TRACEABILITY_MUST_DESCRIBE_COMMITTED_EVIDENCE',
 );
 
+const harness = readFileSync(join(root, 'tests/e2e/model-context-harness.ts'), 'utf8');
+assert.match(
+  harness,
+  /validDraftToolInput/u,
+  'E2E_HARNESS_MUST_USE_AUTHORITATIVE_VALID_FIXTURE',
+);
+assert.doesNotMatch(
+  harness,
+  /requestId:\s*['"]R-101['"]/u,
+  'E2E_HARNESS_MUST_NOT_DUPLICATE_ASSIGNMENT_FIXTURE',
+);
+
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 assert.equal(
   packageJson.scripts?.['verify:traceability'],
