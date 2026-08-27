@@ -7,17 +7,17 @@
 
 ## Test-first evidence
 
-| Gate | Evidence |
-|---|---|
-| Missing-module RED commit | `b6658f807e5197f0a1b372c0796990cd669893d5` |
-| RED workflow | `33028104459` |
-| Expected failure | Missing `src/webmcp/contracts`, `src/webmcp/schemas`, and `src/webmcp/lifecycle` |
-| Final branch GREEN | `33028795419` |
-| Final branch CI | `33028795405` |
-| Integrated-main CI | `33028946892` |
-| Vitest | 14 files; 146 tests passed; 0 failed |
-| Browser smoke | Playwright Chromium passed |
-| Dependency audit | 0 vulnerabilities |
+| Gate                      | Evidence                                                                         |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| Missing-module RED commit | `b6658f807e5197f0a1b372c0796990cd669893d5`                                       |
+| RED workflow              | `33028104459`                                                                    |
+| Expected failure          | Missing `src/webmcp/contracts`, `src/webmcp/schemas`, and `src/webmcp/lifecycle` |
+| Final branch GREEN        | `33028795419`                                                                    |
+| Final branch CI           | `33028795405`                                                                    |
+| Integrated-main CI        | `33028946892`                                                                    |
+| Vitest                    | 14 files; 146 tests passed; 0 failed                                             |
+| Browser smoke             | Playwright Chromium passed                                                       |
+| Dependency audit          | 0 vulnerabilities                                                                |
 
 ## Frozen contract surface
 
