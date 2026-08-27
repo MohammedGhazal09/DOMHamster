@@ -1,0 +1,47 @@
+name: Apply WP07 test tuple typing fix
+
+on:
+  push:
+    branches: [implementation/wp07-shell]
+    paths:
+      - .github/workflows/wp07-typefix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out WP07 branch
+        uses: actions/checkout@v7
+        with:
+          ref: implementation/wp07-shell
+          fetch-depth: 0
+
+      - name: Apply the minimal tuple typing fix
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('tests/ui/app-shell.test.tsx')
+          text = path.read_text(encoding='utf-8')
+          old = "      ['Warnings', '0'],\n    ]) {"
+          new = "      ['Warnings', '0'],\n    ] as const) {"
+          if text.count(old) != 1:
+              raise SystemExit('expected one metric tuple loop')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/wp07-typefix.yml
+
+      - name: Format and commit
+        run: |
+          npx prettier --write tests/ui/app-shell.test.tsx
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'fix: type WP07 metric expectations as tuples'
+          git push origin HEAD:implementation/wp07-shell
