@@ -31,6 +31,7 @@
     "tests/app/**/*.ts",
     "tests/persistence/**/*.ts",
     "tests/fixtures/**/*.ts",
-    "tests/helpers/**/*.ts"
+    "tests/helpers/**/*.ts",
+    "tests/webmcp/**/*.ts"
   ]
 }
