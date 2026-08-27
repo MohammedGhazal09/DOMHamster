@@ -10,4 +10,6 @@ A second trusted run narrowed the remaining findings to four compiler-provable r
 
 The next trusted run passed formatting and lint, then exposed four strict TypeScript narrowing issues. The filter maps and exact-optional revision parsing were corrected in bot commit `3031e5926dab9a665913fa0a9526c0198b556dc0`, and its one-time workflow removed itself.
 
+The subsequent run passed formatting, lint, and type checking, then proved the diagnostics filter was too permissive because an arbitrary uppercase sentinel qualified as an error code. Commit `a7d0f98579f875667fe42d534082abc072a3c020` replaced the pattern check with an explicit safe-code allowlist.
+
 This owner-authored commit requests the complete WP06 GREEN gate under Node 24.19.0: formatting, strict lint, type checking, all Vitest tests, production build, Chromium Playwright, dependency audit, and recorded RED-history verification.
