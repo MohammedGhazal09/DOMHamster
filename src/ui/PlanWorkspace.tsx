@@ -21,6 +21,9 @@ const MUTATING_TOOLS = new Set<ToolName>([
 
 export function PlanWorkspace({ state, draft, toolNames }: PlanWorkspaceProps) {
   const [announcement, setAnnouncement] = useState('');
+  const assignedCount =
+    draft?.assignments.filter((assignment) => assignment.status !== 'unassigned').length ?? 0;
+  const unassignedCount = (draft?.assignments.length ?? 0) - assignedCount;
 
   async function copyPrompt(): Promise<void> {
     try {
@@ -64,8 +67,8 @@ export function PlanWorkspace({ state, draft, toolNames }: PlanWorkspaceProps) {
           <section className="draft-placeholder" aria-labelledby="draft-placeholder-heading">
             <h3 id="draft-placeholder-heading">Draft v{draft.version}</h3>
             <p>
-              {draft.assignedCount} assigned · {draft.unassignedCount} unassigned ·{' '}
-              {draft.errors.length} hard errors · {draft.warnings.length} warnings
+              {assignedCount} assigned · {unassignedCount} unassigned · {draft.errors.length} hard
+              errors · {draft.warnings.length} warnings
             </p>
             <p>Detailed assignment controls are introduced in WP08.</p>
           </section>
