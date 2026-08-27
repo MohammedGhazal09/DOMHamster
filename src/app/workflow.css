@@ -1,0 +1,474 @@
+body:has(.modal-backdrop) {
+  overflow: hidden;
+}
+
+.modal-backdrop,
+.drawer-backdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  background: rgba(23, 33, 43, 0.58);
+}
+
+.modal-backdrop {
+  place-items: center;
+  padding: 24px;
+}
+
+.drawer-backdrop {
+  justify-items: end;
+}
+
+.approval-dialog,
+.confirm-dialog {
+  width: min(100%, 960px);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border: 1px solid var(--color-border-strong);
+  box-shadow: 0 24px 70px rgba(23, 33, 43, 0.24);
+}
+
+.approval-dialog {
+  padding: 22px;
+}
+
+.approval-dialog__header,
+.committed-summary__header,
+.activity-drawer__header {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.approval-dialog__header h2,
+.activity-drawer__header h2 {
+  margin: 6px 0 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+}
+
+.eyebrow {
+  color: var(--color-muted);
+  font-size: 0.625rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.approval-consequence {
+  margin: 18px 0;
+  padding: 13px 15px;
+  color: var(--color-warning);
+  background: var(--color-warning-surface);
+  border: 1px solid #e5c594;
+  border-radius: 9px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.approval-review-scroll,
+.committed-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+}
+
+.approval-review-scroll:focus-visible,
+.committed-table-scroll:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.approval-review-table,
+.committed-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.approval-review-table th,
+.approval-review-table td,
+.committed-table th,
+.committed-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.approval-review-table thead th,
+.committed-table thead th {
+  color: var(--color-muted);
+  background: #f9f7f2;
+  font-size: 0.625rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.approval-review-table tbody tr:last-child th,
+.approval-review-table tbody tr:last-child td,
+.committed-table tbody tr:last-child th,
+.committed-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.approval-lock-chip,
+.approval-unlocked {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+}
+
+.approval-lock-chip {
+  color: var(--color-success);
+  background: var(--color-success-surface);
+}
+
+.approval-unlocked {
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+}
+
+.approval-warning-review {
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--color-surface-soft);
+  border-radius: 9px;
+}
+
+.approval-warning-review h3,
+.committed-workloads h4 {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.approval-warning-review p {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+}
+
+.approval-warning-review ul,
+.committed-workloads ul {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.approval-warning-review li {
+  display: grid;
+  grid-template-columns: minmax(130px, auto) 1fr auto;
+  gap: 9px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.6875rem;
+}
+
+.approval-dialog__actions,
+.confirm-dialog__actions,
+.approved-banner__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.approval-dialog__actions {
+  margin-top: 20px;
+}
+
+.confirm-dialog {
+  width: min(100%, 520px);
+  padding: 22px;
+}
+
+.confirm-dialog h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.confirm-dialog p {
+  margin: 12px 0 20px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.draft-editor__state-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.draft-editor__state-actions > span {
+  padding: 6px 9px;
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+  border-radius: 999px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+}
+
+.approved-banner {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  color: var(--color-success);
+  background: var(--color-success-surface);
+  border: 1px solid #b7dcc8;
+  border-radius: 10px;
+}
+
+.approved-banner h3 {
+  margin: 5px 0 0;
+  font-size: 1rem;
+}
+
+.approved-banner p {
+  margin: 6px 0 0;
+  color: var(--color-text);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.approved-workspace .draft-placeholder {
+  margin-top: 14px;
+}
+
+.committed-summary {
+  min-width: 0;
+}
+
+.committed-summary__header h3 {
+  margin: 5px 0 0;
+  font-size: 1.25rem;
+}
+
+.committed-summary__header p {
+  margin: 8px 0 0;
+  color: var(--color-success);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.committed-plan-id {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+  padding: 10px 12px;
+  background: var(--color-surface-soft);
+  border-radius: 8px;
+  text-align: right;
+}
+
+.committed-plan-id span {
+  color: var(--color-muted);
+  font-size: 0.5625rem;
+}
+
+.committed-plan-id strong {
+  font-size: 0.6875rem;
+}
+
+.committed-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.committed-metrics > div {
+  padding: 10px;
+  background: var(--color-surface-soft);
+  border-radius: 8px;
+}
+
+.committed-metrics strong,
+.committed-metrics span {
+  display: block;
+}
+
+.committed-metrics strong {
+  font-size: 1.125rem;
+}
+
+.committed-metrics span {
+  margin-top: 3px;
+  color: var(--color-muted);
+  font-size: 0.5625rem;
+}
+
+.committed-workloads {
+  margin-top: 15px;
+}
+
+.committed-workloads ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.committed-workloads li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 9px;
+  background: var(--color-surface-soft);
+  border-radius: 7px;
+  font-size: 0.625rem;
+}
+
+.contact-boundary-notice {
+  display: grid;
+  gap: 4px;
+  margin-top: 15px;
+  padding: 12px 13px;
+  color: var(--color-focus);
+  background: #edf3fd;
+  border: 1px solid #b7cae8;
+  border-radius: 8px;
+}
+
+.contact-boundary-notice strong {
+  font-size: 0.6875rem;
+}
+
+.contact-boundary-notice span {
+  font-size: 0.625rem;
+  line-height: 1.45;
+}
+
+.activity-drawer {
+  width: min(92vw, 480px);
+  height: 100vh;
+  overflow: auto;
+  padding: 20px;
+  border-radius: 0;
+  box-shadow: -20px 0 55px rgba(23, 33, 43, 0.24);
+}
+
+.activity-list {
+  display: grid;
+  gap: 9px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-list > li {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.activity-event__topline,
+.activity-event__metadata {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.activity-event__topline code {
+  font-size: 0.625rem;
+  font-weight: 750;
+}
+
+.actor-chip {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 0.5625rem;
+  font-weight: 750;
+}
+
+.actor-chip--human {
+  color: var(--color-success);
+  background: var(--color-success-surface);
+}
+
+.actor-chip--agent {
+  color: var(--color-focus);
+  background: #edf3fd;
+}
+
+.actor-chip--system {
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+}
+
+.activity-list p {
+  margin: 9px 0;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+}
+
+.activity-event__metadata {
+  color: var(--color-muted);
+  font-size: 0.5625rem;
+}
+
+.activity-empty {
+  margin-top: 20px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .modal-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .approval-dialog,
+  .confirm-dialog {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .approval-dialog__header,
+  .committed-summary__header,
+  .approved-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .approval-dialog__actions,
+  .confirm-dialog__actions,
+  .approved-banner__actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .approval-dialog__actions .button,
+  .confirm-dialog__actions .button,
+  .approved-banner__actions .button {
+    width: 100%;
+  }
+
+  .committed-plan-id {
+    text-align: left;
+  }
+
+  .committed-metrics,
+  .committed-workloads ul {
+    grid-template-columns: 1fr;
+  }
+
+  .approval-warning-review li {
+    grid-template-columns: 1fr;
+  }
+}
