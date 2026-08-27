@@ -57,9 +57,7 @@ export interface ToolExecutionFailure {
   readonly nextActions: readonly ToolName[];
 }
 
-export type ToolExecutionResult<Data = unknown> =
-  | ToolExecutionSuccess<Data>
-  | ToolExecutionFailure;
+export type ToolExecutionResult<Data = unknown> = ToolExecutionSuccess<Data> | ToolExecutionFailure;
 
 export interface DraftValidationView {
   readonly draftVersion: number;
@@ -363,9 +361,7 @@ function withGuard<Name extends ToolName>(
   operation: (
     input: Record<string, unknown>,
     state: AppState,
-  ) =>
-    | ToolExecutionResult<ToolOutputMap[Name]>
-    | Promise<ToolExecutionResult<ToolOutputMap[Name]>>,
+  ) => ToolExecutionResult<ToolOutputMap[Name]> | Promise<ToolExecutionResult<ToolOutputMap[Name]>>,
 ): ToolHandler<Name> {
   return async (input) => {
     const validation = validateToolInput(name, input);
@@ -391,7 +387,11 @@ function withGuard<Name extends ToolName>(
 
 function draftOrFailure(
   state: AppState,
-  name: 'create_assignment_draft' | 'get_assignment_draft' | 'revise_assignment_draft' | 'prepare_plan_approval',
+  name:
+    | 'create_assignment_draft'
+    | 'get_assignment_draft'
+    | 'revise_assignment_draft'
+    | 'prepare_plan_approval',
 ): AssignmentDraftView | ToolExecutionFailure {
   const draft = selectAssignmentDraft(state);
   return draft ?? failure('INTERNAL_ERROR', state, name);
@@ -410,23 +410,18 @@ export function createToolHandlers(
         success(selectCoordinationOverview(state), state, 'get_coordination_overview'),
     ),
 
-    list_open_requests: withGuard(
-      'list_open_requests',
-      store,
-      dependencies,
-      (input, state) => {
-        const priority = optionalString(input, 'priority');
-        const zone = optionalString(input, 'zone');
-        const requests = selectOpenRequests(state).filter(
-          (request) =>
-            (priority === undefined ||
-              priority === 'ANY' ||
-              request.priority === PRIORITY_FILTERS[priority]) &&
-            (zone === undefined || zone === 'ANY' || request.zone === ZONE_FILTERS[zone]),
-        );
-        return success(Object.freeze(requests), state, 'list_open_requests');
-      },
-    ),
+    list_open_requests: withGuard('list_open_requests', store, dependencies, (input, state) => {
+      const priority = optionalString(input, 'priority');
+      const zone = optionalString(input, 'zone');
+      const requests = selectOpenRequests(state).filter(
+        (request) =>
+          (priority === undefined ||
+            priority === 'ANY' ||
+            request.priority === PRIORITY_FILTERS[priority]) &&
+          (zone === undefined || zone === 'ANY' || request.zone === ZONE_FILTERS[zone]),
+      );
+      return success(Object.freeze(requests), state, 'list_open_requests');
+    }),
 
     list_available_volunteers: withGuard(
       'list_available_volunteers',
@@ -454,33 +449,26 @@ export function createToolHandlers(
         });
         if (!result.ok) return storeFailure(result, 'create_assignment_draft');
         const draft = draftOrFailure(result.state, 'create_assignment_draft');
-        return 'ok' in draft
-          ? draft
-          : success(draft, result.state, 'create_assignment_draft');
+        return 'ok' in draft ? draft : success(draft, result.state, 'create_assignment_draft');
       },
     ),
 
-    get_assignment_draft: withGuard(
-      'get_assignment_draft',
-      store,
-      dependencies,
-      (input, state) => {
-        const draft = selectAssignmentDraft(state);
-        if (draft === null) return failure('INVALID_STATE', state, 'get_assignment_draft');
-        if (input.includeIssues === false) {
-          return success(
-            Object.freeze({
-              ...draft,
-              errors: Object.freeze([]),
-              warnings: Object.freeze([]),
-            }),
-            state,
-            'get_assignment_draft',
-          );
-        }
-        return success(draft, state, 'get_assignment_draft');
-      },
-    ),
+    get_assignment_draft: withGuard('get_assignment_draft', store, dependencies, (input, state) => {
+      const draft = selectAssignmentDraft(state);
+      if (draft === null) return failure('INVALID_STATE', state, 'get_assignment_draft');
+      if (input.includeIssues === false) {
+        return success(
+          Object.freeze({
+            ...draft,
+            errors: Object.freeze([]),
+            warnings: Object.freeze([]),
+          }),
+          state,
+          'get_assignment_draft',
+        );
+      }
+      return success(draft, state, 'get_assignment_draft');
+    }),
 
     validate_assignment_draft: withGuard(
       'validate_assignment_draft',
@@ -565,17 +553,12 @@ export function createToolHandlers(
       },
     ),
 
-    get_committed_plan: withGuard(
-      'get_committed_plan',
-      store,
-      dependencies,
-      (_input, state) => {
-        const plan = selectCommittedPlan(state);
-        return plan === null
-          ? failure('INVALID_STATE', state, 'get_committed_plan')
-          : success(plan, state, 'get_committed_plan');
-      },
-    ),
+    get_committed_plan: withGuard('get_committed_plan', store, dependencies, (_input, state) => {
+      const plan = selectCommittedPlan(state);
+      return plan === null
+        ? failure('INVALID_STATE', state, 'get_committed_plan')
+        : success(plan, state, 'get_committed_plan');
+    }),
 
     access_dispatch_contacts: withGuard(
       'access_dispatch_contacts',
@@ -598,20 +581,15 @@ export function createToolHandlers(
       },
     ),
 
-    get_audit_history: withGuard(
-      'get_audit_history',
-      store,
-      dependencies,
-      (input, state) => {
-        const limitValue = input.limit;
-        const limit = typeof limitValue === 'number' ? limitValue : 20;
-        return success(
-          Object.freeze(selectAuditHistory(state).slice(-limit)),
-          state,
-          'get_audit_history',
-        );
-      },
-    ),
+    get_audit_history: withGuard('get_audit_history', store, dependencies, (input, state) => {
+      const limitValue = input.limit;
+      const limit = typeof limitValue === 'number' ? limitValue : 20;
+      return success(
+        Object.freeze(selectAuditHistory(state).slice(-limit)),
+        state,
+        'get_audit_history',
+      );
+    }),
   };
 
   const ordered = Object.fromEntries(TOOL_NAMES.map((name) => [name, handlers[name]]));

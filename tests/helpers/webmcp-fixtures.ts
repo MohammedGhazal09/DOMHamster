@@ -227,8 +227,8 @@ export function createMutableStateStore(initialState: AppState): MutableStateSto
 
   return {
     getState: () => state,
-    async dispatch() {
-      throw new Error('TEST_REGISTRY_STORE_DISPATCH_NOT_ALLOWED');
+    dispatch() {
+      return Promise.reject(new Error('TEST_REGISTRY_STORE_DISPATCH_NOT_ALLOWED'));
     },
     subscribe(listener) {
       listeners.add(listener);

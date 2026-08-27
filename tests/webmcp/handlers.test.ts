@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { AppStore } from '../../src/app/store.ts';
 import { requestId, volunteerId, type AppState } from '../../src/domain/types.ts';
-import { TOOL_NAMES, type ToolName } from '../../src/webmcp/contracts.ts';
+import { TOOL_NAMES } from '../../src/webmcp/contracts.ts';
 import {
   createToolHandlers,
   type ToolExecutionFailure,
   type ToolExecutionResult,
 } from '../../src/webmcp/handlers.ts';
 import { desiredToolNames } from '../../src/webmcp/lifecycle.ts';
-import { validAssignments } from '../fixtures/drafts.ts';
 import {
   createTestStore,
   minimumToolInput,
@@ -36,8 +35,8 @@ function expectFailure(result: ToolExecutionResult, code: string): ToolExecution
 function fixedStore(state: AppState): AppStore {
   return {
     getState: () => state,
-    async dispatch() {
-      throw new Error('TEST_UNEXPECTED_DISPATCH');
+    dispatch() {
+      return Promise.reject(new Error('TEST_UNEXPECTED_DISPATCH'));
     },
     subscribe() {
       return () => undefined;
@@ -305,8 +304,8 @@ describe('WebMCP tool handlers', () => {
       getState() {
         throw new Error(sentinel);
       },
-      async dispatch() {
-        throw new Error(sentinel);
+      dispatch() {
+        return Promise.reject(new Error(sentinel));
       },
       subscribe() {
         return () => undefined;
@@ -334,7 +333,7 @@ describe('WebMCP tool handlers', () => {
     ]) {
       expect(result.nextActions.length).toBeLessThanOrEqual(4);
       for (const action of result.nextActions) {
-        expect(TOOL_NAMES).toContain(action as ToolName);
+        expect(TOOL_NAMES).toContain(action);
       }
     }
   });

@@ -50,10 +50,8 @@ function registrationTool(
     description: contract.description,
     inputSchema: contract.inputSchema,
     annotations: contract.annotations,
-    execute: (
-      inputObject: object,
-      options: ExecuteOptions,
-    ): Promise<ToolExecutionResult> => handler(inputObject, { signal: options.signal }),
+    execute: (inputObject: object, options: ExecuteOptions): Promise<ToolExecutionResult> =>
+      handler(inputObject, { signal: options.signal }),
   });
 }
 

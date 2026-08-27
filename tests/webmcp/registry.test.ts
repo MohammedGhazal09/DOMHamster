@@ -56,11 +56,12 @@ function handlers(): ToolHandlerMap {
     Object.fromEntries(
       TOOL_NAMES.map((name) => [
         name,
-        async () => ({
-          ok: true as const,
-          data: { handler: name },
-          nextActions: [] as const,
-        }),
+        () =>
+          Promise.resolve({
+            ok: true as const,
+            data: { handler: name },
+            nextActions: [] as const,
+          }),
       ]),
     ),
   ) as unknown as ToolHandlerMap;
