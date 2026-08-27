@@ -27,15 +27,17 @@ export async function executeWorkflowCommand(
   onAnnouncement: (message: string) => void,
   command: WorkflowUiCommand,
   acceptedMessage: string,
-): Promise<void> {
+): Promise<boolean> {
   try {
     const result = await onCommand(command);
     if (result !== undefined && !result.ok) {
       onAnnouncement(`Action was not accepted: ${result.error.code}.`);
-      return;
+      return false;
     }
     onAnnouncement(acceptedMessage);
+    return true;
   } catch {
     onAnnouncement('DOMHamster could not apply that action. State was not changed.');
+    return false;
   }
 }
