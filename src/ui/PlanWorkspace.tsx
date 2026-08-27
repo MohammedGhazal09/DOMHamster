@@ -18,8 +18,8 @@ import type { WorkflowCommandHandler } from './workflow-commands.ts';
 export interface PlanWorkspaceProps {
   readonly state: AppState;
   readonly draft: AssignmentDraftView | null;
-  readonly committedPlan: CommittedPlanView | null;
-  readonly approval: ApprovalRecord | null;
+  readonly committedPlan?: CommittedPlanView | null;
+  readonly approval?: ApprovalRecord | null;
   readonly requests: readonly PublicRequestView[];
   readonly volunteers: readonly PublicVolunteerView[];
   readonly toolNames: readonly ToolName[];
@@ -52,8 +52,8 @@ function isEditableDraft(draft: AssignmentDraftView): boolean {
 export function PlanWorkspace({
   state,
   draft,
-  committedPlan,
-  approval,
+  committedPlan = null,
+  approval = null,
   requests,
   volunteers,
   toolNames,
