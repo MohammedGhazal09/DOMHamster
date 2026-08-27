@@ -64,7 +64,12 @@ export function ApprovedBanner({
       <div>
         <span className="eyebrow">Human approval recorded</span>
         <h3 id="approved-banner-heading">Approved draft v{draftVersion}</h3>
-        <p className="approved-banner__countdown">
+        <p
+          className="approved-banner__countdown"
+          role="timer"
+          aria-live="off"
+          aria-atomic="true"
+        >
           Version {draftVersion} approved. Waiting for the agent to commit. Approval expires in{' '}
           {formatApprovalCountdown(remaining)}.
         </p>

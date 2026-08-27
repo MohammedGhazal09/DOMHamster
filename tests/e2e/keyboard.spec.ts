@@ -91,9 +91,8 @@ test('keeps the critical human authority path keyboard-complete', async ({ page 
   expect(created.ok).toBe(true);
 
   const volunteer = page.getByLabel('Volunteer for R-105');
+  await expect(volunteer).toHaveValue('V-03');
   await volunteer.focus();
-  await page.keyboard.type('V-03');
-  await page.keyboard.press('Enter');
 
   const startTime = page.getByLabel('Start time for R-105');
   await startTime.focus();

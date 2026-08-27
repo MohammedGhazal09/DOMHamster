@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { StoreConnectedApp } from './app/StoreConnectedApp.tsx';
 import { createDefaultBrowserRuntime } from './app/browser-runtime.ts';
+import './app/hardening.css';
 
 const rootElement = document.getElementById('root');
 

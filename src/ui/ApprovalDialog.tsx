@@ -92,6 +92,7 @@ export function ApprovalDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
+        aria-busy={busy}
       >
         <header className="modal-card__header">
           <div>

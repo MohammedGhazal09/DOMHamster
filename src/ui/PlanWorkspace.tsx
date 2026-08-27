@@ -127,6 +127,7 @@ export function PlanWorkspace({
             <p
               className={`draft-status-banner ${draft.valid ? 'is-valid' : 'is-invalid'}`}
               role={draft.valid ? 'status' : 'alert'}
+              aria-atomic="true"
             >
               {draft.valid
                 ? 'This draft passes all hard constraints and is ready for human review.'
@@ -222,7 +223,13 @@ export function PlanWorkspace({
         </div>
       </div>
 
-      <p className="sr-only" role="status" aria-live="polite">
+      <p
+        id="plan-announcement"
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {announcement}
       </p>
     </section>

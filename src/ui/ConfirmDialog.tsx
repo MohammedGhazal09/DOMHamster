@@ -63,6 +63,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={bodyId}
+        aria-busy={busy}
       >
         <header className="confirm-dialog__header">
           <span aria-hidden="true">!</span>

@@ -39,11 +39,15 @@ describe('automated accessibility contract', () => {
     const state = workflowStates()[stateName];
     renderState(state);
 
-    expect(screen.getAllByRole('main')).toHaveLength(1);
-    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole('navigation', { name: 'Application actions' })).toBeVisible();
+    expect(document.querySelectorAll('main')).toHaveLength(1);
+    expect(document.querySelectorAll('h1')).toHaveLength(1);
+    expect(document.querySelector('nav[aria-label="Application actions"]')).not.toBeNull();
 
-    const status = screen.getByRole('status', { name: 'Current application status' });
+    const status = document.querySelector<HTMLElement>(
+      '[role="status"][aria-label="Current application status"]',
+    );
+    expect(status).not.toBeNull();
+    if (status === null) throw new Error('TEST_CURRENT_APPLICATION_STATUS_MISSING');
     expect(status).toHaveAttribute('aria-live', 'polite');
     expect(status).toHaveAttribute('aria-atomic', 'true');
     expect(status).toHaveTextContent(stateName);

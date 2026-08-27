@@ -1,0 +1,292 @@
+/* WP10 accessibility, responsive, and visual-fidelity hardening. */
+
+.app-content,
+.app-header,
+.judge-summary,
+.coordination-workspace,
+.workspace-panel,
+.plan-workspace__body {
+  min-inline-size: 0;
+}
+
+.app-header {
+  grid-template-columns: minmax(330px, 1.2fr) minmax(250px, auto) minmax(170px, 0.55fr) auto;
+}
+
+.application-status {
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.button,
+.lock-button,
+.validation-focus-link,
+.assignment-issue-badge,
+select,
+input[type='time'] {
+  min-height: 44px;
+}
+
+.button,
+.lock-button,
+.validation-focus-link,
+.assignment-issue-badge {
+  touch-action: manipulation;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+button:disabled,
+select:disabled,
+input:disabled {
+  opacity: 0.7;
+}
+
+.assignment-request-target,
+.validation-item,
+#plan-heading,
+#coordination-workspace {
+  scroll-margin-block: 96px;
+}
+
+.assignment-table-scroll,
+.readonly-assignment-scroll {
+  overscroll-behavior-inline: contain;
+}
+
+.assignment-table-scroll::before,
+.readonly-assignment-scroll::before {
+  display: block;
+  padding: 7px 10px;
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.625rem;
+  content: 'Scrollable table — use Shift + mouse wheel or arrow keys when needed';
+}
+
+.assignment-table-scroll:focus-within,
+.readonly-assignment-scroll:focus-within,
+.workspace-panel:focus-within {
+  border-color: var(--color-focus);
+}
+
+.draft-status-banner[role='alert'] {
+  border-width: 2px;
+}
+
+.modal-card[aria-busy='true'] {
+  cursor: progress;
+}
+
+.modal-card[aria-busy='true'] .modal-card__actions {
+  opacity: 0.78;
+}
+
+.approved-banner__countdown[role='timer'] {
+  font-variant-numeric: tabular-nums;
+}
+
+.app-content[inert] {
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:not(:disabled):hover,
+  .lock-button:not(:disabled):hover,
+  .validation-focus-link:not(:disabled):hover,
+  .assignment-issue-badge:not(:disabled):hover {
+    box-shadow: 0 2px 0 rgb(23 33 43 / 8%);
+  }
+}
+
+@media (max-width: 1279px) {
+  .app-header {
+    grid-template-columns: minmax(290px, 1fr) auto;
+  }
+
+  .application-status {
+    justify-content: flex-end;
+  }
+
+  .global-actions {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .coordination-workspace {
+    align-items: start;
+  }
+}
+
+@media (max-width: 1023px) {
+  .app-shell {
+    padding-inline: 16px;
+  }
+
+  .judge-summary,
+  .coordination-workspace {
+    gap: 14px;
+  }
+
+  .plan-workspace {
+    min-height: 620px;
+  }
+
+  .request-panel,
+  .volunteer-panel {
+    min-height: 0;
+  }
+
+  .tool-evidence ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .app-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .application-status,
+  .global-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .global-actions {
+    overflow: visible;
+  }
+
+  .global-actions .button {
+    flex: 1 1 9rem;
+  }
+
+  .plan-workspace {
+    min-height: 0;
+  }
+
+  .assignment-table-scroll,
+  .readonly-assignment-scroll {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 8px;
+  }
+
+  .app-header {
+    padding: 12px;
+  }
+
+  .brand-lockup {
+    align-items: flex-start;
+  }
+
+  .application-status {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .application-status .status-chip,
+  .application-status .capability-chip {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .global-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .global-actions .button:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .workspace-panel__header,
+  .plan-workspace__body {
+    padding-inline: 14px;
+  }
+
+  .tool-evidence ul {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-backdrop:has(.approval-dialog) {
+    padding: 0;
+  }
+
+  .approval-dialog {
+    width: 100%;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .drawer-card {
+    width: 100%;
+  }
+
+  .modal-card__actions,
+  .approved-banner__actions,
+  .draft-human-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .modal-card__actions .button,
+  .approved-banner__actions .button,
+  .draft-human-actions .button {
+    width: 100%;
+  }
+
+  .assignment-table-scroll,
+  .readonly-assignment-scroll {
+    margin-inline: 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .surface,
+  .request-card,
+  .volunteer-card,
+  .validation-item,
+  .modal-card,
+  .drawer-card,
+  .approved-banner,
+  .human-authority {
+    border: 1px solid CanvasText;
+  }
+
+  .status-chip,
+  .capability-chip,
+  .priority-badge,
+  .state-pill,
+  .actor-pill,
+  .tool-count {
+    border: 1px solid currentColor;
+  }
+
+  .load-fill {
+    background: Highlight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  button:not(:disabled):active {
+    transform: none;
+  }
+}

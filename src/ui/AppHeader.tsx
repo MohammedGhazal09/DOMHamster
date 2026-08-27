@@ -44,13 +44,20 @@ export function AppHeader({
         </div>
       </div>
 
-      <span className={`status-chip status-chip--${workflowState.toLowerCase()}`}>
-        {workflowState}
-      </span>
-
-      <span className={`capability-chip ${connected ? 'is-connected' : 'is-unavailable'}`}>
-        {connected ? 'WebMCP connected' : 'WebMCP unavailable'}
-      </span>
+      <div
+        className="application-status"
+        role="status"
+        aria-label="Current application status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <span className={`status-chip status-chip--${workflowState.toLowerCase()}`}>
+          {workflowState}
+        </span>
+        <span className={`capability-chip ${connected ? 'is-connected' : 'is-unavailable'}`}>
+          {connected ? 'WebMCP connected' : 'WebMCP unavailable'}
+        </span>
+      </div>
 
       <div className="scenario-date">
         <span>Scenario date</span>
