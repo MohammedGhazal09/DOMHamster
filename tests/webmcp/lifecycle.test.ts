@@ -75,7 +75,7 @@ describe('WebMCP lifecycle matrix', () => {
   });
 
   it('keeps human-only actions absent from every state', () => {
-    const allNames = new Set(Object.values(TOOL_NAMES_BY_STATE).flat());
+    const allNames = new Set<string>(Object.values(TOOL_NAMES_BY_STATE).flat());
 
     for (const forbiddenName of [
       'lock_assignment',
