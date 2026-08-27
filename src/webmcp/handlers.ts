@@ -109,18 +109,18 @@ interface RevisionInput {
 
 type DraftBearingState = DraftState | AwaitingApprovalState | ApprovedState;
 
-const PRIORITY_FILTERS = Object.freeze({
+const PRIORITY_FILTERS: Readonly<Record<string, Priority>> = Object.freeze({
   URGENT: 'high',
   HIGH: 'medium',
   NORMAL: 'low',
-} satisfies Record<string, Priority>);
+});
 
-const ZONE_FILTERS = Object.freeze({
+const ZONE_FILTERS: Readonly<Record<string, Zone>> = Object.freeze({
   NORTH: 'north',
   CENTRAL: 'center',
   EAST: 'east',
   SOUTH: 'south',
-} satisfies Record<string, Zone>);
+});
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -170,15 +170,13 @@ function revisionInputs(value: unknown): readonly RevisionInput[] {
     if (action !== 'SET_ASSIGNMENT' && action !== 'SET_UNASSIGNED') {
       throw new Error('DOMHAMSTER_SCHEMA_ACTION_INVARIANT');
     }
+    const volunteerValue = optionalString(record, 'volunteerId');
+    const startTimeValue = optionalString(record, 'startTime');
     return Object.freeze({
       action,
       requestId: requiredString(record, 'requestId'),
-      ...(optionalString(record, 'volunteerId') === undefined
-        ? {}
-        : { volunteerId: optionalString(record, 'volunteerId') }),
-      ...(optionalString(record, 'startTime') === undefined
-        ? {}
-        : { startTime: optionalString(record, 'startTime') }),
+      ...(volunteerValue === undefined ? {} : { volunteerId: volunteerValue }),
+      ...(startTimeValue === undefined ? {} : { startTime: startTimeValue }),
     });
   });
 }
