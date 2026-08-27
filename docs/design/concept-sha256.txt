@@ -1,0 +1,2 @@
+601677f4511b1717cbdf6b7392ea3ceed2b9ce468c53a4e0a1b511ff87d5d41f  docs/design/domhamster-approval-state.png
+c60294c93faef40ee7bf69bcf9f275fc874005be50238ca7d91e6437a12ae31a  docs/design/domhamster-primary-screen.png
