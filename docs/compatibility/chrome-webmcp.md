@@ -19,14 +19,14 @@
 
 ## Native registration matrix
 
-| State | Expected count | Expected names | Observed result |
-|---|---:|---|---|
-| READY | 5 | overview, requests, volunteers, create draft, audit | Not run |
-| DRAFT_INVALID | 7 | read/validate/revise set without approval | Not run |
-| DRAFT_VALID | 8 | invalid-state set plus prepare approval | Not run |
-| AWAITING_APPROVAL | 3 | draft, validation, audit | Not run |
-| APPROVED | 4 | draft, validation, commit, audit | Not run |
-| COMMITTED | 3 | committed plan, contacts, audit | Not run |
+| State | Expected tools | Observed result |
+|---|---|---|
+| READY | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `create_assignment_draft`, `get_audit_history` | Not run |
+| DRAFT_INVALID | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `get_assignment_draft`, `validate_assignment_draft`, `revise_assignment_draft`, `get_audit_history` | Not run |
+| DRAFT_VALID | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `get_assignment_draft`, `validate_assignment_draft`, `revise_assignment_draft`, `prepare_plan_approval`, `get_audit_history` | Not run |
+| AWAITING_APPROVAL | `get_assignment_draft`, `validate_assignment_draft`, `get_audit_history` | Not run |
+| APPROVED | `get_assignment_draft`, `validate_assignment_draft`, `commit_assignment_plan`, `get_audit_history` | Not run |
+| COMMITTED | `get_committed_plan`, `access_dispatch_contacts`, `get_audit_history` | Not run |
 
 ## Required checks
 
@@ -43,7 +43,7 @@
 | Check | Result | Evidence or discrepancy |
 |---|---|---|
 | Native `document.modelContext` | Not run | Record capability result |
-| Six registration sets | Not run | Record counts and names |
+| Six registration sets | Not run | Record exact counts and names |
 | Manual tool invocations | Not run | Record safe result/error codes |
 | External-agent journey | Not run | Record tool sequence and final state |
 | Stale handler cleanup | Not run | Record removal/replay result |
