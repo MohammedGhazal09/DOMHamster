@@ -18,6 +18,7 @@ import { RequestPanel } from '../ui/RequestPanel.tsx';
 import { VolunteerPanel } from '../ui/VolunteerPanel.tsx';
 import { DEFAULT_READY_STATE } from './default-state.ts';
 import './styles.css';
+import './editor.css';
 
 export interface AppProps {
   readonly state?: AppState;
