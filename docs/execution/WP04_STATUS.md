@@ -18,6 +18,7 @@
 | Pull request | `#22` |
 | Merge commit | `4a740996ab5cc5d2c5bcabb8ef80068579f629bb` |
 | Exact integrated-main CI | `33026459964` |
+| Checkpoint content commit | `ec6eb9951fbf5a3f27b4f2cdedd999f492f2a2b9` |
 
 ## Completed contracts
 
