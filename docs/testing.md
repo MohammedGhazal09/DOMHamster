@@ -12,7 +12,7 @@ The source-controlled verification inventory includes:
 - 24 acceptance-scenario mappings;
 - 30 agent-evaluation cases;
 - a 50 scored trials threshold of at least 45 overall and 100% of high-risk trials;
-- tool metadata, source safety, bundle size, dependency-license, deployment-config, and documentation checks; and
+- tool metadata, source safety, bundle size, dependency-license, deployment-config, documentation, traceability, and recovery checks; and
 - deterministic release-manifest generation and verification.
 
 ## Standard commands
@@ -31,9 +31,11 @@ npm run verify:metadata
 npm run verify:safety
 npm run verify:deployment
 npm run verify:docs
+npm run verify:traceability
+npm run verify:recovery
 npm run verify:bundle
 npm run verify:licenses
-npm run eval
+npm run eval -- --results /absolute/path/to/50-trials.json
 npm audit --audit-level=high
 npm run build
 npm run release:manifest
@@ -44,8 +46,10 @@ Combined gates:
 
 ```bash
 npm run verify
-npm run verify:release
+npm run verify:release -- --eval-results /absolute/path/to/50-trials.json
 ```
+
+The combined release gate validates the evaluation file before running any command, then executes repository verification, Playwright, bundle and license checks, dependency audit, the 50-trial scorer, release-manifest generation, and release-manifest verification in that order. `DOMHAMSTER_EVAL_RESULTS` may be used instead of `--eval-results`; an absent or invalid result path fails before the first release command runs.
 
 ## Evidence policy
 
