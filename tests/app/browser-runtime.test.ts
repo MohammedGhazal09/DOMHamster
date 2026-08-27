@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ModelContextPort } from '../../src/app/ports.ts';
 import { createBrowserRuntime } from '../../src/app/browser-runtime.ts';
+import type { ModelContextPort } from '../../src/app/ports.ts';
 import { CANONICAL_SCENARIO } from '../../src/domain/seed.ts';
 import type { AuditEventId, PlanId } from '../../src/domain/types.ts';
 import { DOMHAMSTER_STORAGE_KEY } from '../../src/persistence/local-storage.ts';
@@ -17,14 +17,14 @@ class FakeModelContext implements ModelContextPort {
   readonly signals: AbortSignal[] = [];
 
   async registerTool(tool: unknown, options?: { readonly signal?: AbortSignal }): Promise<void> {
-    if (
-      tool === null ||
-      typeof tool !== 'object' ||
-      typeof Reflect.get(tool, 'name') !== 'string'
-    ) {
+    const name =
+      tool === null || typeof tool !== 'object'
+        ? undefined
+        : (Reflect.get(tool, 'name') as unknown);
+    if (typeof name !== 'string') {
       throw new Error('TEST_INVALID_TOOL');
     }
-    this.tools.push({ name: Reflect.get(tool, 'name') as string });
+    this.tools.push({ name });
     if (options?.signal !== undefined) this.signals.push(options.signal);
   }
 }
@@ -67,15 +67,11 @@ describe('browser runtime composition', () => {
   it('starts and reconciles state-aware WebMCP tools against the same store', async () => {
     const storage = new MemoryStorage();
     const modelContext = new FakeModelContext();
-    const runtime = createBrowserRuntime(
-      runtimeDependencies(storage, { modelContext }),
-    );
+    const runtime = createBrowserRuntime(runtimeDependencies(storage, { modelContext }));
 
     await runtime.start();
 
-    expect(runtime.getRegistrySnapshot()?.registeredToolNames).toEqual(
-      desiredToolNames('READY'),
-    );
+    expect(runtime.getRegistrySnapshot()?.registeredToolNames).toEqual(desiredToolNames('READY'));
 
     const result = await runtime.store.dispatch({
       type: 'CREATE_DRAFT',
@@ -100,12 +96,15 @@ describe('browser runtime composition', () => {
     storage.values.set(DOMHAMSTER_STORAGE_KEY, '{malformed');
 
     const runtime = createBrowserRuntime(runtimeDependencies(storage, {}));
+    const savedState = JSON.parse(
+      storage.values.get(DOMHAMSTER_STORAGE_KEY) ?? '{}',
+    ) as unknown;
 
     expect(runtime.persistenceRecovery?.code).toBe('MALFORMED_JSON');
     expect(runtime.store.getState().scenario).toBe(CANONICAL_SCENARIO);
     expect(runtime.store.getState().workflowState).toBe('READY');
     expect(storage.setCalls).toBe(1);
-    expect(JSON.parse(storage.values.get(DOMHAMSTER_STORAGE_KEY) ?? '{}')).toMatchObject({
+    expect(savedState).toMatchObject({
       fixtureVersion: CANONICAL_SCENARIO.id,
       state: { workflowState: 'READY' },
     });
@@ -114,9 +113,7 @@ describe('browser runtime composition', () => {
   it('aborts every active tool registration during teardown', async () => {
     const storage = new MemoryStorage();
     const modelContext = new FakeModelContext();
-    const runtime = createBrowserRuntime(
-      runtimeDependencies(storage, { modelContext }),
-    );
+    const runtime = createBrowserRuntime(runtimeDependencies(storage, { modelContext }));
 
     await runtime.start();
     runtime.teardown();
