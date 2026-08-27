@@ -46,6 +46,7 @@ export interface AppProps {
   readonly state?: AppState;
   readonly capabilityStatus?: WebMcpCapabilityStatus;
   readonly registeredToolNames?: readonly ToolName[];
+  readonly registryErrorCodes?: readonly string[];
   readonly onOpenActivity?: () => void;
   readonly onOpenDiagnostics?: () => void;
   readonly onReset?: () => void;
@@ -59,6 +60,7 @@ export interface AppProps {
 type ConfirmationKind = 'reset' | 'discard' | 'cancel-approval';
 
 const EMPTY_TOOL_NAMES = Object.freeze([] as ToolName[]);
+const EMPTY_REGISTRY_ERRORS = Object.freeze([] as string[]);
 
 const DEFAULT_BUILD_INFO: BuildInfoPort = Object.freeze({
   version: '0.0.0',
@@ -100,6 +102,7 @@ export function App({
   state = DEFAULT_READY_STATE,
   capabilityStatus,
   registeredToolNames,
+  registryErrorCodes = EMPTY_REGISTRY_ERRORS,
   onOpenActivity = noOperation,
   onOpenDiagnostics = noOperation,
   onReset = noOperation,
@@ -151,6 +154,11 @@ export function App({
     [baseCommandHandler],
   );
 
+  const combinedErrorCodes = useMemo(
+    () => Object.freeze([...registryErrorCodes, ...recentErrorCodes].slice(-10)),
+    [recentErrorCodes, registryErrorCodes],
+  );
+
   const diagnostics = useMemo(
     () =>
       createDiagnosticsSnapshot({
@@ -160,13 +168,13 @@ export function App({
         desiredToolNames: desiredNames,
         registeredToolNames: visibleToolNames,
         persistenceStatus,
-        recentErrorCodes,
+        recentErrorCodes: combinedErrorCodes,
       }),
     [
       buildInfo,
+      combinedErrorCodes,
       desiredNames,
       persistenceStatus,
-      recentErrorCodes,
       resolvedCapability,
       state,
       visibleToolNames,

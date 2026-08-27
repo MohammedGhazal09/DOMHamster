@@ -36,6 +36,7 @@ export interface BrowserRuntime {
   start(): Promise<void>;
   whenIdle(): Promise<void>;
   getRegistrySnapshot(): WebMcpRegistrySnapshot | null;
+  subscribeRegistry(listener: () => void): () => void;
   teardown(): void;
 }
 
@@ -105,6 +106,9 @@ export function createBrowserRuntime(
     },
     getRegistrySnapshot() {
       return registry?.getSnapshot() ?? null;
+    },
+    subscribeRegistry(listener: () => void) {
+      return registry?.subscribe(listener) ?? (() => undefined);
     },
     teardown() {
       registry?.teardown();

@@ -11,12 +11,17 @@ if (!rootElement) {
 }
 
 const runtime = createDefaultBrowserRuntime();
+const registrySource = Object.freeze({
+  subscribe: runtime.subscribeRegistry,
+  getSnapshot: runtime.getRegistrySnapshot,
+});
 
 createRoot(rootElement).render(
   <StrictMode>
     <StoreConnectedApp
       store={runtime.store}
       capabilityStatus={runtime.capabilityStatus}
+      registrySource={registrySource}
     />
   </StrictMode>,
 );

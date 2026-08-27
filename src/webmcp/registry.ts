@@ -16,6 +16,7 @@ export interface WebMcpRegistry {
   start(): Promise<void>;
   whenIdle(): Promise<void>;
   getSnapshot(): WebMcpRegistrySnapshot;
+  subscribe(listener: () => void): () => void;
   teardown(): void;
 }
 
@@ -58,11 +59,22 @@ function registrationTool(
 export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): WebMcpRegistry {
   const registrations = new Map<ToolName, RegistrationRecord>();
   const errors: string[] = [];
+  const listeners = new Set<() => void>();
   let active = false;
   let generation = 0;
   let desiredKey = '';
   let unsubscribe: (() => void) | null = null;
   let tail: Promise<void> = Promise.resolve();
+
+  function notify(): void {
+    for (const listener of [...listeners]) {
+      try {
+        listener();
+      } catch {
+        // A diagnostics subscriber cannot affect tool registration authority.
+      }
+    }
+  }
 
   function recordError(code: string): void {
     errors.push(code);
@@ -91,6 +103,7 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
     if (nextKey !== desiredKey) {
       abortAll();
       desiredKey = nextKey;
+      notify();
     }
 
     for (const name of desired) {
@@ -115,14 +128,17 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
         if (runGeneration !== generation || !latestDesired.includes(name)) {
           controller.abort();
           registrations.delete(name);
+          notify();
           return;
         }
 
         record.registered = true;
+        notify();
       } catch {
         controller.abort();
         registrations.delete(name);
         recordError('TOOL_REGISTRATION_FAILED');
+        notify();
       }
     }
   }
@@ -166,11 +182,21 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
       active = true;
       desiredKey = '';
       unsubscribe = dependencies.store.subscribe(schedule);
+      notify();
       schedule();
       await whenIdle();
     },
     whenIdle,
     getSnapshot: snapshot,
+    subscribe(listener: () => void) {
+      listeners.add(listener);
+      let subscribed = true;
+      return () => {
+        if (!subscribed) return;
+        subscribed = false;
+        listeners.delete(listener);
+      };
+    },
     teardown() {
       if (!active) return;
       active = false;
@@ -179,6 +205,7 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
       unsubscribe?.();
       unsubscribe = null;
       abortAll();
+      notify();
     },
   });
 }
