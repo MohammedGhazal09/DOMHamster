@@ -9,6 +9,10 @@ playwright-report/
 test-results/
 blob-report/
 
+# Generated evaluation evidence
+evals/results/*.json
+!evals/results/README.md
+
 # Local environment and editor files
 .env
 .env.*

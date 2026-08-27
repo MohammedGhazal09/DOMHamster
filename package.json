@@ -21,8 +21,18 @@
     "format:check": "prettier --check .",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:accessibility": "vitest run tests/accessibility",
+    "test:security": "vitest run tests/security",
     "test:e2e": "playwright test",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run build"
+    "verify:metadata": "node scripts/check-tool-metadata.mjs",
+    "verify:safety": "node scripts/check-source-safety.mjs",
+    "verify:bundle": "node scripts/check-bundle-size.mjs",
+    "verify:licenses": "node scripts/check-licenses.mjs",
+    "eval": "node scripts/run-agent-evals.mjs",
+    "release:manifest": "node scripts/create-release-manifest.mjs",
+    "release:verify": "node scripts/verify-release.mjs",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run verify:metadata && npm run verify:safety && npm run build",
+    "verify:release": "npm run verify && npm run test:e2e && npm run verify:bundle && npm run verify:licenses && npm run eval"
   },
   "dependencies": {
     "ajv": "8.20.0",
