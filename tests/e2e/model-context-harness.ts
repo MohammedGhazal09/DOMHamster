@@ -1,19 +1,7 @@
 import type { Page } from '@playwright/test';
+import { validDraftToolInput } from '../helpers/webmcp-fixtures.ts';
 
-export const VALID_DRAFT_INPUT = Object.freeze({
-  assignments: Object.freeze([
-    { requestId: 'R-101', volunteerId: 'V-01', startTime: '09:00' },
-    { requestId: 'R-102', volunteerId: 'V-02', startTime: '09:00' },
-    { requestId: 'R-103', volunteerId: 'V-03', startTime: '10:30' },
-    { requestId: 'R-104', volunteerId: 'V-04', startTime: '11:30' },
-    { requestId: 'R-105', volunteerId: 'V-03', startTime: '11:00' },
-    { requestId: 'R-106', volunteerId: 'V-03', startTime: '13:00' },
-    { requestId: 'R-107', volunteerId: 'V-05', startTime: '14:00' },
-    { requestId: 'R-108', volunteerId: 'V-04', startTime: '15:00' },
-  ]),
-  unassignedRequestIds: Object.freeze([] as string[]),
-  goal: 'Use the deterministic canonical fixture.',
-});
+export const VALID_DRAFT_INPUT = Object.freeze(validDraftToolInput());
 
 export const EXPECTED_TOOL_NAMES = Object.freeze({
   READY: Object.freeze([
