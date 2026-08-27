@@ -29,6 +29,7 @@
     "tests/setup.ts",
     "tests/domain/**/*.ts",
     "tests/app/**/*.ts",
+    "tests/app/**/*.tsx",
     "tests/persistence/**/*.ts",
     "tests/fixtures/**/*.ts",
     "tests/helpers/**/*.ts",
