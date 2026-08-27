@@ -44,7 +44,7 @@ export const COMPILED_TOOL_VALIDATORS = Object.freeze(
       ajv.compile(contract.inputSchema as WebMcpInputSchema),
     ]),
   ),
-) as Readonly<Record<ToolName, ValidateFunction<unknown>>>;
+) as Readonly<Record<ToolName, ValidateFunction>>;
 
 function safeIssue(instancePath: string, keyword: string): SafeSchemaIssue {
   return Object.freeze({
