@@ -6,6 +6,7 @@ import {
   selectAvailableVolunteers,
   selectOpenRequests,
 } from '../../src/app/selectors.ts';
+import { StoreConnectedApp } from '../../src/app/StoreConnectedApp.tsx';
 import { reduceCommand } from '../../src/domain/commands.ts';
 import { requestId, volunteerId, type AppState } from '../../src/domain/types.ts';
 import type { HumanDraftCommandHandler } from '../../src/ui/AssignmentTable.tsx';
@@ -13,6 +14,7 @@ import { PlanWorkspace } from '../../src/ui/PlanWorkspace.tsx';
 import { desiredToolNames } from '../../src/webmcp/lifecycle.ts';
 import {
   commandDependencies,
+  createTestStore,
   expectCommandSuccess,
   workflowStates,
 } from '../helpers/webmcp-fixtures.ts';
@@ -186,6 +188,31 @@ describe('human assignment editor', () => {
       expectedDraftVersion: 2,
       requestId: requestId('R-105'),
     });
+  });
+
+  it('re-renders accepted human commands from the shared application store', async () => {
+    const initialState = workflowStates().DRAFT_VALID;
+    const { store } = createTestStore(initialState);
+    const user = userEvent.setup();
+
+    render(
+      <StoreConnectedApp
+        store={store}
+        capabilityStatus="AVAILABLE"
+        registeredToolNames={desiredToolNames(initialState.workflowState)}
+      />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Volunteer for R-105' }),
+      'V-03',
+    );
+    expect(await screen.findByText('Draft v2')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Lock assignment for R-105' }));
+    expect(await screen.findByText('Draft v3')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: 'Volunteer for R-105' })).toBeDisabled();
+    expect(store.getState().draft?.version).toBe(3);
   });
 
   it('renders blocking validation evidence and links issues back to affected rows', async () => {
