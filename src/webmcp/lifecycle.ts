@@ -43,11 +43,7 @@ export const TOOL_NAMES_BY_STATE = Object.freeze({
     'commit_assignment_plan',
     'get_audit_history',
   ]),
-  COMMITTED: freezeNames([
-    'get_committed_plan',
-    'access_dispatch_contacts',
-    'get_audit_history',
-  ]),
+  COMMITTED: freezeNames(['get_committed_plan', 'access_dispatch_contacts', 'get_audit_history']),
 } satisfies Record<WorkflowState, readonly ToolName[]>);
 
 export function desiredToolNames(state: WorkflowState): readonly ToolName[] {

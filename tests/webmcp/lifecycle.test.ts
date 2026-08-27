@@ -29,22 +29,14 @@ const EXPECTED_BY_STATE = {
     'prepare_plan_approval',
     'get_audit_history',
   ],
-  AWAITING_APPROVAL: [
-    'get_assignment_draft',
-    'validate_assignment_draft',
-    'get_audit_history',
-  ],
+  AWAITING_APPROVAL: ['get_assignment_draft', 'validate_assignment_draft', 'get_audit_history'],
   APPROVED: [
     'get_assignment_draft',
     'validate_assignment_draft',
     'commit_assignment_plan',
     'get_audit_history',
   ],
-  COMMITTED: [
-    'get_committed_plan',
-    'access_dispatch_contacts',
-    'get_audit_history',
-  ],
+  COMMITTED: ['get_committed_plan', 'access_dispatch_contacts', 'get_audit_history'],
 } as const satisfies Record<WorkflowState, readonly string[]>;
 
 describe('WebMCP lifecycle matrix', () => {

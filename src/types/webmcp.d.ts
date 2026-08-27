@@ -47,10 +47,7 @@ declare global {
 
   interface ModelContext extends EventTarget {
     ontoolchange: ((this: ModelContext, event: Event) => unknown) | null;
-    registerTool(
-      tool: ModelContextTool,
-      options?: ModelContextRegisterToolOptions,
-    ): Promise<void>;
+    registerTool(tool: ModelContextTool, options?: ModelContextRegisterToolOptions): Promise<void>;
     getTools(options?: ModelContextGetToolOptions): Promise<readonly RegisteredTool[]>;
     executeTool(
       tool: RegisteredTool,

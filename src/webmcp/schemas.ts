@@ -1,9 +1,5 @@
 import Ajv, { type ErrorObject, type ValidateFunction } from 'ajv';
-import {
-  TOOL_CONTRACTS,
-  type ToolName,
-  type WebMcpInputSchema,
-} from './contracts.ts';
+import { TOOL_CONTRACTS, type ToolName, type WebMcpInputSchema } from './contracts.ts';
 
 export const MAX_SCHEMA_ISSUES = 8;
 const MAX_INSTANCE_PATH_CHARACTERS = 160;
