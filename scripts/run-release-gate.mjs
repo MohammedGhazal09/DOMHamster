@@ -85,7 +85,8 @@ export function runReleaseGate(options = {}) {
   return commands.length;
 }
 
-const entryPath = process.argv[1] === undefined ? null : pathToFileURL(resolve(process.argv[1])).href;
+const entryPath =
+  process.argv[1] === undefined ? null : pathToFileURL(resolve(process.argv[1])).href;
 if (entryPath === import.meta.url) {
   try {
     const completed = runReleaseGate();
