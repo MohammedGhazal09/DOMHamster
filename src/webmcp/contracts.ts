@@ -357,4 +357,4 @@ export const TOOL_CONTRACTS = deepFreeze(RAW_TOOL_CONTRACTS);
 
 export const TOOL_CONTRACT_BY_NAME = Object.freeze(
   Object.fromEntries(TOOL_CONTRACTS.map((contract) => [contract.name, contract])),
-) as Readonly<Record<ToolName, WebMcpToolContract>>;
+) as unknown as Readonly<Record<ToolName, WebMcpToolContract>>;
