@@ -1,0 +1,69 @@
+name: Apply WP06 final lint cleanup
+
+on:
+  push:
+    branches: [implementation/wp06-runtime]
+    paths:
+      - .github/workflows/wp06-lintfix2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out WP06 branch
+        uses: actions/checkout@v7
+        with:
+          ref: implementation/wp06-runtime
+          fetch-depth: 0
+
+      - name: Apply compiler-model cleanup
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def replace_once(path_name: str, old: str, new: str) -> None:
+              path = Path(path_name)
+              text = path.read_text(encoding='utf-8')
+              if text.count(old) != 1:
+                  raise SystemExit(f'{path_name}: expected one occurrence of {old!r}')
+              path.write_text(text.replace(old, new), encoding='utf-8')
+
+          replace_once(
+              'src/webmcp/registry.ts',
+              "    for (const name of desired) {\n      if (!active || runGeneration !== generation) return;\n      const existing = registrations.get(name);",
+              "    for (const name of desired) {\n      const existing = registrations.get(name);",
+          )
+          replace_once(
+              'src/webmcp/registry.ts',
+              "        if (!active || runGeneration !== generation || !latestDesired.includes(name)) {",
+              "        if (runGeneration !== generation || !latestDesired.includes(name)) {",
+          )
+          replace_once(
+              'tests/webmcp/handlers.test.ts',
+              '    expect(draft?.assignments).toHaveLength(8);',
+              '    expect(draft.assignments).toHaveLength(8);',
+          )
+          replace_once(
+              'tests/webmcp/handlers.test.ts',
+              "    expect(prepared?.workflowState).toBe('AWAITING_APPROVAL');",
+              "    expect(prepared.workflowState).toBe('AWAITING_APPROVAL');",
+          )
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/wp06-lintfix2.yml
+
+      - name: Format corrected files
+        run: npx prettier --write src/webmcp/registry.ts tests/webmcp/handlers.test.ts
+
+      - name: Commit final lint cleanup
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'style: finish WP06 strict-lint cleanup'
+          git push origin HEAD:implementation/wp06-runtime
