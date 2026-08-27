@@ -27,10 +27,7 @@ export interface ModelContextRegistrationOptions {
 }
 
 export interface ModelContextPort {
-  registerTool(
-    tool: unknown,
-    options?: ModelContextRegistrationOptions,
-  ): void | Promise<void>;
+  registerTool(tool: unknown, options?: ModelContextRegistrationOptions): void | Promise<void>;
 }
 
 export interface BuildInfoPort {

@@ -1,10 +1,5 @@
 import type { AuditEventType } from '../domain/audit.ts';
-import type {
-  ClockPort,
-  IdPort,
-  StatePersistencePort,
-  StoragePort,
-} from '../app/ports.ts';
+import type { ClockPort, IdPort, StatePersistencePort, StoragePort } from '../app/ports.ts';
 import { normalizeRehydratedState } from '../domain/state-machine.ts';
 import type {
   AppState,
@@ -133,10 +128,7 @@ function readyState(scenario: Scenario): ReadyState {
   });
 }
 
-function recovery(
-  scenario: Scenario,
-  code: PersistenceRecoveryCode,
-): PersistenceLoadResult {
+function recovery(scenario: Scenario, code: PersistenceRecoveryCode): PersistenceLoadResult {
   return Object.freeze({
     state: readyState(scenario),
     recovery: Object.freeze({
@@ -346,10 +338,7 @@ function parseAuditHistory(value: unknown): readonly AuditEvent[] | null {
       !AUDIT_EVENT_TYPES.has(entry.type as AuditEventType) ||
       !ACTORS.has(String(entry.actor)) ||
       !isIsoTimestamp(entry.timestamp) ||
-      !(
-        entry.draftVersion === null ||
-        isPositiveInteger(entry.draftVersion)
-      ) ||
+      !(entry.draftVersion === null || isPositiveInteger(entry.draftVersion)) ||
       typeof entry.safeSummary !== 'string' ||
       entry.safeSummary.length === 0 ||
       [...entry.safeSummary].length > 160 ||

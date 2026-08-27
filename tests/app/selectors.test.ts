@@ -56,16 +56,9 @@ function success(result: CommandResult): AppState {
   return result.state;
 }
 
-function draftState(
-  deps: CommandDependencies,
-  assignments = validAssignments(),
-): AppState {
+function draftState(deps: CommandDependencies, assignments = validAssignments()): AppState {
   return success(
-    reduceCommand(
-      readyState(),
-      { type: 'CREATE_DRAFT', actor: 'agent', assignments },
-      deps,
-    ),
+    reduceCommand(readyState(), { type: 'CREATE_DRAFT', actor: 'agent', assignments }, deps),
   );
 }
 
@@ -243,8 +236,7 @@ describe('restricted post-commit dispatch contact selector', () => {
         recipientAlias: 'Recipient 101',
         fictionalLocation: 'Fictional Address 101, North Zone',
         fictionalContactChannel: 'Fictional phone +966 00 000 0101',
-        boundedInstructions:
-          '[UNTRUSTED] Fragile groceries; no personal contact details included.',
+        boundedInstructions: '[UNTRUSTED] Fragile groceries; no personal contact details included.',
       },
     ]);
     const serialized = JSON.stringify(result);
