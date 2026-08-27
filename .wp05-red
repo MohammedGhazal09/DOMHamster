@@ -1,0 +1,1 @@
+WP05 tests intentionally precede src/webmcp/contracts.ts, src/webmcp/schemas.ts, and src/webmcp/lifecycle.ts.
