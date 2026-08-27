@@ -1,0 +1,69 @@
+name: WP06 RED evidence
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - .wp06-red
+      - src/webmcp/handlers.ts
+      - src/webmcp/capability.ts
+      - src/webmcp/registry.ts
+      - src/diagnostics/diagnostics.ts
+      - tests/webmcp/handlers.test.ts
+      - tests/webmcp/capability.test.ts
+      - tests/webmcp/registry.test.ts
+      - tests/diagnostics/diagnostics.test.ts
+      - tests/helpers/webmcp-fixtures.ts
+      - tsconfig.app.json
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-red:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out pull request
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install committed dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Observe the expected missing-runtime RED result
+        if: hashFiles('.wp06-red') != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          expect_missing() {
+            local test_file="$1"
+            local module_pattern="$2"
+            local log_file="$3"
+
+            set +e
+            npm run test:run -- "$test_file" > "$log_file" 2>&1
+            local test_status=$?
+            set -e
+
+            cat "$log_file"
+            test "$test_status" -ne 0
+            grep -Eqi "(failed to resolve import|cannot find module|could not resolve).*${module_pattern}" "$log_file"
+          }
+
+          expect_missing tests/webmcp/handlers.test.ts 'src/webmcp/handlers|\.\./\.\./src/webmcp/handlers' handlers-red.log
+          expect_missing tests/webmcp/capability.test.ts 'src/webmcp/capability|\.\./\.\./src/webmcp/capability' capability-red.log
+          expect_missing tests/webmcp/registry.test.ts 'src/webmcp/registry|\.\./\.\./src/webmcp/registry' registry-red.log
+          expect_missing tests/diagnostics/diagnostics.test.ts 'src/diagnostics/diagnostics|\.\./\.\./src/diagnostics/diagnostics' diagnostics-red.log
+          echo 'DOMHAMSTER_WP06_EXPECTED_RED_CONFIRMED'
+
+      - name: Confirm RED evidence is already recorded
+        if: hashFiles('.wp06-red') == ''
+        run: echo 'WP06 RED evidence was already recorded; normal CI owns GREEN verification.'
