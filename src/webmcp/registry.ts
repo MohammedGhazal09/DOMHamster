@@ -1,7 +1,7 @@
 import type { ModelContextPort } from '../app/ports.ts';
 import type { AppStore } from '../app/store.ts';
 import { TOOL_CONTRACT_BY_NAME, type ToolName, type WebMcpToolContract } from './contracts.ts';
-import type { ToolHandlerMap } from './handlers.ts';
+import type { ToolExecutionResult, ToolHandlerMap } from './handlers.ts';
 import { desiredToolNames } from './lifecycle.ts';
 
 export interface WebMcpRegistrySnapshot {
@@ -30,6 +30,10 @@ interface RegistrationRecord {
   registered: boolean;
 }
 
+interface ExecuteOptions {
+  readonly signal: AbortSignal;
+}
+
 const MAX_REGISTRY_ERRORS = 10;
 
 function freezeNames(names: readonly ToolName[]): readonly ToolName[] {
@@ -44,9 +48,12 @@ function registrationTool(
     name: contract.name,
     title: contract.title,
     description: contract.description,
-    inputSchema: contract.inputSchema as object,
+    inputSchema: contract.inputSchema,
     annotations: contract.annotations,
-    execute: async (inputObject, options) => handler(inputObject, { signal: options.signal }),
+    execute: (
+      inputObject: object,
+      options: ExecuteOptions,
+    ): Promise<ToolExecutionResult> => handler(inputObject, { signal: options.signal }),
   });
 }
 
@@ -108,21 +115,16 @@ export function createWebMcpRegistry(dependencies: WebMcpRegistryDependencies): 
         );
 
         const latestDesired = currentDesired();
-        if (
-          !active ||
-          runGeneration !== generation ||
-          !latestDesired.includes(name) ||
-          registrations.get(name) !== record
-        ) {
+        if (!active || runGeneration !== generation || !latestDesired.includes(name)) {
           controller.abort();
-          if (registrations.get(name) === record) registrations.delete(name);
+          registrations.delete(name);
           return;
         }
 
         record.registered = true;
       } catch {
         controller.abort();
-        if (registrations.get(name) === record) registrations.delete(name);
+        registrations.delete(name);
         recordError('TOOL_REGISTRATION_FAILED');
       }
     }
