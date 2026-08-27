@@ -4,4 +4,6 @@ The required missing-shell RED result was confirmed in workflow run `33032965244
 
 The approved visual concepts and design system were committed before production UI code. The judge-facing components, responsive styling, and READY-state Playwright contract were then added; the one-time integration workflow formatted the complete change and removed itself in commit `a61bdbe2bfd586da3ded25249421e5de1be2f1df`.
 
+The first trusted GREEN run reached the formatting gate and identified only `docs/design/design-system.md`. The one-time formatter corrected that file and removed itself in commit `35e5cbce9053b3046ef136e19f58de1b2f5d8ece`.
+
 This owner-authored commit requests the complete WP07 GREEN gate under Node 24.19.0: formatting, strict lint, type checking, all Vitest tests, production build, the full Chromium Playwright suite, dependency audit, and recorded RED-history verification.
