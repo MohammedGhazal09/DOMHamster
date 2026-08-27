@@ -40,32 +40,33 @@ jobs:
                   raise SystemExit(f'expected exactly one checkpoint phrase: {old}')
               text = text.replace(old, new)
 
-          checkpoint = '''
-
----
-
-## Execution checkpoint — v0.19.0
-
-Recorded: `2026-08-27` (Asia/Riyadh)
-
-| Item | Verified result |
-|---|---|
-| Work package | WP05 — exact WebMCP contracts, schemas, and lifecycle matrix |
-| Test-first RED commit | `b6658f807e5197f0a1b372c0796990cd669893d5` |
-| RED workflow | `33028104459` — expected missing `src/webmcp` modules confirmed |
-| Final feature head | `82fd231c90fdcaf5a71386261c63e0f96e2c7fee` |
-| Branch GREEN workflow | `33028795419` — passed |
-| Repository CI | `33028795405` — passed |
-| Vitest result | 14 files; 146 tests passed; 0 failed |
-| Integrated main commit | `e2b1ffe5dcfc47e99e0a71a413267eaf2de7a8ee` |
-| Integrated-main CI | `33028946892` — passed |
-| Frozen tool contracts | 12 |
-| Lifecycle state counts | 5, 7, 8, 3, 4, 3 |
-| Next work package | WP06 — handlers, capability adapter, registry, diagnostics |
-'''
+          checkpoint_lines = [
+              '',
+              '---',
+              '',
+              '## Execution checkpoint — v0.19.0',
+              '',
+              'Recorded: `2026-08-27` (Asia/Riyadh)',
+              '',
+              '| Item | Verified result |',
+              '|---|---|',
+              '| Work package | WP05 — exact WebMCP contracts, schemas, and lifecycle matrix |',
+              '| Test-first RED commit | `b6658f807e5197f0a1b372c0796990cd669893d5` |',
+              '| RED workflow | `33028104459` — expected missing `src/webmcp` modules confirmed |',
+              '| Final feature head | `82fd231c90fdcaf5a71386261c63e0f96e2c7fee` |',
+              '| Branch GREEN workflow | `33028795419` — passed |',
+              '| Repository CI | `33028795405` — passed |',
+              '| Vitest result | 14 files; 146 tests passed; 0 failed |',
+              '| Integrated main commit | `e2b1ffe5dcfc47e99e0a71a413267eaf2de7a8ee` |',
+              '| Integrated-main CI | `33028946892` — passed |',
+              '| Frozen tool contracts | 12 |',
+              '| Lifecycle state counts | 5, 7, 8, 3, 4, 3 |',
+              '| Next work package | WP06 — handlers, capability adapter, registry, diagnostics |',
+              '',
+          ]
 
           if '## Execution checkpoint — v0.19.0' not in text:
-              text = text.rstrip() + checkpoint + '\n'
+              text = text.rstrip() + '\n'.join(checkpoint_lines)
 
           path.write_text(text, encoding='utf-8')
 
