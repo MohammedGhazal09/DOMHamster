@@ -9,7 +9,7 @@ import {
   runReleaseGate,
 } from '../../scripts/run-release-gate.mjs';
 
-function resultsFixture(): { readonly root: string; readonly path: string } {
+function resultsFixture() {
   const root = mkdtempSync(join(tmpdir(), 'domhamster-release-gate-'));
   const path = join(root, '50-trials.json');
   writeFileSync(path, '{"trials":[]}\n');
@@ -65,14 +65,14 @@ test('prefers the explicit CLI result path over the environment', () => {
 
 test('executes every release step sequentially with the validated result path', () => {
   const fixture = resultsFixture();
-  const calls: readonly string[][] = [];
+  const calls = [];
   try {
     const completed = runReleaseGate({
       argv: ['--eval-results', fixture.path],
       cwd: process.cwd(),
       env: {},
       execute(args) {
-        (calls as string[][]).push([...args]);
+        calls.push([...args]);
       },
     });
 
@@ -85,7 +85,7 @@ test('executes every release step sequentially with the validated result path', 
 
 test('stops immediately when one release command fails', () => {
   const fixture = resultsFixture();
-  const calls: string[][] = [];
+  const calls = [];
   try {
     assert.throws(
       () =>
