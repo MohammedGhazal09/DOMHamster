@@ -209,6 +209,35 @@ describe('state-aware WebMCP registry', () => {
     });
   });
 
+  it('notifies subscribers when observed registrations change and stops after unsubscribe', async () => {
+    const states = workflowStates();
+    const store = createMutableStateStore(states.READY);
+    const modelContext = new FakeModelContext();
+    const registry = createWebMcpRegistry({
+      store,
+      modelContext,
+      handlers: handlers(),
+    });
+    const snapshots: string[] = [];
+    const unsubscribe = registry.subscribe(() => {
+      snapshots.push(registry.getSnapshot().registeredToolNames.join('|'));
+    });
+
+    await registry.start();
+    expect(snapshots.length).toBeGreaterThan(0);
+    expect(snapshots.at(-1)).toBe(desiredToolNames('READY').join('|'));
+
+    store.setState(states.COMMITTED);
+    await registry.whenIdle();
+    expect(snapshots.at(-1)).toBe(desiredToolNames('COMMITTED').join('|'));
+
+    unsubscribe();
+    const notificationCount = snapshots.length;
+    store.setState(states.READY);
+    await registry.whenIdle();
+    expect(snapshots).toHaveLength(notificationCount);
+  });
+
   it('teardown aborts every controller and unsubscribes from future changes', async () => {
     const states = workflowStates();
     const store = createMutableStateStore(states.READY);
