@@ -1,0 +1,42 @@
+name: Record verified WP04 checkpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/record-wp04-checkpoint.yml
+      - scripts/record-wp04-checkpoint.py
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out verified main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify the WP04 integration parent
+        run: git merge-base --is-ancestor 4a740996ab5cc5d2c5bcabb8ef80068579f629bb HEAD
+
+      - name: Record checkpoint 0.18.0
+        run: python scripts/record-wp04-checkpoint.py
+
+      - name: Remove one-time checkpoint files
+        run: |
+          rm scripts/record-wp04-checkpoint.py
+          rm .github/workflows/record-wp04-checkpoint.yml
+
+      - name: Commit the verified checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: record verified WP04 completion checkpoint'
+          git push origin HEAD:main
