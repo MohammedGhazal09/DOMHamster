@@ -1,0 +1,82 @@
+name: Record WP05 completion checkpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/record-wp05-checkpoint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Update the master-plan checkpoint
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('MASTERPLAN.md')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              '> **Version:** 0.18.0': '> **Version:** 0.19.0',
+              '> **Checkpoint:** Phase 14 in progress; WP00–WP04 complete on public `main`; WP05 WebMCP contracts next': '> **Checkpoint:** Phase 14 in progress; WP00–WP05 complete on public `main`; WP06 WebMCP runtime next',
+              '| 0.18.0 | Phase 14 — WP04 serialized store, privacy selectors, and resilient persistence | Passed |': '| 0.18.0 | Phase 14 — WP04 serialized store, privacy selectors, and resilient persistence | Passed |\n| 0.19.0 | Phase 14 — WP05 exact WebMCP contracts, strict schemas, and lifecycle matrix | Passed |',
+              'WP00 through WP04 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP05 WebMCP contracts and schemas are the next authorized work package.': 'WP00 through WP05 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP06 tool handlers, capability detection, registry reconciliation, and diagnostics are the next authorized work package.',
+          }
+
+          for old, new in replacements.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'expected exactly one checkpoint phrase: {old}')
+              text = text.replace(old, new)
+
+          checkpoint = '''
+
+---
+
+## Execution checkpoint — v0.19.0
+
+Recorded: `2026-08-27` (Asia/Riyadh)
+
+| Item | Verified result |
+|---|---|
+| Work package | WP05 — exact WebMCP contracts, schemas, and lifecycle matrix |
+| Test-first RED commit | `b6658f807e5197f0a1b372c0796990cd669893d5` |
+| RED workflow | `33028104459` — expected missing `src/webmcp` modules confirmed |
+| Final feature head | `82fd231c90fdcaf5a71386261c63e0f96e2c7fee` |
+| Branch GREEN workflow | `33028795419` — passed |
+| Repository CI | `33028795405` — passed |
+| Vitest result | 14 files; 146 tests passed; 0 failed |
+| Integrated main commit | `e2b1ffe5dcfc47e99e0a71a413267eaf2de7a8ee` |
+| Integrated-main CI | `33028946892` — passed |
+| Frozen tool contracts | 12 |
+| Lifecycle state counts | 5, 7, 8, 3, 4, 3 |
+| Next work package | WP06 — handlers, capability adapter, registry, diagnostics |
+'''
+
+          if '## Execution checkpoint — v0.19.0' not in text:
+              text = text.rstrip() + checkpoint + '\n'
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/record-wp05-checkpoint.yml
+
+      - name: Commit the checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: record WP05 completion checkpoint'
+          git push origin HEAD:main
