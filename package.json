@@ -32,10 +32,11 @@
     "verify:docs": "node tests/docs/documentation-contract.test.mjs",
     "verify:traceability": "node tests/toolchain/verification-traceability-contract.test.mjs",
     "verify:recovery": "node tests/toolchain/error-boundary-contract.test.mjs",
+    "verify:release-runner": "node --test tests/toolchain/release-gate-runner.test.mjs && node tests/toolchain/release-gate-contract.test.mjs",
     "eval": "node scripts/run-agent-evals.mjs",
     "release:manifest": "node scripts/create-release-manifest.mjs",
     "release:verify": "node scripts/verify-release.mjs",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run verify:metadata && npm run verify:safety && npm run verify:deployment && npm run verify:docs && npm run verify:traceability && npm run verify:recovery && npm run build",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run verify:metadata && npm run verify:safety && npm run verify:deployment && npm run verify:docs && npm run verify:traceability && npm run verify:recovery && npm run verify:release-runner && npm run build",
     "verify:release": "node scripts/run-release-gate.mjs"
   },
   "dependencies": {
