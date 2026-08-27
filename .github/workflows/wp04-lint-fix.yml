@@ -29,8 +29,10 @@ jobs:
       - name: Install committed dependency graph
         run: npm ci --ignore-scripts
 
-      - name: Apply evidence-backed lint corrections
-        run: python scripts/wp04-lint-fix.py
+      - name: Apply evidence-backed lint and TypeScript corrections
+        run: |
+          python scripts/wp04-lint-fix.py
+          python scripts/wp04-ts-fix.py
 
       - name: Apply autofixable lint rules and formatting
         run: |
@@ -62,6 +64,7 @@ jobs:
         run: |
           rm .github/workflows/wp04-lint-fix.yml
           rm scripts/wp04-lint-fix.py
+          rm scripts/wp04-ts-fix.py
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
