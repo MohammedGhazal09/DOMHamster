@@ -8,8 +8,8 @@ import {
 } from '../../src/app/selectors.ts';
 import { reduceCommand } from '../../src/domain/commands.ts';
 import { requestId, volunteerId, type AppState } from '../../src/domain/types.ts';
-import { PlanWorkspace } from '../../src/ui/PlanWorkspace.tsx';
 import type { HumanDraftCommandHandler } from '../../src/ui/AssignmentTable.tsx';
+import { PlanWorkspace } from '../../src/ui/PlanWorkspace.tsx';
 import { desiredToolNames } from '../../src/webmcp/lifecycle.ts';
 import {
   commandDependencies,
@@ -17,10 +17,7 @@ import {
   workflowStates,
 } from '../helpers/webmcp-fixtures.ts';
 
-function renderDraft(
-  state: AppState,
-  onCommand: HumanDraftCommandHandler = vi.fn(),
-) {
+function renderDraft(state: AppState, onCommand: HumanDraftCommandHandler = vi.fn()) {
   const draft = selectAssignmentDraft(state);
   if (draft === null) throw new Error('TEST_EXPECTED_DRAFT');
 
@@ -38,6 +35,10 @@ function renderDraft(
 
 function lockedDraftState(): AppState {
   const state = workflowStates().DRAFT_VALID;
+  if (state.workflowState !== 'DRAFT_VALID') {
+    throw new Error('TEST_EXPECTED_VALID_DRAFT_STATE');
+  }
+
   return expectCommandSuccess(
     reduceCommand(
       state,
@@ -159,16 +160,20 @@ describe('human assignment editor', () => {
     const unlockCommand = vi.fn<HumanDraftCommandHandler>().mockResolvedValue(undefined);
     renderDraft(lockedDraftState(), unlockCommand);
 
-    expect(screen.getAllByRole('combobox', { name: 'Volunteer for R-105' }).at(-1)).toBeDisabled();
+    expect(
+      screen.getAllByRole('combobox', { name: 'Volunteer for R-105' }).at(-1),
+    ).toBeDisabled();
     expect(screen.getAllByLabelText('Start time for R-105').at(-1)).toBeDisabled();
     const unlockButton = screen
       .getAllByRole('button', { name: 'Unlock assignment for R-105' })
       .at(-1);
     expect(unlockButton).toHaveAttribute('aria-pressed', 'true');
     expect(
-      screen.getAllByText(
-        'Locked by the coordinator. Agent revisions cannot change this assignment.',
-      ).at(-1),
+      screen
+        .getAllByText(
+          'Locked by the coordinator. Agent revisions cannot change this assignment.',
+        )
+        .at(-1),
     ).toBeVisible();
     expect(screen.getAllByText('Last accepted change: You').at(-1)).toBeVisible();
 
