@@ -6,14 +6,15 @@ DOMHamster is a WebMCP-native community-assistance coordination board. A browser
 
 ## Current status
 
-WP00 through WP04 are complete on public `main` with preserved RED-before-GREEN evidence and successful exact-main CI.
+WP00 through WP05 are complete on public `main` with preserved RED-before-GREEN evidence and successful exact-main CI.
 
 - WP00 established the pinned Node 24, React, Vite, Vitest, Playwright, ESLint, Prettier, and CI toolchain.
 - WP01 added the frozen fictional scenario and deterministic canonical hashing.
 - WP02 added pure deterministic assignment validation.
 - WP03 added the six-state workflow, human locks, exact-version approval, one-shot commit, and bounded audit history.
 - WP04 added the serialized store, privacy-bounded selectors, and resilient versioned persistence.
-- WP05 is next: freeze the twelve WebMCP tool contracts and strict JSON Schemas before runtime registration.
+- WP05 froze the twelve WebMCP tool contracts, strict input schemas, sanitized Ajv validation, and exact six-state lifecycle matrix.
+- WP06 is next: connect the contracts to store-backed handlers, safe capability detection, serialized tool registration, and diagnostics.
 
 No deployment, release, or submission completion claim is made until all corresponding verification gates pass.
 
@@ -22,6 +23,7 @@ No deployment, release, or submission completion claim is made until all corresp
 - [MIT license](LICENSE)
 - [WP00 execution status](docs/execution/WP00_STATUS.md)
 - [WP04 execution status](docs/execution/WP04_STATUS.md)
+- [WP05 execution status](docs/execution/WP05_STATUS.md)
 - [Master plan](MASTERPLAN.md)
 - [Implementation plan](docs/superpowers/plans/2026-08-26-domhamster-implementation.md)
 
