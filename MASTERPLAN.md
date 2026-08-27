@@ -1,8 +1,8 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.19.0
-> **Checkpoint:** Phase 14 in progress; WP00–WP05 complete on public `main`; WP06 WebMCP runtime next
+> **Version:** 0.20.0
+> **Checkpoint:** Phase 14 in progress; WP00–WP06 complete on public `main`; WP07 judge-facing application shell next
 > **Last updated:** 2026-08-27 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
@@ -61,6 +61,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.17.1 | Phase 14 — WP04 local store/persistence checkpoint and exact-base publication package | Recorded |
 | 0.18.0 | Phase 14 — WP04 serialized store, privacy selectors, and resilient persistence | Passed |
 | 0.19.0 | Phase 14 — WP05 exact WebMCP contracts, strict schemas, and lifecycle matrix | Passed |
+| 0.20.0 | Phase 14 — WP06 store-backed WebMCP handlers, registry, capability detection, and diagnostics | Passed |
 
 ---
 
@@ -80,7 +81,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP05 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP06 tool handlers, capability detection, registry reconciliation, and diagnostics are the next authorized work package. UI, deployment, media, release, and submission remain incomplete. |
+| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP06 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP07 judge-facing shell, coordination brief, summary metrics, and unsupported-browser state are the next authorized work package. UI, deployment, media, release, and submission remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3446,3 +3447,23 @@ Recorded: `2026-08-27` (Asia/Riyadh)
 | Frozen tool contracts | 12 |
 | Lifecycle state counts | 5, 7, 8, 3, 4, 3 |
 | Next work package | WP06 — handlers, capability adapter, registry, diagnostics |
+---
+
+## Execution checkpoint — v0.20.0
+
+Recorded: `2026-08-27` (Asia/Riyadh)
+
+| Item | Verified result |
+|---|---|
+| Work package | WP06 — store-backed WebMCP runtime, capability detection, registry, and diagnostics |
+| Test-first RED commit | `1d18143bc23cd40627bf240b942c57643eb0d512` |
+| RED workflow | `33029970534` — expected missing runtime modules confirmed |
+| Final feature head | `f35d60d8ff086afa753b704faf3a669a09844df6` |
+| Full branch GREEN | `33031275298` — passed |
+| Repository CI | `33031275285` — passed |
+| Vitest result | 19 files; 179 tests passed; 0 failed |
+| Browser smoke | Playwright Chromium passed |
+| Dependency audit | 0 vulnerabilities |
+| Integrated main commit | `715c8e2713b00fd857cc99ceb017bde11b0114d6` |
+| Integrated-main CI | `33031417287` — passed |
+| Next work package | WP07 — judge-facing application shell and summary workspace |
