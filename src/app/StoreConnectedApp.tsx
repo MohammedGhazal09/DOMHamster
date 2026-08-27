@@ -2,8 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { App, type AppProps } from './App.tsx';
 import type { AppStore } from './store.ts';
 
-export interface StoreConnectedAppProps
-  extends Omit<AppProps, 'state' | 'onHumanDraftCommand'> {
+export interface StoreConnectedAppProps extends Omit<AppProps, 'state' | 'onWorkflowCommand'> {
   readonly store: AppStore;
 }
 
@@ -14,7 +13,7 @@ export function StoreConnectedApp({ store, ...appProps }: StoreConnectedAppProps
     <App
       {...appProps}
       state={state}
-      onHumanDraftCommand={(command) => store.dispatch(command)}
+      onWorkflowCommand={(command) => store.dispatch(command)}
     />
   );
 }
