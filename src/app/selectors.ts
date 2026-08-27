@@ -128,7 +128,7 @@ function freezeArray<Value>(values: readonly Value[]): readonly Value[] {
 }
 
 function boundedText(value: string, maximumCharacters: number): string {
-  return [...value].slice(0, maximumCharacters).join('');
+  return value.slice(0, maximumCharacters);
 }
 
 function currentAssignments(state: AppState): readonly Assignment[] {
@@ -221,23 +221,21 @@ export function selectAvailableVolunteers(state: AppState): readonly PublicVolun
   }
 
   return freezeArray(
-    state.scenario.volunteers
-      .filter(({ status }) => status === 'available')
-      .map((volunteer) =>
-        Object.freeze({
-          id: volunteer.id,
-          zone: volunteer.zone,
-          skills: freezeArray(volunteer.skills),
-          languages: freezeArray(volunteer.languages),
-          capacity: volunteer.capacity,
-          availability: Object.freeze({
-            start: volunteer.availability.start,
-            end: volunteer.availability.end,
-          }),
-          status: volunteer.status,
-          assignedCount: counts.get(volunteer.id) ?? 0,
+    state.scenario.volunteers.map((volunteer) =>
+      Object.freeze({
+        id: volunteer.id,
+        zone: volunteer.zone,
+        skills: freezeArray(volunteer.skills),
+        languages: freezeArray(volunteer.languages),
+        capacity: volunteer.capacity,
+        availability: Object.freeze({
+          start: volunteer.availability.start,
+          end: volunteer.availability.end,
         }),
-      ),
+        status: volunteer.status,
+        assignedCount: counts.get(volunteer.id) ?? 0,
+      }),
+    ),
   );
 }
 
@@ -247,7 +245,7 @@ export function selectAssignmentDraft(state: AppState): AssignmentDraftView | nu
   return Object.freeze({
     id: state.draft.id,
     version: state.draft.version,
-    workflowState: state.workflowState as AssignmentDraftView['workflowState'],
+    workflowState: state.workflowState,
     valid: state.draft.validation.valid,
     assignments: freezeArray(state.draft.assignments.map(assignmentView)),
     errors: freezeArray(state.draft.validation.errors.map(issueView)),
@@ -315,11 +313,7 @@ export function selectDispatchContacts(
     if (request === undefined) return contactFailure('UNKNOWN_REQUEST');
 
     const assignment = assignmentsByRequest.get(id);
-    if (
-      assignment === undefined ||
-      assignment.status !== 'committed' ||
-      assignment.volunteerId === null
-    ) {
+    if (assignment?.status !== 'committed' || assignment.volunteerId === null) {
       return contactFailure('REQUEST_NOT_ASSIGNED');
     }
 

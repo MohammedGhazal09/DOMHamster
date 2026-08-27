@@ -70,7 +70,7 @@ export function createAppStore(
 
       state = deepFreeze(result.state);
       notify();
-      return Object.freeze({ ok: true, state }) as StoreDispatchResult;
+      return Object.freeze({ ok: true, state });
     });
 
     tail = operation.then(

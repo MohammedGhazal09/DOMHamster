@@ -171,7 +171,7 @@ describe('serialized application store', () => {
     let notifications = 0;
     const store = createAppStore(readyState(), {
       commandDependencies: commandDependencies(),
-      persistence: { save() {} },
+      persistence: { save: () => undefined },
     });
     const unsubscribe = store.subscribe(() => {
       notifications += 1;

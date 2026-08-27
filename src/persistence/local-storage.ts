@@ -65,7 +65,6 @@ export class PersistenceWriteError extends Error {
 type JsonRecord = Record<string, unknown>;
 
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-const ACTORS = new Set(['human', 'agent', 'system']);
 const WORKFLOW_STATES = new Set([
   'READY',
   'DRAFT_INVALID',
@@ -93,6 +92,18 @@ const AUDIT_EVENT_TYPES = new Set<AuditEventType>([
   'PLAN_COMMITTED',
   'CONTACTS_ACCESSED',
 ]);
+
+function isAuditEventType(value: unknown): value is AuditEventType {
+  return typeof value === 'string' && AUDIT_EVENT_TYPES.has(value as AuditEventType);
+}
+
+function isAuditActor(value: unknown): value is AuditEvent['actor'] {
+  return value === 'human' || value === 'agent' || value === 'system';
+}
+
+function isNullablePositiveInteger(value: unknown): value is number | null {
+  return value === null || isPositiveInteger(value);
+}
 
 function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -334,14 +345,13 @@ function parseAuditHistory(value: unknown): readonly AuditEvent[] | null {
       seenIds.has(entry.id) ||
       !isPositiveInteger(entry.sequence) ||
       entry.sequence <= previousSequence ||
-      typeof entry.type !== 'string' ||
-      !AUDIT_EVENT_TYPES.has(entry.type as AuditEventType) ||
-      !ACTORS.has(String(entry.actor)) ||
+      !isAuditEventType(entry.type) ||
+      !isAuditActor(entry.actor) ||
       !isIsoTimestamp(entry.timestamp) ||
-      !(entry.draftVersion === null || isPositiveInteger(entry.draftVersion)) ||
+      !isNullablePositiveInteger(entry.draftVersion) ||
       typeof entry.safeSummary !== 'string' ||
       entry.safeSummary.length === 0 ||
-      [...entry.safeSummary].length > 160 ||
+      entry.safeSummary.length > 160 ||
       CONTROL_PATTERN.test(entry.safeSummary)
     ) {
       return null;
@@ -354,9 +364,9 @@ function parseAuditHistory(value: unknown): readonly AuditEvent[] | null {
         id: entry.id as AuditEvent['id'],
         sequence: entry.sequence,
         type: entry.type,
-        actor: entry.actor as AuditEvent['actor'],
+        actor: entry.actor,
         timestamp: entry.timestamp,
-        draftVersion: entry.draftVersion as number | null,
+        draftVersion: entry.draftVersion,
         safeSummary: entry.safeSummary,
       }),
     );

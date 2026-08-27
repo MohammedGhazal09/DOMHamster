@@ -149,37 +149,60 @@ function setEnvelope(storage: MemoryStorage, envelope: unknown): void {
   storage.values.set(DOMHAMSTER_STORAGE_KEY, JSON.stringify(envelope));
 }
 
+interface StoredEnvelope {
+  savedAt: string;
+  state: {
+    auditHistory: { type: string }[];
+    committedPlan: { assignments: { status: string }[] };
+  };
+}
+
+function storedEnvelope(storage: MemoryStorage): StoredEnvelope {
+  const raw = storage.values.get(DOMHAMSTER_STORAGE_KEY);
+  if (raw === undefined) throw new Error('TEST_EXPECTED_STORED_ENVELOPE');
+  return JSON.parse(raw) as StoredEnvelope;
+}
+
 describe('versioned local storage round trips', () => {
   it.each([
-    ['READY', (deps: CommandDependencies) => readyState()],
+    [
+      'READY',
+      (deps: CommandDependencies) => {
+        void deps;
+        return readyState();
+      },
+    ],
     ['DRAFT_VALID', (deps: CommandDependencies) => draftState(deps)],
     [
       'COMMITTED',
       (deps: CommandDependencies) =>
         committedState(deps as ReturnType<typeof runtimeDependencies>['command']),
     ],
-  ] as const)('round-trips %s without persisting private scenario fields', (_name, makeState) => {
-    const storage = new MemoryStorage();
-    const { repository: stateRepository, runtime } = repository(storage);
-    const state = makeState(runtime.command);
+  ] as const)(
+    'round-trips %s without persisting private scenario fields',
+    async (_name, makeState) => {
+      const storage = new MemoryStorage();
+      const { repository: stateRepository, runtime } = repository(storage);
+      const state = makeState(runtime.command);
 
-    stateRepository.save(state);
-    const loaded = stateRepository.load();
+      await stateRepository.save(state);
+      const loaded = stateRepository.load();
 
-    expect(loaded.recovery).toBeNull();
-    expect(canonicalJson(loaded.state)).toBe(canonicalJson(state));
-    expect(Object.isFrozen(loaded.state)).toBe(true);
-    const serialized = storage.values.get(DOMHAMSTER_STORAGE_KEY)!;
-    expect(serialized.includes('privateContacts')).toBe(false);
-    expect(serialized.includes('Recipient 101')).toBe(false);
-  });
+      expect(loaded.recovery).toBeNull();
+      expect(canonicalJson(loaded.state)).toBe(canonicalJson(state));
+      expect(Object.isFrozen(loaded.state)).toBe(true);
+      const serialized = storage.values.get(DOMHAMSTER_STORAGE_KEY)!;
+      expect(serialized.includes('privateContacts')).toBe(false);
+      expect(serialized.includes('Recipient 101')).toBe(false);
+    },
+  );
 
-  it('uses the frozen key and versioned fixture envelope', () => {
+  it('uses the frozen key and versioned fixture envelope', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository } = repository(storage);
 
-    stateRepository.save(readyState());
-    const envelope = JSON.parse(storage.values.get(DOMHAMSTER_STORAGE_KEY)!);
+    await stateRepository.save(readyState());
+    const envelope = storedEnvelope(storage);
 
     expect(DOMHAMSTER_STORAGE_KEY).toBe('domhamster:v1');
     expect(envelope).toMatchObject({
@@ -238,11 +261,11 @@ describe('safe persistence recovery', () => {
     expect(JSON.stringify(loaded.recovery).includes('other-hash')).toBe(false);
   });
 
-  it('rejects non-canonical timestamps instead of accepting permissive Date.parse input', () => {
+  it('rejects non-canonical timestamps instead of accepting permissive Date.parse input', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository } = repository(storage);
-    stateRepository.save(readyState());
-    const envelope = JSON.parse(storage.values.get(DOMHAMSTER_STORAGE_KEY)!);
+    await stateRepository.save(readyState());
+    const envelope = storedEnvelope(storage);
     envelope.savedAt = '1';
     setEnvelope(storage, envelope);
 
@@ -252,12 +275,14 @@ describe('safe persistence recovery', () => {
     expect(loaded.recovery?.code).toBe('INVALID_STATE');
   });
 
-  it('rejects crafted audit event types', () => {
+  it('rejects crafted audit event types', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository, runtime } = repository(storage);
-    stateRepository.save(draftState(runtime.command));
-    const envelope = JSON.parse(storage.values.get(DOMHAMSTER_STORAGE_KEY)!);
-    envelope.state.auditHistory[0].type = 'CRAFTED_EVENT';
+    await stateRepository.save(draftState(runtime.command));
+    const envelope = storedEnvelope(storage);
+    const firstAuditEvent = envelope.state.auditHistory[0];
+    if (firstAuditEvent === undefined) throw new Error('TEST_EXPECTED_AUDIT_EVENT');
+    firstAuditEvent.type = 'CRAFTED_EVENT';
     setEnvelope(storage, envelope);
 
     const loaded = stateRepository.load();
@@ -266,12 +291,14 @@ describe('safe persistence recovery', () => {
     expect(loaded.recovery?.code).toBe('INVALID_STATE');
   });
 
-  it('resets a crafted committed plan that violates assignment invariants', () => {
+  it('resets a crafted committed plan that violates assignment invariants', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository, runtime } = repository(storage);
-    stateRepository.save(committedState(runtime.command));
-    const envelope = JSON.parse(storage.values.get(DOMHAMSTER_STORAGE_KEY)!);
-    envelope.state.committedPlan.assignments[0].status = 'planned';
+    await stateRepository.save(committedState(runtime.command));
+    const envelope = storedEnvelope(storage);
+    const firstAssignment = envelope.state.committedPlan.assignments[0];
+    if (firstAssignment === undefined) throw new Error('TEST_EXPECTED_ASSIGNMENT');
+    firstAssignment.status = 'planned';
     setEnvelope(storage, envelope);
 
     const loaded = stateRepository.load();
@@ -299,7 +326,7 @@ describe('safe persistence recovery', () => {
 describe('approval reload and write failures', () => {
   it.each(['AWAITING_APPROVAL', 'APPROVED'] as const)(
     'invalidates %s on reload while preserving the revalidated draft and lock',
-    (reviewState) => {
+    async (reviewState) => {
       const storage = new MemoryStorage();
       const { repository: stateRepository, runtime } = repository(storage);
       const approved = approvedState(runtime.command);
@@ -319,7 +346,7 @@ describe('approval reload and write failures', () => {
           ),
         );
       }
-      stateRepository.save(state);
+      await stateRepository.save(state);
 
       const loaded = stateRepository.load();
 
@@ -335,14 +362,14 @@ describe('approval reload and write failures', () => {
     },
   );
 
-  it('throws only a sanitized persistence error when a write is rejected', () => {
+  it('throws only a sanitized persistence error when a write is rejected', async () => {
     const storage = new MemoryStorage();
     storage.setError = new Error('QUOTA_PRIVATE_DETAIL');
     const { repository: stateRepository } = repository(storage);
     let error: unknown;
 
     try {
-      stateRepository.save(readyState());
+      await stateRepository.save(readyState());
     } catch (caught) {
       error = caught;
     }
