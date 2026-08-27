@@ -1,0 +1,191 @@
+import type { ModelContextPort } from '../app/ports.ts';
+import type { AppStore } from '../app/store.ts';
+import {
+  TOOL_CONTRACT_BY_NAME,
+  type ToolName,
+  type WebMcpToolContract,
+} from './contracts.ts';
+import type { ToolHandlerMap } from './handlers.ts';
+import { desiredToolNames } from './lifecycle.ts';
+
+export interface WebMcpRegistrySnapshot {
+  readonly active: boolean;
+  readonly desiredToolNames: readonly ToolName[];
+  readonly registeredToolNames: readonly ToolName[];
+  readonly errorCodes: readonly string[];
+  readonly generation: number;
+}
+
+export interface WebMcpRegistry {
+  start(): Promise<void>;
+  whenIdle(): Promise<void>;
+  getSnapshot(): WebMcpRegistrySnapshot;
+  teardown(): void;
+}
+
+export interface WebMcpRegistryDependencies {
+  readonly store: AppStore;
+  readonly modelContext: ModelContextPort;
+  readonly handlers: ToolHandlerMap;
+}
+
+interface RegistrationRecord {
+  readonly controller: AbortController;
+  registered: boolean;
+}
+
+const MAX_REGISTRY_ERRORS = 10;
+
+function freezeNames(names: readonly ToolName[]): readonly ToolName[] {
+  return Object.freeze([...names]);
+}
+
+function registrationTool(
+  contract: WebMcpToolContract,
+  handler: ToolHandlerMap[ToolName],
+): ModelContextTool {
+  return Object.freeze({
+    name: contract.name,
+    title: contract.title,
+    description: contract.description,
+    inputSchema: contract.inputSchema as object,
+    annotations: contract.annotations,
+    execute: async (inputObject, options) => handler(inputObject, { signal: options.signal }),
+  });
+}
+
+export function createWebMcpRegistry(
+  dependencies: WebMcpRegistryDependencies,
+): WebMcpRegistry {
+  const registrations = new Map<ToolName, RegistrationRecord>();
+  const errors: string[] = [];
+  let active = false;
+  let generation = 0;
+  let desiredKey = '';
+  let unsubscribe: (() => void) | null = null;
+  let tail: Promise<void> = Promise.resolve();
+
+  function recordError(code: string): void {
+    errors.push(code);
+    if (errors.length > MAX_REGISTRY_ERRORS) errors.splice(0, errors.length - MAX_REGISTRY_ERRORS);
+  }
+
+  function abortAll(): void {
+    for (const record of registrations.values()) record.controller.abort();
+    registrations.clear();
+  }
+
+  function currentDesired(): readonly ToolName[] {
+    try {
+      return desiredToolNames(dependencies.store.getState().workflowState);
+    } catch {
+      recordError('REGISTRY_STATE_READ_FAILED');
+      return Object.freeze([]);
+    }
+  }
+
+  async function reconcile(runGeneration: number): Promise<void> {
+    if (!active || runGeneration !== generation) return;
+
+    const desired = currentDesired();
+    const nextKey = desired.join('|');
+    if (nextKey !== desiredKey) {
+      abortAll();
+      desiredKey = nextKey;
+    }
+
+    for (const name of desired) {
+      if (!active || runGeneration !== generation) return;
+      const existing = registrations.get(name);
+      if (existing?.registered === true && !existing.controller.signal.aborted) continue;
+
+      existing?.controller.abort();
+      registrations.delete(name);
+
+      const controller = new AbortController();
+      const record: RegistrationRecord = { controller, registered: false };
+      registrations.set(name, record);
+      const contract = TOOL_CONTRACT_BY_NAME[name];
+
+      try {
+        await dependencies.modelContext.registerTool(
+          registrationTool(contract, dependencies.handlers[name]),
+          { signal: controller.signal },
+        );
+
+        const latestDesired = currentDesired();
+        if (
+          !active ||
+          runGeneration !== generation ||
+          !latestDesired.includes(name) ||
+          registrations.get(name) !== record
+        ) {
+          controller.abort();
+          if (registrations.get(name) === record) registrations.delete(name);
+          return;
+        }
+
+        record.registered = true;
+      } catch {
+        controller.abort();
+        if (registrations.get(name) === record) registrations.delete(name);
+        recordError('TOOL_REGISTRATION_FAILED');
+      }
+    }
+  }
+
+  function schedule(): void {
+    if (!active) return;
+    const runGeneration = ++generation;
+    tail = tail.then(
+      () => reconcile(runGeneration),
+      () => reconcile(runGeneration),
+    );
+  }
+
+  async function whenIdle(): Promise<void> {
+    let observed: Promise<void>;
+    do {
+      observed = tail;
+      await observed;
+    } while (observed !== tail);
+  }
+
+  function snapshot(): WebMcpRegistrySnapshot {
+    const desired = currentDesired();
+    const registered = desired.filter((name) => {
+      const record = registrations.get(name);
+      return record?.registered === true && !record.controller.signal.aborted;
+    });
+
+    return Object.freeze({
+      active,
+      desiredToolNames: freezeNames(desired),
+      registeredToolNames: freezeNames(registered),
+      errorCodes: Object.freeze([...errors]),
+      generation,
+    });
+  }
+
+  return Object.freeze({
+    async start() {
+      if (active) return whenIdle();
+      active = true;
+      desiredKey = '';
+      unsubscribe = dependencies.store.subscribe(schedule);
+      schedule();
+      await whenIdle();
+    },
+    whenIdle,
+    getSnapshot: snapshot,
+    teardown() {
+      if (!active) return;
+      active = false;
+      generation += 1;
+      desiredKey = '';
+      unsubscribe?.();
+      unsubscribe = null;
+      abortAll();
+    },
+  });
+}
