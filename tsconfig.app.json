@@ -24,5 +24,13 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "tests/setup.ts", "tests/domain/**/*.ts", "tests/fixtures/**/*.ts"]
+  "include": [
+    "src",
+    "tests/setup.ts",
+    "tests/domain/**/*.ts",
+    "tests/app/**/*.ts",
+    "tests/persistence/**/*.ts",
+    "tests/fixtures/**/*.ts",
+    "tests/helpers/**/*.ts"
+  ]
 }
