@@ -9,6 +9,7 @@ import { detectWebMcpCapability, type WebMcpCapabilityStatus } from '../webmcp/c
 import type { ToolName } from '../webmcp/contracts.ts';
 import { desiredToolNames } from '../webmcp/lifecycle.ts';
 import { AppHeader } from '../ui/AppHeader.tsx';
+import type { HumanDraftCommandHandler } from '../ui/AssignmentTable.tsx';
 import { CapabilityNotice } from '../ui/CapabilityNotice.tsx';
 import { JudgeBrief } from '../ui/JudgeBrief.tsx';
 import { MetricStrip } from '../ui/MetricStrip.tsx';
@@ -25,6 +26,7 @@ export interface AppProps {
   readonly onOpenActivity?: () => void;
   readonly onOpenDiagnostics?: () => void;
   readonly onReset?: () => void;
+  readonly onHumanDraftCommand?: HumanDraftCommandHandler;
 }
 
 function browserCapabilityStatus(): WebMcpCapabilityStatus {
@@ -38,6 +40,10 @@ function noOperation(): void {
   // WP09 connects these visible human-only controls to the shared store.
 }
 
+function ignoreHumanDraftCommand(): void {
+  // Store-connected rendering supplies the real shared command dispatcher.
+}
+
 export function App({
   state = DEFAULT_READY_STATE,
   capabilityStatus,
@@ -45,6 +51,7 @@ export function App({
   onOpenActivity = noOperation,
   onOpenDiagnostics = noOperation,
   onReset = noOperation,
+  onHumanDraftCommand = ignoreHumanDraftCommand,
 }: AppProps) {
   const resolvedCapability = capabilityStatus ?? browserCapabilityStatus();
   const visibleToolNames =
@@ -81,7 +88,14 @@ export function App({
 
       <main id="coordination-workspace" className="coordination-workspace" tabIndex={-1}>
         <RequestPanel requests={requests} />
-        <PlanWorkspace state={state} draft={draft} toolNames={visibleToolNames} />
+        <PlanWorkspace
+          state={state}
+          draft={draft}
+          requests={requests}
+          volunteers={volunteers}
+          toolNames={visibleToolNames}
+          onCommand={onHumanDraftCommand}
+        />
         <VolunteerPanel volunteers={volunteers} />
       </main>
 
