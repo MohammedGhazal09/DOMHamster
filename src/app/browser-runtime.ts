@@ -33,11 +33,11 @@ export interface BrowserRuntime {
   readonly store: AppStore;
   readonly capabilityStatus: WebMcpCapabilityStatus;
   readonly persistenceRecovery: PersistenceRecovery | null;
-  start(): Promise<void>;
-  whenIdle(): Promise<void>;
-  getRegistrySnapshot(): WebMcpRegistrySnapshot | null;
-  subscribeRegistry(listener: () => void): () => void;
-  teardown(): void;
+  readonly start: () => Promise<void>;
+  readonly whenIdle: () => Promise<void>;
+  readonly getRegistrySnapshot: () => WebMcpRegistrySnapshot | null;
+  readonly subscribeRegistry: (listener: () => void) => () => void;
+  readonly teardown: () => void;
 }
 
 function recoverPersistence(
