@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# This non-workflow adapter commit intentionally triggers the registered v3 verifier.
+# This connector-authored adapter commit triggers the registered v3 verifier.
 
 
 def replace_exact(path_value: str, old: str, new: str, expected_count: int = 1) -> None:
