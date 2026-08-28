@@ -43,17 +43,6 @@ jobs:
           python3 .github/release-completion-typecheck-round2.py
           python3 .github/release-completion-lint-round3.py
 
-      - name: Remove temporary automation
-        run: |
-          rm -f \
-            .github/release-completion-contract-preserving.py \
-            .github/release-completion-repair.py \
-            .github/release-completion-typecheck-fixes.py \
-            .github/release-completion-finalize.py \
-            .github/release-completion-typecheck-round2.py \
-            .github/release-completion-lint-round3.py \
-            .github/workflows/release-completion-finalize.yml
-
       - name: Normalize formatting
         run: npm run format
 
@@ -77,6 +66,17 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level=high
+
+      - name: Remove temporary automation
+        run: |
+          rm -f \
+            .github/release-completion-contract-preserving.py \
+            .github/release-completion-repair.py \
+            .github/release-completion-typecheck-fixes.py \
+            .github/release-completion-finalize.py \
+            .github/release-completion-typecheck-round2.py \
+            .github/release-completion-lint-round3.py \
+            .github/workflows/release-completion-finalize.yml
 
       - name: Validate diff
         run: git diff --check
