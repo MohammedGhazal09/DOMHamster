@@ -55,3 +55,5 @@ jobs:
           git add -A
           git commit -m "style: apply mechanical lint fixes"
           git push origin HEAD:automation/release-completion-20260828
+
+# Connector-authored synchronization commit used to run PR CI against the latest autofixed head.
