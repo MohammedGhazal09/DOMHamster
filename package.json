@@ -27,7 +27,7 @@
     "verify:metadata": "node scripts/check-tool-metadata.mjs",
     "verify:safety": "node scripts/check-source-safety.mjs",
     "verify:bundle": "node scripts/check-bundle-size.mjs",
-    "verify:licenses": "node scripts/check-licenses.mjs",
+    "verify:licenses": "node --test tests/toolchain/license-policy.test.mjs && node scripts/check-licenses.mjs",
     "verify:deployment": "node scripts/check-netlify-config.mjs",
     "verify:docs": "node tests/docs/documentation-contract.test.mjs",
     "verify:traceability": "node tests/toolchain/verification-traceability-contract.test.mjs",
