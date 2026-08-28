@@ -42,6 +42,7 @@ jobs:
           python3 .github/release-completion-finalize.py
           python3 .github/release-completion-typecheck-round2.py
           python3 .github/release-completion-lint-round3.py
+          python3 .github/release-completion-e2e-round4.py
 
       - name: Normalize formatting
         run: npm run format
@@ -76,6 +77,7 @@ jobs:
             .github/release-completion-finalize.py \
             .github/release-completion-typecheck-round2.py \
             .github/release-completion-lint-round3.py \
+            .github/release-completion-e2e-round4.py \
             .github/workflows/release-completion-finalize.yml
 
       - name: Validate diff
