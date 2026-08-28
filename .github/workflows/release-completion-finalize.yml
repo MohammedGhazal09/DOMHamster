@@ -19,18 +19,20 @@ jobs:
     timeout-minutes: 40
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
         with:
           node-version: 24.19.0
           cache: npm
 
-      - name: Install npm
-        run: npm install --global npm@11.17.0
+      - name: Verify runtime
+        run: |
+          test "$(node --version)" = "v24.19.0"
+          test "$(npm --version)" = "11.17.0"
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -38,13 +40,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Apply release completion repairs
-        run: |
-          python3 .github/release-completion-contract-preserving.py
-          python3 .github/release-completion-typecheck-fixes.py
-          python3 .github/release-completion-repair.py app
-
-      - name: Harden permissive callback handling
+      - name: Apply confirmed lint repairs
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -52,15 +48,113 @@ jobs:
           def replace_once(path_name: str, old: str, new: str) -> None:
               path = Path(path_name)
               text = path.read_text(encoding="utf-8")
-              if old not in text:
-                  raise SystemExit(f"patch target not found in {path_name}")
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"expected one patch target in {path_name}, found {count}")
               path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          replace_once(
+              "scripts/run-release-gate.mjs",
+              """  let isFile = false;
+          try {
+            isFile = statSync(resultsPath).isFile();
+          } catch {
+            isFile = false;
+          }
+          if (!isFile) throw new Error(`DOMHAMSTER_EVAL_RESULTS_NOT_FILE:${resultsPath}`);
+          """,
+              """  let isFile;
+          try {
+            isFile = statSync(resultsPath).isFile();
+          } catch {
+            throw new Error(`DOMHAMSTER_EVAL_RESULTS_NOT_FILE:${resultsPath}`);
+          }
+          if (!isFile) throw new Error(`DOMHAMSTER_EVAL_RESULTS_NOT_FILE:${resultsPath}`);
+          """,
+          )
+
+          replace_once(
+              "src/app/store.ts",
+              """export interface AppStore {
+            getState(): AppState;
+            dispatch(command: Command): Promise<StoreDispatchResult>;
+            subscribe(listener: () => void): () => void;
+          }
+          """,
+              """export interface AppStore {
+            readonly getState: () => AppState;
+            readonly dispatch: (command: Command) => Promise<StoreDispatchResult>;
+            readonly subscribe: (listener: () => void) => () => void;
+          }
+          """,
+          )
+
+          replace_once(
+              "src/app/browser-runtime.ts",
+              """export interface BrowserRuntime {
+            readonly store: AppStore;
+            readonly capabilityStatus: WebMcpCapabilityStatus;
+            readonly persistenceRecovery: PersistenceRecovery | null;
+            start(): Promise<void>;
+            whenIdle(): Promise<void>;
+            getRegistrySnapshot(): WebMcpRegistrySnapshot | null;
+            subscribeRegistry(listener: () => void): () => void;
+            teardown(): void;
+          }
+          """,
+              """export interface BrowserRuntime {
+            readonly store: AppStore;
+            readonly capabilityStatus: WebMcpCapabilityStatus;
+            readonly persistenceRecovery: PersistenceRecovery | null;
+            readonly start: () => Promise<void>;
+            readonly whenIdle: () => Promise<void>;
+            readonly getRegistrySnapshot: () => WebMcpRegistrySnapshot | null;
+            readonly subscribeRegistry: (listener: () => void) => () => void;
+            readonly teardown: () => void;
+          }
+          """,
+          )
+
+          replace_once(
+              "src/persistence/local-storage.ts",
+              """export interface LocalStorageRepository extends StatePersistencePort {
+            load(): PersistenceLoadResult;
+            clear(): void;
+          }
+          """,
+              """export interface LocalStorageRepository extends StatePersistencePort {
+            save(state: AppState): void;
+            load(): PersistenceLoadResult;
+            clear(): void;
+          }
+          """,
+          )
+
+          replace_once(
+              "src/app/StoreConnectedApp.tsx",
+              """export interface RegistrySnapshotSource {
+            subscribe(listener: () => void): () => void;
+            getSnapshot(): WebMcpRegistrySnapshot | null;
+          }
+          """,
+              """export interface RegistrySnapshotSource {
+            readonly subscribe: (listener: () => void) => () => void;
+            readonly getSnapshot: () => WebMcpRegistrySnapshot | null;
+          }
+          """,
+          )
+          replace_once(
+              "src/app/StoreConnectedApp.tsx",
+              "export function registrySnapshotKey(snapshot: WebMcpRegistrySnapshot | null): string {",
+              """// eslint-disable-next-line react-refresh/only-export-components -- Exported for deterministic registry subscription tests.
+          export function registrySnapshotKey(snapshot: WebMcpRegistrySnapshot | null): string {""",
+          )
 
           replace_once(
               "src/ui/workflow-commands.ts",
               """export type WorkflowCommandHandler = (
             command: WorkflowCommand,
-          ) => StoreDispatchResult | undefined | Promise<StoreDispatchResult | undefined>;
+          ) => StoreDispatchResult | void | Promise<StoreDispatchResult | void>;
 
           export async function executeWorkflowCommand(
           """,
@@ -98,16 +192,33 @@ jobs:
               }
           """,
           )
+
           replace_once(
               "src/app/App.tsx",
               """import {
             executeWorkflowCommand,
             type WorkflowCommand,
+            type WorkflowCommandHandler,
+          } from '../ui/workflow-commands.ts';
           """,
               """import {
             executeWorkflowCommand,
             isStoreDispatchResult,
             type WorkflowCommand,
+            type WorkflowCommandHandler,
+          } from '../ui/workflow-commands.ts';
+          """,
+          )
+          replace_once(
+              "src/app/App.tsx",
+              """function ignoreWorkflowCommand(): void {
+            // Store-connected rendering supplies the real shared command dispatcher.
+          }
+          """,
+              """function ignoreWorkflowCommand(): undefined {
+            // Store-connected rendering supplies the real shared command dispatcher.
+            return undefined;
+          }
           """,
           )
           replace_once(
@@ -131,11 +242,39 @@ jobs:
           """,
           )
           replace_once(
+              "src/app/App.tsx",
+              """  useEffect(() => {
+            if (
+              (confirmation === 'cancel-approval' && state.workflowState !== 'APPROVED') ||
+              (confirmation === 'discard' &&
+                (state.workflowState === 'READY' || state.workflowState === 'COMMITTED'))
+            ) {
+              setConfirmation(null);
+            }
+          }, [confirmation, state.workflowState]);
+          """,
+              """  useEffect(() => {
+            const confirmationIsInvalid =
+              (confirmation === 'cancel-approval' && state.workflowState !== 'APPROVED') ||
+              (confirmation === 'discard' &&
+                (state.workflowState === 'READY' || state.workflowState === 'COMMITTED'));
+            if (!confirmationIsInvalid) return undefined;
+
+            let active = true;
+            queueMicrotask(() => {
+              if (active) setConfirmation(null);
+            });
+            return () => {
+              active = false;
+            };
+          }, [confirmation, state.workflowState]);
+          """,
+          )
+
+          replace_once(
               "src/ui/AssignmentTable.tsx",
-              """import type { WorkflowCommandHandler } from './workflow-commands.ts';
-          """,
-              """import { isStoreDispatchResult, type WorkflowCommandHandler } from './workflow-commands.ts';
-          """,
+              "import type { WorkflowCommandHandler } from './workflow-commands.ts';",
+              "import { isStoreDispatchResult, type WorkflowCommandHandler } from './workflow-commands.ts';",
           )
           replace_once(
               "src/ui/AssignmentTable.tsx",
@@ -157,6 +296,70 @@ jobs:
               }
           """,
           )
+
+          replace_once(
+              "src/domain/state-machine.ts",
+              """  if (event === 'COMMIT_PLAN') {
+            return actor === 'agent' && state === 'APPROVED';
+          }
+
+          return false;
+          """,
+              """  return actor === 'agent' && state === 'APPROVED';
+          """,
+          )
+
+          replace_once(
+              "src/ui/ErrorBoundaryFallback.tsx",
+              "import { Component, useEffect, useRef, type ErrorInfo, type ReactNode } from 'react';",
+              "import { Component, useEffect, useRef, type ReactNode } from 'react';",
+          )
+          replace_once(
+              "src/ui/ErrorBoundaryFallback.tsx",
+              """  override componentDidCatch(_error: unknown, _info: ErrorInfo): void {
+            // Rendering exceptions are intentionally not serialized or displayed.
+          }
+          """,
+              """  override componentDidCatch(): void {
+            // Rendering exceptions are intentionally not serialized or displayed.
+          }
+          """,
+          )
+
+          replace_once(
+              "src/ui/ApprovedBanner.tsx",
+              "export function formatApprovalCountdown(milliseconds: number): string {",
+              """// eslint-disable-next-line react-refresh/only-export-components -- Pure formatter is exported for unit tests.
+          export function formatApprovalCountdown(milliseconds: number): string {""",
+          )
+
+          replace_once(
+              "tests/app/browser-runtime.test.ts",
+              "  async registerTool(tool: unknown, options?: { readonly signal?: AbortSignal }): Promise<void> {",
+              "  registerTool(tool: unknown, options?: { readonly signal?: AbortSignal }): void {",
+          )
+          replace_once(
+              "tests/ui/error-boundary-fallback.test.tsx",
+              """    const onReset = vi.fn(async () => {
+              shouldThrow = false;
+            });
+          """,
+              """    const onReset = vi.fn(() => {
+              shouldThrow = false;
+            });
+          """,
+          )
+
+          replace_once(
+              "tsconfig.app.json",
+              """    "tests/setup.ts",
+              "tests/domain/**/*.ts",
+          """,
+              """    "tests/setup.ts",
+              "tests/accessibility/**/*.tsx",
+              "tests/domain/**/*.ts",
+          """,
+          )
           PY
 
       - name: Remove temporary automation
@@ -170,11 +373,20 @@ jobs:
       - name: Normalize formatting
         run: npm run format
 
-      - name: Verify release gate
+      - name: Verify lint gate
+        run: npm run lint
+
+      - name: Verify source
         run: npm run verify
 
-      - name: Run browser tests
+      - name: Run browser smoke tests
         run: npm run test:e2e
+
+      - name: Verify bundle budget
+        run: npm run verify:bundle
+
+      - name: Verify license policy
+        run: npm run verify:licenses
 
       - name: Audit dependencies
         run: npm audit --audit-level=high
