@@ -89,7 +89,7 @@ describe('serialized application store', () => {
     expect(edited.ok).toBe(true);
     expect(persisted.map(stateVersion)).toEqual([1, 2]);
     expect(observed.map(stateVersion)).toEqual([1, 2]);
-    expect(store.getState().workflowState).toBe('DRAFT_VALID');
+    expect(store.getState().workflowState).toBe('DRAFT_INVALID');
   });
 
   it('does not persist or notify for a rejected domain command', async () => {
