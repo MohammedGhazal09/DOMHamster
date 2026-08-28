@@ -37,8 +37,9 @@ const MUTATING_TOOLS = new Set<ToolName>([
   'access_dispatch_contacts',
 ]);
 
-function ignoreWorkflowCommand(): void {
+function ignoreWorkflowCommand(): undefined {
   // Store-connected rendering supplies the real shared command dispatcher.
+  return undefined;
 }
 
 function noOperation(): void {
