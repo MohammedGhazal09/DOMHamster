@@ -20,7 +20,9 @@ test('renders the connected READY workspace without page-level horizontal overfl
 
   await expect(page.getByRole('heading', { level: 1, name: 'DOMHamster' })).toBeVisible();
   await expect(page.getByText('WebMCP connected')).toBeVisible();
-  await expect(page.getByText('READY', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('status', { name: 'Current application status' }),
+  ).toContainText('READY');
   await expect(
     page.getByRole('heading', {
       name: 'Coordinate the day. Let the agent draft. Keep the human in charge.',
