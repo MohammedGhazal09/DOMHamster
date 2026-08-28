@@ -56,13 +56,41 @@ jobs:
       - name: Normalize formatting quietly
         run: npm run format -- --log-level silent
 
-      - name: Report failing source gate
+      - name: Report every failing unit test
         run: |
           set +e
-          npm run verify > /tmp/domhamster-verify.log 2>&1
+          npx vitest run --reporter=json --outputFile=/tmp/domhamster-vitest.json \
+            > /tmp/domhamster-vitest-console.log 2>&1
           status=$?
-          echo "DOMHAMSTER_VERIFY_EXIT=${status}"
-          echo "----- VERIFY DIAGNOSTIC TAIL -----"
-          tail -n 240 /tmp/domhamster-verify.log
-          echo "----- END VERIFY DIAGNOSTIC TAIL -----"
+          echo "DOMHAMSTER_VITEST_EXIT=${status}"
+          python3 - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          report_path = Path('/tmp/domhamster-vitest.json')
+          if not report_path.exists():
+              print(Path('/tmp/domhamster-vitest-console.log').read_text(encoding='utf-8')[-12000:])
+              raise SystemExit(0)
+
+          report = json.loads(report_path.read_text(encoding='utf-8'))
+          ansi = re.compile(r'\x1b\[[0-9;]*m')
+          failures = []
+          for suite in report.get('testResults', []):
+              suite_name = suite.get('name', '<unknown suite>')
+              for assertion in suite.get('assertionResults', []):
+                  if assertion.get('status') != 'failed':
+                      continue
+                  title = ' > '.join([*assertion.get('ancestorTitles', []), assertion.get('title', '')])
+                  messages = assertion.get('failureMessages', [])
+                  message = ansi.sub('', messages[0] if messages else '<no failure message>')
+                  failures.append((suite_name, title, message))
+
+          print(f'DOMHAMSTER_FAILED_TESTS={len(failures)}')
+          for index, (suite_name, title, message) in enumerate(failures, start=1):
+              print(f'----- FAILURE {index} -----')
+              print(suite_name)
+              print(title)
+              print(message[:3500])
+          PY
           exit "${status}"
