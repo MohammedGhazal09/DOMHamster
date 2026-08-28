@@ -29,6 +29,7 @@ All notable DOMHamster changes are recorded here. The project has not selected `
 - Added acceptance traceability, security checks, tool-metadata checks, bundle and license gates, thirty agent-evaluation cases, and release-manifest verification.
 - Added source-controlled Netlify configuration, deployment identity fields, official-client evidence templates, and the release-candidate checklist.
 - Added judge-first repository documentation and documentation drift checks.
+- Completed the dependency-backed Node 24.19.0 release-candidate gate: zero-warning formatting and lint, strict typechecking, 244 unit tests, 13 Chromium tests, production build and manifest generation, bundle-budget verification, 283-package license verification, and an audit with zero vulnerabilities.
 
 ## Release selection rule
 
