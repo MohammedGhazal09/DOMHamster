@@ -125,7 +125,9 @@ describe('store-connected approval and recovery workflow', () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Lock assignment for R-101' }));
-    await waitFor(() => expect(onWorkflowCommand).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(onWorkflowCommand).toHaveBeenCalledTimes(1);
+    });
     await user.click(screen.getByRole('button', { name: 'Diagnostics' }));
 
     const errors = screen.getByRole('region', { name: 'Recent safe error codes' });
@@ -147,7 +149,9 @@ describe('store-connected approval and recovery workflow', () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Lock assignment for R-101' }));
-    await waitFor(() => expect(onWorkflowCommand).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(onWorkflowCommand).toHaveBeenCalledTimes(1);
+    });
     await user.click(screen.getByRole('button', { name: 'Diagnostics' }));
 
     const errors = screen.getByRole('region', { name: 'Recent safe error codes' });

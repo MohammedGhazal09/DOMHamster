@@ -24,7 +24,13 @@ function ApprovalHarness({ onCommand }: { readonly onCommand: WorkflowCommandHan
 
   return (
     <>
-      <button id="approval-opener" type="button" onClick={() => setOpen(true)}>
+      <button
+        id="approval-opener"
+        type="button"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
         Open review
       </button>
       {open ? (

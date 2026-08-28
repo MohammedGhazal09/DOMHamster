@@ -74,7 +74,9 @@ export function ValidationPanel({ errors, warnings }: ValidationPanelProps) {
               key={requestId}
               type="button"
               className="validation-focus-link mono"
-              onClick={() => focusElement(`assignment-row-${requestId}`)}
+              onClick={() => {
+                focusElement(`assignment-row-${requestId}`);
+              }}
             >
               <span className="sr-only">Focus assignment </span>
               {requestId}

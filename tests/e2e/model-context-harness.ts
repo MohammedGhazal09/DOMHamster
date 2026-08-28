@@ -46,10 +46,10 @@ export const EXPECTED_TOOL_NAMES = Object.freeze({
 
 export async function installToolHarness(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    type RegisteredTool = {
+    interface RegisteredTool {
       readonly name: string;
       execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
-    };
+    }
     const tools = new Map<string, RegisteredTool>();
     const capturedTools = new Map<string, RegisteredTool>();
 

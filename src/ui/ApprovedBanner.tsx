@@ -53,7 +53,9 @@ export function ApprovedBanner({
 
     update();
     const intervalId = window.setInterval(update, tickMilliseconds);
-    return () => window.clearInterval(intervalId);
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [approval.expiresAt, draftVersion, now, onAnnouncement, onCommand, tickMilliseconds]);
 
   return (

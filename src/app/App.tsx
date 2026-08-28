@@ -283,7 +283,9 @@ export function App({
             onOpenDiagnostics();
             setDiagnosticsOpen(true);
           }}
-          onReset={() => setConfirmation('reset')}
+          onReset={() => {
+            setConfirmation('reset');
+          }}
         />
 
         <CapabilityNotice status={resolvedCapability} />
@@ -303,8 +305,12 @@ export function App({
             volunteers={volunteers}
             toolNames={visibleToolNames}
             onCommand={trackedCommandHandler}
-            onRequestDiscard={() => setConfirmation('discard')}
-            onRequestCancelApproval={() => setConfirmation('cancel-approval')}
+            onRequestDiscard={() => {
+              setConfirmation('discard');
+            }}
+            onRequestCancelApproval={() => {
+              setConfirmation('cancel-approval');
+            }}
             now={now}
           />
           <VolunteerPanel volunteers={volunteers} />
@@ -331,13 +337,17 @@ export function App({
       <ActivityDrawer
         open={activityOpen}
         events={auditHistory}
-        onClose={() => setActivityOpen(false)}
+        onClose={() => {
+          setActivityOpen(false);
+        }}
         returnFocusId="activity-action"
       />
       <DiagnosticsDrawer
         open={diagnosticsOpen}
         snapshot={diagnostics}
-        onClose={() => setDiagnosticsOpen(false)}
+        onClose={() => {
+          setDiagnosticsOpen(false);
+        }}
         returnFocusId="diagnostics-action"
       />
 
@@ -345,7 +355,9 @@ export function App({
         <ConfirmDialog
           {...confirmationContent(confirmation)}
           onConfirm={() => confirmWorkflowAction(confirmation)}
-          onCancel={() => setConfirmation(null)}
+          onCancel={() => {
+            setConfirmation(null);
+          }}
           returnFocusId={confirmationReturnFocusId(confirmation)}
         />
       )}

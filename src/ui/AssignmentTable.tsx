@@ -375,7 +375,9 @@ export function AssignmentTable({
                           aria-label={`Focus ${indexedIssue.issue.code} validation issue for ${
                             request.id
                           }`}
-                          onClick={() => focusValidationIssue(indexedIssue)}
+                          onClick={() => {
+                            focusValidationIssue(indexedIssue);
+                          }}
                         >
                           {indexedIssue.issue.code}
                         </button>

@@ -17,10 +17,10 @@ const VALID_DRAFT_INPUT = {
 
 async function installToolHarness(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    type RegisteredTool = {
+    interface RegisteredTool {
       readonly name: string;
       execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
-    };
+    }
     const tools = new Map<string, RegisteredTool>();
     Object.defineProperty(window, '__domhamsterTools', {
       configurable: true,
