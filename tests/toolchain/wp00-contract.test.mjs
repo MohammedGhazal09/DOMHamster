@@ -69,23 +69,26 @@ test('pins the verified DOM testing compatibility set', async () => {
   assert.equal(packageJson.devDependencies['@testing-library/react'], '16.3.2');
 });
 
-test('disables setup-node package caching before a lockfile exists', async () => {
+test('keeps the completed WP00 RED workflow as inert historical evidence', async () => {
   const workflow = await readFile(new URL('.github/workflows/bootstrap-wp00.yml', root), 'utf8');
 
-  assert.match(workflow, /package-manager-cache:\s*false/);
-  assert.doesNotMatch(workflow, /^\s*cache:\s*npm\s*$/m);
-  assert.doesNotMatch(workflow, /cache-dependency-path:/);
+  assert.match(workflow, /^name: WP00 RED evidence archive$/m);
+  assert.match(workflow, /^\s*workflow_dispatch:\s*$/m);
+  assert.match(workflow, /^\s*contents:\s*read\s*$/m);
+  assert.doesNotMatch(workflow, /actions\/(?:checkout|setup-node|upload-artifact)@/);
+  assert.doesNotMatch(workflow, /npm (?:ci|install|run)/);
 });
 
-test('uses the current Node 24 GitHub action majors', async () => {
-  const [ci, bootstrap] = await Promise.all([
+test('uses the current Node 24 action majors in the active verification workflow', async () => {
+  const [ci, packageLock] = await Promise.all([
     readFile(new URL('.github/workflows/ci.yml', root), 'utf8'),
-    readFile(new URL('.github/workflows/bootstrap-wp00.yml', root), 'utf8'),
+    readJson('package-lock.json'),
   ]);
 
-  for (const workflow of [ci, bootstrap]) {
-    assert.match(workflow, /actions\/checkout@v7/);
-    assert.match(workflow, /actions\/setup-node@v7/);
-    assert.match(workflow, /actions\/upload-artifact@v7/);
-  }
+  assert.equal(packageLock.lockfileVersion, 3);
+  assert.match(ci, /actions\/checkout@v7/);
+  assert.match(ci, /actions\/setup-node@v7/);
+  assert.match(ci, /actions\/upload-artifact@v7/);
+  assert.match(ci, /node-version:\s*24\.19\.0/);
+  assert.match(ci, /^\s*cache:\s*npm\s*$/m);
 });
