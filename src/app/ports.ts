@@ -17,7 +17,7 @@ export interface StoragePort {
 }
 
 export interface StatePersistencePort {
-  save(state: AppState): void | Promise<void>;
+  readonly save: (state: AppState) => void | Promise<void>;
 }
 
 export type StorePersistencePort = StatePersistencePort;
