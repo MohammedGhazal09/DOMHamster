@@ -37,6 +37,58 @@ original_replace_once(
     "screen.queryByRole('alertdialog', { name: 'Cancel approval for version 1?' })",
 )
 
+test_path = Path('tests/persistence/local-storage.test.ts')
+test_text = test_path.read_text()
+test_replacements = (
+    ('async (_name, makeState) => {', '(_name, makeState) => {', 1),
+    ('await stateRepository.save(state);', 'stateRepository.save(state);', 2),
+    (
+        "it('uses the frozen key and versioned fixture envelope', async () => {",
+        "it('uses the frozen key and versioned fixture envelope', () => {",
+        1,
+    ),
+    (
+        "it('rejects non-canonical timestamps instead of accepting permissive Date.parse input', async () => {",
+        "it('rejects non-canonical timestamps instead of accepting permissive Date.parse input', () => {",
+        1,
+    ),
+    (
+        "it('rejects crafted audit event types', async () => {",
+        "it('rejects crafted audit event types', () => {",
+        1,
+    ),
+    (
+        "it('resets a crafted committed plan that violates assignment invariants', async () => {",
+        "it('resets a crafted committed plan that violates assignment invariants', () => {",
+        1,
+    ),
+    ('async (reviewState) => {', '(reviewState) => {', 1),
+    (
+        "it('throws only a sanitized persistence error when a write is rejected', async () => {",
+        "it('throws only a sanitized persistence error when a write is rejected', () => {",
+        1,
+    ),
+    ('await stateRepository.save(readyState());', 'stateRepository.save(readyState());', 3),
+    (
+        'await stateRepository.save(draftState(runtime.command));',
+        'stateRepository.save(draftState(runtime.command));',
+        1,
+    ),
+    (
+        'await stateRepository.save(committedState(runtime.command));',
+        'stateRepository.save(committedState(runtime.command));',
+        1,
+    ),
+)
+for old, new, expected_count in test_replacements:
+    actual_count = test_text.count(old)
+    if actual_count != expected_count:
+        raise RuntimeError(
+            f'expected {expected_count} persistence-test matches for {old!r}, found {actual_count}'
+        )
+    test_text = test_text.replace(old, new)
+test_path.write_text(test_text)
+
 
 def replace_once(path_value: str, old: str, new: str) -> None:
     path = Path(path_value)
