@@ -25,6 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           git merge-base --is-ancestor a494c61bddcefe7dd003db568c0a2ce7833b06cb HEAD
+          echo "6cc498f559b58e1149229482309776a8d3841f15a84b08301f0258d7855eea34  tests/helpers/registry-source.ts" | sha256sum --check --strict
 
           echo "3a592752ffc3d678a7462a93b46c96ca8d11184309b2ea64550fbd6c88591b56  .github/pr40-final.patch.part1" | sha256sum --check --strict
           echo "2882e6b166cbac6d244e4c856a33048893340a911d23d2527eb8735bf1f86f97  .github/pr40-final.patch.part2" | sha256sum --check --strict
