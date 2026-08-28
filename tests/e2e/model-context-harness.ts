@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { validDraftToolInput } from '../helpers/webmcp-fixtures.ts';
+import { validDraftToolInput } from '../fixtures/drafts.ts';
 
 export const VALID_DRAFT_INPUT = Object.freeze(validDraftToolInput());
 

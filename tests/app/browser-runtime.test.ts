@@ -16,7 +16,7 @@ class FakeModelContext implements ModelContextPort {
   readonly tools: RegisteredToolLike[] = [];
   readonly signals: AbortSignal[] = [];
 
-  async registerTool(tool: unknown, options?: { readonly signal?: AbortSignal }): Promise<void> {
+  registerTool(tool: unknown, options?: { readonly signal?: AbortSignal }): void {
     const name =
       tool === null || typeof tool !== 'object'
         ? undefined

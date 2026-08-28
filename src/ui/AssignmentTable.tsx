@@ -21,7 +21,7 @@ import {
   type Zone,
 } from '../domain/types.ts';
 import { validationIssueDomId } from './validation-ids.ts';
-import type { WorkflowCommandHandler } from './workflow-commands.ts';
+import { isWorkflowCommandResult, type WorkflowCommandHandler } from './workflow-commands.ts';
 
 export type HumanDraftCommand =
   EditAssignmentCommand | LockAssignmentCommand | UnlockAssignmentCommand;
@@ -146,16 +146,23 @@ async function executeCommand(
   onAnnouncement: (message: string) => void,
   command: HumanDraftCommand,
   acceptedMessage: string,
-): Promise<void> {
+): Promise<boolean> {
   try {
-    const result = await onCommand(command);
-    if (result !== undefined && !result.ok) {
-      onAnnouncement(`Assignment change was not accepted: ${result.error.code}.`);
-      return;
+    const result: unknown = await Promise.resolve(onCommand(command));
+    if (result !== undefined) {
+      if (!isWorkflowCommandResult(result)) {
+        throw new TypeError('Unexpected workflow command result.');
+      }
+      if (!result.ok) {
+        onAnnouncement(`Assignment change was not accepted: ${result.error.code}.`);
+        return false;
+      }
     }
     onAnnouncement(acceptedMessage);
+    return true;
   } catch {
     onAnnouncement('DOMHamster could not apply that assignment change. State was not changed.');
+    return false;
   }
 }
 
@@ -233,6 +240,7 @@ export function AssignmentTable({
                   </label>
                   <select
                     id={volunteerControlId}
+                    aria-label={`Volunteer for ${request.id}`}
                     value={assignment.volunteerId ?? ''}
                     disabled={assignment.lockedByHuman}
                     aria-describedby={describedBy}
@@ -283,17 +291,25 @@ export function AssignmentTable({
                     Start time<span className="sr-only"> for {request.id}</span>
                   </label>
                   <input
+                    key={`${draft.version}:${assignment.startTime ?? 'unassigned'}`}
                     id={timeControlId}
+                    aria-label={`Start time for ${request.id}`}
                     type="time"
                     step={900}
                     min={request.timeWindow.start}
                     max={request.timeWindow.end}
-                    value={assignment.startTime ?? ''}
+                    defaultValue={assignment.startTime ?? ''}
                     disabled={assignment.lockedByHuman || unassigned}
                     aria-describedby={describedBy}
-                    onChange={(event) => {
-                      const nextTime = event.currentTarget.value;
-                      if (!TIME_PATTERN.test(nextTime) || assignment.volunteerId === null) return;
+                    onBlur={(event) => {
+                      const input = event.currentTarget;
+                      const previousTime = assignment.startTime ?? '';
+                      const nextTime = input.value;
+                      if (!TIME_PATTERN.test(nextTime) || assignment.volunteerId === null) {
+                        input.value = previousTime;
+                        return;
+                      }
+                      if (nextTime === previousTime) return;
                       const command: EditAssignmentCommand = {
                         type: 'EDIT_ASSIGNMENT',
                         actor: 'human',
@@ -310,7 +326,9 @@ export function AssignmentTable({
                         onAnnouncement,
                         command,
                         `${request.id} start-time change accepted.`,
-                      );
+                      ).then((accepted) => {
+                        if (!accepted) input.value = previousTime;
+                      });
                     }}
                   />
                   <span id={hintId} className="assignment-field-hint">

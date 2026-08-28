@@ -155,7 +155,11 @@ describe('approval review dialog', () => {
     await user.tab({ shift: true });
     expect(within(dialog).getByRole('button', { name: 'Cancel review' })).toHaveFocus();
     await user.tab();
-    expect(within(dialog).getByRole('button', { name: 'Approve version 1' })).toHaveFocus();
+    expect(
+      within(dialog).getByRole('region', {
+        name: 'Draft assignment review horizontal scroll area',
+      }),
+    ).toHaveFocus();
 
     await user.keyboard('{Escape}');
     expect(onCommand).toHaveBeenLastCalledWith({

@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef, type ErrorInfo, type ReactNode } from 'react';
+import { Component, useEffect, useRef, type ReactNode } from 'react';
 
 const DEFAULT_RENDER_REFERENCE = 'RENDER-UNAVAILABLE';
 let renderReferenceSequence = 0;
@@ -123,7 +123,7 @@ export class ApplicationErrorBoundary extends Component<
     };
   }
 
-  override componentDidCatch(_error: unknown, _info: ErrorInfo): void {
+  override componentDidCatch(): void {
     // Rendering exceptions are intentionally not serialized or displayed.
   }
 

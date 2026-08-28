@@ -74,6 +74,7 @@ export function ValidationPanel({ errors, warnings }: ValidationPanelProps) {
               key={requestId}
               type="button"
               className="validation-focus-link mono"
+              aria-label={`Focus assignment ${requestId}`}
               onClick={() => {
                 focusElement(`assignment-row-${requestId}`);
               }}

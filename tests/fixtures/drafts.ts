@@ -73,6 +73,18 @@ export function validAssignments(): Assignment[] {
   return BASE_ASSIGNMENTS.map((assignment) => ({ ...assignment }));
 }
 
+export function validDraftToolInput(): Record<string, unknown> {
+  return {
+    assignments: validAssignments().map(({ requestId: id, volunteerId: volunteer, startTime }) => ({
+      requestId: id,
+      volunteerId: volunteer,
+      startTime,
+    })),
+    unassignedRequestIds: [],
+    rationale: 'Use the deterministic canonical fixture.',
+  };
+}
+
 export function assignmentFor(
   assignments: readonly Assignment[],
   id: Assignment['requestId'],

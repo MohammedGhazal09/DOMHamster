@@ -58,6 +58,7 @@ describe('automated accessibility contract', () => {
 
   it('marks the approval dialog busy state and keeps every decision human-only', () => {
     const state = workflowStates().AWAITING_APPROVAL;
+    if (state.draft === null) throw new Error('TEST_EXPECTED_APPROVAL_DRAFT');
     renderState(state);
 
     const dialog = screen.getByRole('dialog', {

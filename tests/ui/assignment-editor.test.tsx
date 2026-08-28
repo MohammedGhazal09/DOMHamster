@@ -18,6 +18,7 @@ import {
   expectCommandSuccess,
   workflowStates,
 } from '../helpers/webmcp-fixtures.ts';
+import { registrySourceForStore } from '../helpers/registry-source.ts';
 
 function renderDraft(state: AppState, onCommand: HumanDraftCommandHandler = vi.fn()) {
   const draft = selectAssignmentDraft(state);
@@ -97,13 +98,17 @@ describe('human assignment editor', () => {
     });
   });
 
-  it('emits one exact human edit command when the start time changes', () => {
+  it('commits one exact human time edit only after keyboard entry is complete', () => {
     const onCommand = vi.fn<HumanDraftCommandHandler>().mockResolvedValue(undefined);
     renderDraft(workflowStates().DRAFT_VALID, onCommand);
 
-    fireEvent.change(screen.getByLabelText('Start time for R-105'), {
+    const startTime = screen.getByLabelText('Start time for R-105');
+    fireEvent.change(startTime, {
       target: { value: '13:15' },
     });
+    expect(onCommand).not.toHaveBeenCalled();
+
+    fireEvent.blur(startTime);
 
     expect(onCommand).toHaveBeenCalledTimes(1);
     expect(onCommand).toHaveBeenCalledWith({
@@ -189,7 +194,7 @@ describe('human assignment editor', () => {
       <StoreConnectedApp
         store={store}
         capabilityStatus="AVAILABLE"
-        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        registrySource={registrySourceForStore(store)}
       />,
     );
 

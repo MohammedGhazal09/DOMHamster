@@ -8,8 +8,8 @@ const EMPTY_REGISTERED_TOOL_NAMES = Object.freeze([] as ToolName[]);
 const EMPTY_REGISTRY_ERRORS = Object.freeze([] as string[]);
 
 export interface RegistrySnapshotSource {
-  subscribe(listener: () => void): () => void;
-  getSnapshot(): WebMcpRegistrySnapshot | null;
+  readonly subscribe: (listener: () => void) => () => void;
+  readonly getSnapshot: () => WebMcpRegistrySnapshot | null;
 }
 
 export interface StoreConnectedAppProps extends Omit<
@@ -24,6 +24,7 @@ export interface StoreConnectedAppProps extends Omit<
   readonly registrySource?: RegistrySnapshotSource;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- Exported for deterministic subscription tests.
 export function registrySnapshotKey(snapshot: WebMcpRegistrySnapshot | null): string {
   if (snapshot === null) return 'registry:null';
   return JSON.stringify([

@@ -5,9 +5,9 @@ import type { StatePersistencePort, StoreDispatchResult } from './ports.ts';
 export type { StatePersistencePort, StoreDispatchResult, StorePersistencePort } from './ports.ts';
 
 export interface AppStore {
-  getState(): AppState;
-  dispatch(command: Command): Promise<StoreDispatchResult>;
-  subscribe(listener: () => void): () => void;
+  readonly getState: () => AppState;
+  readonly dispatch: (command: Command) => Promise<StoreDispatchResult>;
+  readonly subscribe: (listener: () => void) => () => void;
 }
 
 export interface AppStoreDependencies {

@@ -66,12 +66,8 @@ describe('judge-facing application shell', () => {
   });
 
   it('copies the canonical prompt and announces the accepted action', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: { writeText },
-    });
     const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
     render(<JudgeBrief />);
 
     await user.click(screen.getByRole('button', { name: 'Copy prompt' }));

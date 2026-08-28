@@ -1,0 +1,26 @@
+import type { AppStore } from '../../src/app/store.ts';
+import type { WebMcpRegistrySnapshot } from '../../src/webmcp/registry.ts';
+import { desiredToolNames } from '../../src/webmcp/lifecycle.ts';
+
+interface TestRegistrySnapshotSource {
+  readonly subscribe: (listener: () => void) => () => void;
+  readonly getSnapshot: () => WebMcpRegistrySnapshot;
+}
+
+const EMPTY_ERROR_CODES = Object.freeze([] as string[]);
+
+export function registrySourceForStore(store: AppStore): TestRegistrySnapshotSource {
+  return Object.freeze({
+    subscribe: (listener: () => void) => store.subscribe(listener),
+    getSnapshot: (): WebMcpRegistrySnapshot => {
+      const registeredToolNames = desiredToolNames(store.getState().workflowState);
+      return Object.freeze({
+        active: true,
+        generation: 1,
+        desiredToolNames: registeredToolNames,
+        registeredToolNames,
+        errorCodes: EMPTY_ERROR_CODES,
+      });
+    },
+  });
+}

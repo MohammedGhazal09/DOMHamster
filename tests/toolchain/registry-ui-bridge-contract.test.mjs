@@ -21,7 +21,7 @@ for (const fragment of [
 }
 
 for (const fragment of [
-  'subscribeRegistry(listener: () => void): () => void;',
+  'readonly subscribeRegistry: (listener: () => void) => () => void;',
   'return registry?.subscribe(listener)',
 ]) {
   assert.ok(runtime.includes(fragment), `RUNTIME_REGISTRY_BRIDGE_MISSING:${fragment}`);

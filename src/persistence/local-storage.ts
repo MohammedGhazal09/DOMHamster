@@ -40,8 +40,8 @@ export interface PersistenceLoadResult {
 }
 
 export interface LocalStorageRepository extends StatePersistencePort {
-  load(): PersistenceLoadResult;
-  clear(): void;
+  readonly load: () => PersistenceLoadResult;
+  readonly clear: () => void;
 }
 
 export interface LocalStorageRepositoryDependencies {

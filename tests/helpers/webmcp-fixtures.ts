@@ -16,6 +16,7 @@ import {
 } from '../../src/domain/types.ts';
 import type { ToolName } from '../../src/webmcp/contracts.ts';
 import { validAssignments } from '../fixtures/drafts.ts';
+export { validDraftToolInput } from '../fixtures/drafts.ts';
 
 export interface MutableCommandDependencies extends CommandDependencies {
   setNow(value: string): void;
@@ -181,18 +182,6 @@ export async function prepareApproveAndCommit(
   });
   if (!committed.ok) throw new Error(`TEST_COMMIT_FAILED:${committed.error.code}`);
   return committed.state;
-}
-
-export function validDraftToolInput(): Record<string, unknown> {
-  return {
-    assignments: validAssignments().map(({ requestId: id, volunteerId: volunteer, startTime }) => ({
-      requestId: id,
-      volunteerId: volunteer,
-      startTime,
-    })),
-    unassignedRequestIds: [],
-    rationale: 'Use the deterministic canonical fixture.',
-  };
 }
 
 export function minimumToolInput(name: ToolName): Record<string, unknown> {

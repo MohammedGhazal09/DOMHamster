@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app/App.tsx';
 import { StoreConnectedApp } from '../../src/app/StoreConnectedApp.tsx';
 import { desiredToolNames } from '../../src/webmcp/lifecycle.ts';
+import { registrySourceForStore } from '../helpers/registry-source.ts';
 import { createTestStore, workflowStates } from '../helpers/webmcp-fixtures.ts';
 
 describe('store-connected approval and recovery workflow', () => {
@@ -16,7 +17,7 @@ describe('store-connected approval and recovery workflow', () => {
       <StoreConnectedApp
         store={store}
         capabilityStatus="AVAILABLE"
-        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        registrySource={registrySourceForStore(store)}
         now={() => Date.parse('2026-08-26T12:00:30.000Z')}
       />,
     );
@@ -37,7 +38,7 @@ describe('store-connected approval and recovery workflow', () => {
       <StoreConnectedApp
         store={store}
         capabilityStatus="AVAILABLE"
-        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        registrySource={registrySourceForStore(store)}
         now={() => Date.parse('2026-08-26T12:00:30.000Z')}
       />,
     );
@@ -64,7 +65,7 @@ describe('store-connected approval and recovery workflow', () => {
       <StoreConnectedApp
         store={store}
         capabilityStatus="AVAILABLE"
-        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        registrySource={registrySourceForStore(store)}
         now={() => Date.parse('2026-08-26T12:00:30.000Z')}
       />,
     );
@@ -168,7 +169,7 @@ describe('store-connected approval and recovery workflow', () => {
       <StoreConnectedApp
         store={store}
         capabilityStatus="AVAILABLE"
-        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        registrySource={registrySourceForStore(store)}
         now={() => Date.parse('2026-08-26T12:00:30.000Z')}
       />,
     );

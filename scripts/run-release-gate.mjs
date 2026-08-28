@@ -35,7 +35,7 @@ export function resolveEvaluationResultsPath(
     throw new Error(`DOMHAMSTER_EVAL_RESULTS_NOT_FOUND:${resultsPath}`);
   }
 
-  let isFile = false;
+  let isFile;
   try {
     isFile = statSync(resultsPath).isFile();
   } catch {

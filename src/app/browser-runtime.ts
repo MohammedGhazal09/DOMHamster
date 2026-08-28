@@ -33,22 +33,22 @@ export interface BrowserRuntime {
   readonly store: AppStore;
   readonly capabilityStatus: WebMcpCapabilityStatus;
   readonly persistenceRecovery: PersistenceRecovery | null;
-  start(): Promise<void>;
-  whenIdle(): Promise<void>;
-  getRegistrySnapshot(): WebMcpRegistrySnapshot | null;
-  subscribeRegistry(listener: () => void): () => void;
-  teardown(): void;
+  readonly start: () => Promise<void>;
+  readonly whenIdle: () => Promise<void>;
+  readonly getRegistrySnapshot: () => WebMcpRegistrySnapshot | null;
+  readonly subscribeRegistry: (listener: () => void) => () => void;
+  readonly teardown: () => void;
 }
 
-function recoverPersistence(
+async function recoverPersistence(
   repository: ReturnType<typeof createLocalStorageRepository>,
   recovery: PersistenceRecovery | null,
   store: AppStore,
-): void {
+): Promise<void> {
   if (recovery === null) return;
 
   try {
-    repository.save(store.getState());
+    await repository.save(store.getState());
   } catch {
     // The manual in-memory interface remains available when storage is blocked.
   }
@@ -73,7 +73,7 @@ export function createBrowserRuntime(dependencies: BrowserRuntimeDependencies): 
     },
     persistence: repository,
   });
-  recoverPersistence(repository, loaded.recovery, store);
+  void recoverPersistence(repository, loaded.recovery, store);
 
   const capability = detectWebMcpCapability(dependencies.documentLike, dependencies.location);
   let registry: WebMcpRegistry | null = null;

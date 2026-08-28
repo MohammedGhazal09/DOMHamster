@@ -185,7 +185,7 @@ describe('versioned local storage round trips', () => {
       const { repository: stateRepository, runtime } = repository(storage);
       const state = makeState(runtime.command);
 
-      await stateRepository.save(state);
+      await Promise.resolve(stateRepository.save(state));
       const loaded = stateRepository.load();
 
       expect(loaded.recovery).toBeNull();
@@ -201,7 +201,7 @@ describe('versioned local storage round trips', () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository } = repository(storage);
 
-    await stateRepository.save(readyState());
+    await Promise.resolve(stateRepository.save(readyState()));
     const envelope = storedEnvelope(storage);
 
     expect(DOMHAMSTER_STORAGE_KEY).toBe('domhamster:v1');
@@ -264,7 +264,7 @@ describe('safe persistence recovery', () => {
   it('rejects non-canonical timestamps instead of accepting permissive Date.parse input', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository } = repository(storage);
-    await stateRepository.save(readyState());
+    await Promise.resolve(stateRepository.save(readyState()));
     const envelope = storedEnvelope(storage);
     envelope.savedAt = '1';
     setEnvelope(storage, envelope);
@@ -278,7 +278,7 @@ describe('safe persistence recovery', () => {
   it('rejects crafted audit event types', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository, runtime } = repository(storage);
-    await stateRepository.save(draftState(runtime.command));
+    await Promise.resolve(stateRepository.save(draftState(runtime.command)));
     const envelope = storedEnvelope(storage);
     const firstAuditEvent = envelope.state.auditHistory[0];
     if (firstAuditEvent === undefined) throw new Error('TEST_EXPECTED_AUDIT_EVENT');
@@ -294,7 +294,7 @@ describe('safe persistence recovery', () => {
   it('resets a crafted committed plan that violates assignment invariants', async () => {
     const storage = new MemoryStorage();
     const { repository: stateRepository, runtime } = repository(storage);
-    await stateRepository.save(committedState(runtime.command));
+    await Promise.resolve(stateRepository.save(committedState(runtime.command)));
     const envelope = storedEnvelope(storage);
     const firstAssignment = envelope.state.committedPlan.assignments[0];
     if (firstAssignment === undefined) throw new Error('TEST_EXPECTED_ASSIGNMENT');
@@ -346,7 +346,7 @@ describe('approval reload and write failures', () => {
           ),
         );
       }
-      await stateRepository.save(state);
+      await Promise.resolve(stateRepository.save(state));
 
       const loaded = stateRepository.load();
 
@@ -369,7 +369,7 @@ describe('approval reload and write failures', () => {
     let error: unknown;
 
     try {
-      await stateRepository.save(readyState());
+      await Promise.resolve(stateRepository.save(readyState()));
     } catch (caught) {
       error = caught;
     }

@@ -52,7 +52,7 @@ describe('application render recovery boundary', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const user = userEvent.setup();
     let shouldThrow = true;
-    const onReset = vi.fn(async () => {
+    const onReset = vi.fn(() => {
       shouldThrow = false;
     });
 

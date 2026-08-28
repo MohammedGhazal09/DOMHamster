@@ -28,6 +28,7 @@ import { RequestPanel } from '../ui/RequestPanel.tsx';
 import { VolunteerPanel } from '../ui/VolunteerPanel.tsx';
 import {
   executeWorkflowCommand,
+  isWorkflowCommandResult,
   type WorkflowCommand,
   type WorkflowCommandHandler,
 } from '../ui/workflow-commands.ts';
@@ -132,9 +133,14 @@ export function App({
   const trackedCommandHandler = useCallback<WorkflowCommandHandler>(
     async (command) => {
       try {
-        const result = await baseCommandHandler(command);
-        if (result !== undefined && !result.ok) {
-          setRecentErrorCodes((previous) => [...previous, result.error.code].slice(-10));
+        const result: unknown = await Promise.resolve(baseCommandHandler(command));
+        if (result !== undefined) {
+          if (!isWorkflowCommandResult(result)) {
+            throw new TypeError('Unexpected workflow command result.');
+          }
+          if (!result.ok) {
+            setRecentErrorCodes((previous) => [...previous, result.error.code].slice(-10));
+          }
         }
         return result;
       } catch (error) {
@@ -179,13 +185,19 @@ export function App({
     confirmation !== null;
 
   useEffect(() => {
-    if (
+    const confirmationIsInvalid =
       (confirmation === 'cancel-approval' && state.workflowState !== 'APPROVED') ||
       (confirmation === 'discard' &&
-        (state.workflowState === 'READY' || state.workflowState === 'COMMITTED'))
-    ) {
-      setConfirmation(null);
-    }
+        (state.workflowState === 'READY' || state.workflowState === 'COMMITTED'));
+    if (!confirmationIsInvalid) return undefined;
+
+    let active = true;
+    queueMicrotask(() => {
+      if (active) setConfirmation(null);
+    });
+    return () => {
+      active = false;
+    };
   }, [confirmation, state.workflowState]);
 
   useEffect(() => {
