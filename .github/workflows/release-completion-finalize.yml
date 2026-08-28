@@ -41,6 +41,7 @@ jobs:
         run: |
           python3 .github/release-completion-finalize.py
           python3 .github/release-completion-typecheck-round2.py
+          python3 .github/release-completion-lint-round3.py
 
       - name: Remove temporary automation
         run: |
@@ -50,6 +51,7 @@ jobs:
             .github/release-completion-typecheck-fixes.py \
             .github/release-completion-finalize.py \
             .github/release-completion-typecheck-round2.py \
+            .github/release-completion-lint-round3.py \
             .github/workflows/release-completion-finalize.yml
 
       - name: Normalize formatting
