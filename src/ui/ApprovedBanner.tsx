@@ -20,6 +20,7 @@ function remainingMilliseconds(expiresAt: string, now: () => number): number {
   return Math.max(0, Date.parse(expiresAt) - now());
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- Pure formatter is exported for unit tests.
 export function formatApprovalCountdown(milliseconds: number): string {
   const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
   const minutes = Math.floor(totalSeconds / 60);
