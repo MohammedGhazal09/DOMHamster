@@ -32,13 +32,17 @@ replace_once(
   await page.keyboard.press('Tab');
 
   const lock = page.getByRole('button', { name: 'Lock assignment for R-105' });
+  await lock.focus();
+  await page.keyboard.press('Enter');
 """,
     """  await page.keyboard.type('13:00');
   await page.keyboard.press('Tab');
   await expect(startTime).toHaveValue('13:00');
-  await expect(page.getByRole('heading', { name: 'Draft v2' })).toBeVisible();
 
   const lock = page.getByRole('button', { name: 'Lock assignment for R-105' });
+  await lock.focus();
+  await expect(page.getByRole('heading', { name: 'Draft v2' })).toBeVisible();
+  await page.keyboard.press('Enter');
 """,
 )
 
