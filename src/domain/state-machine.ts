@@ -38,62 +38,40 @@ export function canTransition(
   event: WorkflowEvent,
   actor: CommandActor,
 ): boolean {
-  if (event === 'RESET_DEMO') {
-    return actor === 'human';
+  switch (event) {
+    case 'RESET_DEMO':
+      return actor === 'human';
+    case 'REHYDRATE_REVIEW_STATE':
+      return actor === 'system' && (state === 'AWAITING_APPROVAL' || state === 'APPROVED');
+    case 'CREATE_DRAFT':
+      return actor === 'agent' && state === 'READY';
+    case 'REVISE_DRAFT':
+      return actor === 'agent' && isDraftState(state);
+    case 'EDIT_ASSIGNMENT':
+    case 'LOCK_ASSIGNMENT':
+    case 'UNLOCK_ASSIGNMENT':
+      return actor === 'human' && isDraftState(state);
+    case 'DISCARD_DRAFT':
+      return (
+        actor === 'human' &&
+        (isDraftState(state) || state === 'AWAITING_APPROVAL' || state === 'APPROVED')
+      );
+    case 'PREPARE_APPROVAL':
+      return actor === 'agent' && state === 'DRAFT_VALID';
+    case 'APPROVE':
+    case 'REJECT':
+      return actor === 'human' && state === 'AWAITING_APPROVAL';
+    case 'CANCEL_APPROVAL':
+      return actor === 'human' && (state === 'AWAITING_APPROVAL' || state === 'APPROVED');
+    case 'APPROVAL_EXPIRES':
+      return actor === 'system' && state === 'APPROVED';
+    case 'COMMIT_PLAN':
+      return actor === 'agent' && state === 'APPROVED';
+    case 'ACCESS_CONTACTS':
+      return actor === 'agent' && state === 'COMMITTED';
+    default:
+      return false;
   }
-
-  if (event === 'REHYDRATE_REVIEW_STATE') {
-    return actor === 'system' && (state === 'AWAITING_APPROVAL' || state === 'APPROVED');
-  }
-
-  if (event === 'CREATE_DRAFT') {
-    return actor === 'agent' && state === 'READY';
-  }
-
-  if (event === 'REVISE_DRAFT') {
-    return actor === 'agent' && isDraftState(state);
-  }
-
-  if (
-    event === 'EDIT_ASSIGNMENT' ||
-    event === 'LOCK_ASSIGNMENT' ||
-    event === 'UNLOCK_ASSIGNMENT'
-  ) {
-    return actor === 'human' && isDraftState(state);
-  }
-
-  if (event === 'DISCARD_DRAFT') {
-    return (
-      actor === 'human' &&
-      (isDraftState(state) || state === 'AWAITING_APPROVAL' || state === 'APPROVED')
-    );
-  }
-
-  if (event === 'PREPARE_APPROVAL') {
-    return actor === 'agent' && state === 'DRAFT_VALID';
-  }
-
-  if (event === 'APPROVE' || event === 'REJECT') {
-    return actor === 'human' && state === 'AWAITING_APPROVAL';
-  }
-
-  if (event === 'CANCEL_APPROVAL') {
-    return actor === 'human' && (state === 'AWAITING_APPROVAL' || state === 'APPROVED');
-  }
-
-  if (event === 'APPROVAL_EXPIRES') {
-    return actor === 'system' && state === 'APPROVED';
-  }
-
-  if (event === 'ACCESS_CONTACTS') {
-    return actor === 'agent' && state === 'COMMITTED';
-  }
-
-  if (event === 'COMMIT_PLAN') {
-    return actor === 'agent' && state === 'APPROVED';
-  }
-
-  return false;
 }
 
 export function classifyDraft(draft: Draft): DraftState['workflowState'] {
