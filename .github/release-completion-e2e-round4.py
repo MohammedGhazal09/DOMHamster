@@ -223,7 +223,7 @@ replace_once(
 
 replace_once(
     "scripts/check-licenses.mjs",
-    """import assert from 'node:assert/strict';
+    r"""import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
 const allowed = new Set([
@@ -254,7 +254,7 @@ for (const [path, entry] of Object.entries(lock.packages ?? {})) {
 assert.deepEqual(problems, [], `DOMHAMSTER_LICENSE_FAILURE\n${problems.join('\n')}`);
 console.log(`DOMHAMSTER_LICENSE_PASS packages=${Object.keys(lock.packages ?? {}).length - 1}`);
 """,
-    """import assert from 'node:assert/strict';
+    r"""import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
