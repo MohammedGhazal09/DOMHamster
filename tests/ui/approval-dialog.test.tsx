@@ -2,10 +2,7 @@ import { cleanup, render, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  selectAssignmentDraft,
-  selectOpenRequests,
-} from '../../src/app/selectors.ts';
+import { selectAssignmentDraft, selectOpenRequests } from '../../src/app/selectors.ts';
 import type { AppState } from '../../src/domain/types.ts';
 import { ApprovalDialog } from '../../src/ui/ApprovalDialog.tsx';
 import type { WorkflowCommandHandler } from '../../src/ui/workflow-commands.ts';
@@ -27,7 +24,13 @@ function ApprovalHarness({ onCommand }: { readonly onCommand: WorkflowCommandHan
 
   return (
     <>
-      <button id="approval-opener" type="button" onClick={() => setOpen(true)}>
+      <button
+        id="approval-opener"
+        type="button"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
         Open review
       </button>
       {open ? (
@@ -36,8 +39,9 @@ function ApprovalHarness({ onCommand }: { readonly onCommand: WorkflowCommandHan
           approval={state.approval}
           requests={selectOpenRequests(state)}
           onCommand={async (command) => {
-            await onCommand(command);
+            const result = await onCommand(command);
             if (command.type === 'CANCEL_APPROVAL') setOpen(false);
+            return result;
           }}
           onAnnouncement={() => undefined}
           returnFocusId="approval-opener"
@@ -152,7 +156,11 @@ describe('approval review dialog', () => {
     await user.tab({ shift: true });
     expect(within(dialog).getByRole('button', { name: 'Cancel review' })).toHaveFocus();
     await user.tab();
-    expect(within(dialog).getByRole('button', { name: 'Approve version 1' })).toHaveFocus();
+    expect(
+      within(dialog).getByRole('region', {
+        name: 'Draft assignment review horizontal scroll area',
+      }),
+    ).toHaveFocus();
 
     await user.keyboard('{Escape}');
     expect(onCommand).toHaveBeenLastCalledWith({

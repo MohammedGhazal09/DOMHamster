@@ -4,12 +4,12 @@
 
 DOMHamster is a WebMCP-native coordination board where a browser agent drafts and repairs volunteer assignments while a human coordinator keeps exclusive control of locks, approval, discard, cancellation, and reset.
 
-| Resource | Status |
-|---|---|
-| Live deployment | **Live deployment: pending** — the production URL will be added only after an exact-commit Netlify release passes the release gate |
-| Public repository | [MohammedGhazal09/DOMHamster](https://github.com/MohammedGhazal09/DOMHamster) |
-| Demo video | Pending until the verified release is recorded |
-| License | [MIT License](LICENSE) |
+| Resource          | Status                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Live deployment   | **Live deployment: pending** — the production URL will be added only after an exact-commit Netlify release passes the release gate |
+| Public repository | [MohammedGhazal09/DOMHamster](https://github.com/MohammedGhazal09/DOMHamster)                                                      |
+| Demo video        | Pending until the verified release is recorded                                                                                     |
+| License           | [MIT License](LICENSE)                                                                                                             |
 
 > **Fictional demo data only.** DOMHamster is for non-emergency coordination and is not an emergency-dispatch system.
 
@@ -30,26 +30,26 @@ Expected end state: `COMMITTED`; `R-105` remains human-locked; contact access is
 
 ## What DOMHamster demonstrates
 
-| Capability | Evidence |
-|---|---|
-| Structured agent access | Twelve task-specific WebMCP tools replace fragile DOM inference |
-| Shared live state | UI and agent handlers use the same serialized application store |
-| Deterministic guardrails | Pure validation enforces time, availability, skill, language, workload, and lock constraints |
-| Human authority | The agent cannot lock, unlock, approve, reject, cancel, discard, or reset |
-| Exact-version commit | Approval binds to one draft version, expires after 120 seconds, and permits one commit |
-| Progressive disclosure | Operational data is available before commit; fictional contacts require explicit post-commit access |
-| Repeatable judging | Eight requests, five volunteers, no login, no backend, no runtime secret, and deterministic reset |
+| Capability               | Evidence                                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------------------------- |
+| Structured agent access  | Twelve task-specific WebMCP tools replace fragile DOM inference                                     |
+| Shared live state        | UI and agent handlers use the same serialized application store                                     |
+| Deterministic guardrails | Pure validation enforces time, availability, skill, language, workload, and lock constraints        |
+| Human authority          | The agent cannot lock, unlock, approve, reject, cancel, discard, or reset                           |
+| Exact-version commit     | Approval binds to one draft version, expires after 120 seconds, and permits one commit              |
+| Progressive disclosure   | Operational data is available before commit; fictional contacts require explicit post-commit access |
+| Repeatable judging       | Eight requests, five volunteers, no login, no backend, no runtime secret, and deterministic reset   |
 
 ## WebMCP lifecycle
 
-| Workflow state | Tool count | Important capability change |
-|---|---:|---|
-| `READY` | 5 | Read the board and create a draft |
-| `DRAFT_INVALID` | 7 | Read, validate, and revise; approval is unavailable |
-| `DRAFT_VALID` | 8 | `prepare_plan_approval` becomes available |
-| `AWAITING_APPROVAL` | 3 | Agent waits for a visible human decision |
-| `APPROVED` | 4 | `commit_assignment_plan` is available for the exact approved version |
-| `COMMITTED` | 3 | Read the plan, access selected contacts, and inspect audit history |
+| Workflow state      | Tool count | Important capability change                                          |
+| ------------------- | ---------: | -------------------------------------------------------------------- |
+| `READY`             |          5 | Read the board and create a draft                                    |
+| `DRAFT_INVALID`     |          7 | Read, validate, and revise; approval is unavailable                  |
+| `DRAFT_VALID`       |          8 | `prepare_plan_approval` becomes available                            |
+| `AWAITING_APPROVAL` |          3 | Agent waits for a visible human decision                             |
+| `APPROVED`          |          4 | `commit_assignment_plan` is available for the exact approved version |
+| `COMMITTED`         |          3 | Read the plan, access selected contacts, and inspect audit history   |
 
 See [WebMCP tools and lifecycle](docs/webmcp-tools.md) for the complete inventory and state sets.
 

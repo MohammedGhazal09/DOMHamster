@@ -56,11 +56,7 @@ describe('registry diagnostics bridge', () => {
     );
 
     render(
-      <StoreConnectedApp
-        store={store}
-        capabilityStatus="AVAILABLE"
-        registrySource={source}
-      />,
+      <StoreConnectedApp store={store} capabilityStatus="AVAILABLE" registrySource={source} />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Diagnostics' }));
@@ -71,13 +67,7 @@ describe('registry diagnostics bridge', () => {
     expect(screen.getByText('TOOL_REGISTRATION_FAILED')).toBeVisible();
 
     act(() => {
-      source.setSnapshot(
-        registrySnapshot(
-          desiredToolNames('READY'),
-          Object.freeze([]),
-          2,
-        ),
-      );
+      source.setSnapshot(registrySnapshot(desiredToolNames('READY'), Object.freeze([]), 2));
     });
 
     expect(registered.getByText('list_open_requests')).toBeVisible();

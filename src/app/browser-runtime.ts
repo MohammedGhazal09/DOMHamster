@@ -54,9 +54,7 @@ function recoverPersistence(
   }
 }
 
-export function createBrowserRuntime(
-  dependencies: BrowserRuntimeDependencies,
-): BrowserRuntime {
+export function createBrowserRuntime(dependencies: BrowserRuntimeDependencies): BrowserRuntime {
   const repository = createLocalStorageRepository({
     storage: dependencies.storage,
     scenario: CANONICAL_SCENARIO,
@@ -77,10 +75,7 @@ export function createBrowserRuntime(
   });
   recoverPersistence(repository, loaded.recovery, store);
 
-  const capability = detectWebMcpCapability(
-    dependencies.documentLike,
-    dependencies.location,
-  );
+  const capability = detectWebMcpCapability(dependencies.documentLike, dependencies.location);
   let registry: WebMcpRegistry | null = null;
 
   if (capability.available) {

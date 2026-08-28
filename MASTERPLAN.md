@@ -1,9 +1,9 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.20.0
-> **Checkpoint:** Phase 14 in progress; WP00–WP06 complete on public `main`; WP07 judge-facing application shell next
-> **Last updated:** 2026-08-27 (Asia/Riyadh)
+> **Version:** 0.27.1
+> **Checkpoint:** Phase 14 release-candidate hardening checkpoint; exact Node 24 source verification complete on PR #40; external release evidence next
+> **Last updated:** 2026-08-28 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
 
@@ -62,6 +62,14 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.18.0 | Phase 14 — WP04 serialized store, privacy selectors, and resilient persistence | Passed |
 | 0.19.0 | Phase 14 — WP05 exact WebMCP contracts, strict schemas, and lifecycle matrix | Passed |
 | 0.20.0 | Phase 14 — WP06 store-backed WebMCP handlers, registry, capability detection, and diagnostics | Passed |
+| 0.21.0 | Phase 14 — WP07 judge-facing application shell and summary workspace | Passed |
+| 0.22.0 | Phase 14 — WP08 assignment editor, human locks, and validation navigation | Passed |
+| 0.23.0 | Phase 14 — WP09 approval, cancellation, expiry, commit, and contact workflow | Passed |
+| 0.24.0 | Phase 14 — WP10 accessibility, security, persistence, and runtime hardening | Passed |
+| 0.25.0 | Phase 14 — WP11 verification, recovery, and acceptance traceability | Passed |
+| 0.26.0 | Phase 14 — WP12 deployment configuration and release-manifest contracts | Passed |
+| 0.27.0 | Phase 14 — WP13 documentation, compatibility guidance, and release runner | Passed |
+| 0.27.1 | Phase 14 — PR #40 exact-runtime remediation and release-candidate source verification | Passed — external release evidence remains |
 
 ---
 
@@ -81,7 +89,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 is in progress on public `MohammedGhazal09/DOMHamster`. WP00 through WP06 are merged into `main` with preserved RED-before-GREEN evidence and successful exact-main CI. WP07 judge-facing shell, coordination brief, summary metrics, and unsupported-browser state are the next authorized work package. UI, deployment, media, release, and submission remain incomplete. |
+| Implementation status | Phase 14 has a complete WP00–WP13 release-candidate source stack on draft PR #40 (`release/manual-completion-20260828`). Exact Node 24.19.0/npm 11.17.0 formatting, lint, strict TypeScript, 245 unit tests, 13 Playwright tests, build, bundle, license, fixture-identity, documentation, recovery, and release-runner gates pass on the repaired source tree. Live deployment, authentic 50-trial evaluation evidence, official-client validation, final release identity, media, submission, integration, and tagging remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3467,3 +3475,45 @@ Recorded: `2026-08-27` (Asia/Riyadh)
 | Integrated main commit | `715c8e2713b00fd857cc99ceb017bde11b0114d6` |
 | Integrated-main CI | `33031417287` — passed |
 | Next work package | WP07 — judge-facing application shell and summary workspace |
+
+---
+
+## Execution checkpoint — v0.27.1
+
+Recorded: `2026-08-28` (`Asia/Riyadh`)
+
+PR #40 release-candidate findings were reproduced and resolved using the repository's exact declared runtime and dependency graph. This checkpoint records source verification only; it does not declare deployment, evaluation, official-client, submission, merge, tag, or release completion.
+
+| Evidence | Verified result |
+|---|---|
+| Trusted source parent | `28625f0a754646ba3c901f588a676153222b54ef` |
+| Working branch / PR | `release/manual-completion-20260828` / draft PR `#40` |
+| Runtime | Node `24.19.0`; npm `11.17.0` |
+| Aggregate source verification | `npm run verify` exited `0` |
+| Unit tests | 36 files; 245 tests passed; 0 failed |
+| Browser tests | Playwright Chromium; 13 tests passed; 0 failed |
+| Production build | 128 modules transformed successfully |
+| Bundle budget | 448,710 raw bytes; 127,596 gzipped code bytes |
+| License policy | 4 policy tests passed; 283 lockfile packages accepted |
+| Dependency audit | Local exact-lockfile offline audit reported 0 vulnerabilities; online registry refresh remains a release-time external check |
+| Canonical fixture identity | `b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1` matched the frozen expected hash |
+| Tool metadata | 12 tools across 6 workflow states |
+| Documentation / traceability | 11 documentation files and 23 acceptance references passed their contracts |
+| Result | **The previously recorded Node 24 verification and fixture-identity findings are resolved.** |
+
+### Remediation outcomes
+
+- Repository formatting is normalized to the committed Prettier contract.
+- Strict callback, registry-source, nullability, and composite TypeScript boundaries are explicit and compile cleanly.
+- Test-facing accessible names, clipboard behavior, modal focus order, and native Chromium time-input keyboard behavior match the implemented interface.
+- Production source maps are excluded from the deployable bundle instead of weakening the frozen size budget.
+- The deterministic fixture hash executes under the declared Node runtime and matches the frozen value.
+
+### Next authorized work
+
+1. Run and preserve the authentic 50-trial agent evaluation results required by the release gate.
+2. Validate the canonical journey in the official ChatGPT in-app browser and the documented Chrome WebMCP path.
+3. Publish the final Netlify candidate and verify the live URL, HTTPS behavior, fallback behavior, diagnostics, and deployed release-manifest identity.
+4. Generate and verify the final release manifest against the immutable integration SHA and deployed asset hashes.
+5. Produce final demo media and complete the submission package.
+6. Integrate PR #40, freeze the release candidate, tag only the fully evidenced commit, and update this plan with the final release checkpoint.

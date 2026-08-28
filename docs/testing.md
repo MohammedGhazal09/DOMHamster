@@ -85,15 +85,15 @@ High-risk cases cover locks, approval, expiry, commit, replay, contacts, privacy
 
 Before release selection, the exact candidate still needs fresh observed evidence for:
 
-| Gate | Required evidence |
-|---|---|
-| Clean Node 24 checkout | `npm ci`, full verification, build, audit, and release-manifest checks |
-| Browser automation | Complete Playwright suite across canonical, lifecycle, keyboard, responsive, reload, and privacy paths |
-| Visual fidelity | Native-size captures compared with both accepted concepts and recorded in the fidelity ledger |
-| WebMCP-enabled Chrome | Native six-state registration matrix and complete external-agent journey |
-| ChatGPT in-app browser | Complete judge journey using discovered WebMCP tools |
-| Public deployment | Logged-out access, headers, no unexpected network, console cleanliness, reset, and three repeated journeys |
-| Evaluation results | 50 scored trials meeting the threshold |
-| Release identity | Tag, commit, manifest, deployment, screenshots, video, and submission all agree |
+| Gate                   | Required evidence                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Clean Node 24 checkout | `npm ci`, full verification, build, audit, and release-manifest checks                                     |
+| Browser automation     | Complete Playwright suite across canonical, lifecycle, keyboard, responsive, reload, and privacy paths     |
+| Visual fidelity        | Native-size captures compared with both accepted concepts and recorded in the fidelity ledger              |
+| WebMCP-enabled Chrome  | Native six-state registration matrix and complete external-agent journey                                   |
+| ChatGPT in-app browser | Complete judge journey using discovered WebMCP tools                                                       |
+| Public deployment      | Logged-out access, headers, no unexpected network, console cleanliness, reset, and three repeated journeys |
+| Evaluation results     | 50 scored trials meeting the threshold                                                                     |
+| Release identity       | Tag, commit, manifest, deployment, screenshots, video, and submission all agree                            |
 
 The compatibility templates are stored in [Chrome WebMCP evidence](compatibility/chrome-webmcp.md) and [ChatGPT in-app evidence](compatibility/chatgpt-in-app.md). Unexecuted fields remain explicitly marked **Not run** rather than being inferred.

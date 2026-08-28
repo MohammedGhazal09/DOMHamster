@@ -32,7 +32,11 @@ const requiredPatterns = [
 for (const pattern of requiredPatterns) {
   assert.match(config, pattern, `WP12_NETLIFY_CONTRACT_MISSING:${pattern.source}`);
 }
-assert.doesNotMatch(config, /(?:TOKEN|SECRET|PASSWORD|API_KEY)\s*=/iu, 'WP12_NETLIFY_SECRET_REFERENCE');
+assert.doesNotMatch(
+  config,
+  /(?:TOKEN|SECRET|PASSWORD|API_KEY)\s*=/iu,
+  'WP12_NETLIFY_SECRET_REFERENCE',
+);
 
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 assert.equal(packageJson.scripts?.['verify:deployment'], 'node scripts/check-netlify-config.mjs');

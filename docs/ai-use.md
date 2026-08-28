@@ -2,10 +2,10 @@
 
 ## Tools used
 
-| Tool | Material use |
-|---|---|
-| OpenAI ChatGPT | Requirements analysis, waterfall planning, architecture, implementation-plan drafting, code and test drafting, repository operations, debugging, review, documentation, and submission preparation |
-| OpenAI image generation | Original visual concepts and interface-state references used to define the DOMHamster design system |
+| Tool                    | Material use                                                                                                                                                                                       |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenAI ChatGPT          | Requirements analysis, waterfall planning, architecture, implementation-plan drafting, code and test drafting, repository operations, debugging, review, documentation, and submission preparation |
+| OpenAI image generation | Original visual concepts and interface-state references used to define the DOMHamster design system                                                                                                |
 
 ## Human ownership and review
 

@@ -18,10 +18,8 @@ const REMEDIATION_BY_CODE: Readonly<Record<string, string>> = Object.freeze({
   REQUEST_TIME_WINDOW_VIOLATION: 'Move the start time inside the request window.',
   VOLUNTEER_UNAVAILABLE: 'Choose a time inside the volunteer availability window.',
   VOLUNTEER_WORKLOAD_EXCEEDED: 'Move one or more requests to another volunteer.',
-  VOLUNTEER_TIME_OVERLAP:
-    'Move one of the overlapping assignments to another time or volunteer.',
-  HUMAN_LOCK_VIOLATION:
-    'Restore the coordinator-locked volunteer, time, duration, and status.',
+  VOLUNTEER_TIME_OVERLAP: 'Move one of the overlapping assignments to another time or volunteer.',
+  HUMAN_LOCK_VIOLATION: 'Restore the coordinator-locked volunteer, time, duration, and status.',
   ZONE_INEFFICIENCY: 'Consider a volunteer whose home zone matches the request.',
   REQUEST_UNASSIGNED: 'Assign a volunteer when the request can be covered.',
   WORKLOAD_IMBALANCE: 'Consider redistributing work across available volunteers.',
@@ -31,9 +29,7 @@ function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function affectedRequestIds(
-  issues: readonly PublicValidationIssueView[],
-): readonly RequestId[] {
+function affectedRequestIds(issues: readonly PublicValidationIssueView[]): readonly RequestId[] {
   return Object.freeze(
     [...new Set(issues.flatMap(({ requestIds }) => requestIds))].sort(compareText),
   );
@@ -46,8 +42,7 @@ function focusElement(id: string): void {
 
 function remediation(issue: PublicValidationIssueView): string {
   return (
-    REMEDIATION_BY_CODE[issue.code] ??
-    'Review the affected assignment and resolve the constraint.'
+    REMEDIATION_BY_CODE[issue.code] ?? 'Review the affected assignment and resolve the constraint.'
   );
 }
 
@@ -79,7 +74,10 @@ export function ValidationPanel({ errors, warnings }: ValidationPanelProps) {
               key={requestId}
               type="button"
               className="validation-focus-link mono"
-              onClick={() => focusElement(`assignment-row-${requestId}`)}
+              aria-label={`Focus assignment ${requestId}`}
+              onClick={() => {
+                focusElement(`assignment-row-${requestId}`);
+              }}
             >
               <span className="sr-only">Focus assignment </span>
               {requestId}

@@ -17,10 +17,10 @@ const VALID_DRAFT_INPUT = {
 
 async function installToolHarness(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    type RegisteredTool = {
+    interface RegisteredTool {
       readonly name: string;
       execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
-    };
+    }
     const tools = new Map<string, RegisteredTool>();
     Object.defineProperty(window, '__domhamsterTools', { configurable: true, value: tools });
     Object.defineProperty(document, 'modelContext', {
@@ -60,10 +60,7 @@ async function runTool(page: Page, name: string, input: object): Promise<unknown
           __domhamsterTools: Map<
             string,
             {
-              execute(
-                input: object,
-                options: { readonly signal: AbortSignal },
-              ): Promise<unknown>;
+              execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
             }
           >;
         }
@@ -79,8 +76,10 @@ test('keeps the critical human authority path keyboard-complete', async ({ page 
   await installToolHarness(page);
   await page.goto('/');
 
+  const skipLink = page.getByRole('link', { name: 'Skip to coordination workspace' });
+  await expect(skipLink).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('link', { name: 'Skip to coordination workspace' })).toBeFocused();
+  await expect(skipLink).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('main')).toBeFocused();
 
@@ -96,11 +95,13 @@ test('keeps the critical human authority path keyboard-complete', async ({ page 
 
   const startTime = page.getByLabel('Start time for R-105');
   await startTime.focus();
-  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
-  await page.keyboard.type('13:00');
+  await startTime.press('ArrowUp');
+  await expect(startTime).toHaveValue('12:00');
+  await expect(page.getByRole('heading', { name: 'Draft v2' })).toBeVisible();
+  await startTime.press('ArrowUp');
   await page.keyboard.press('Tab');
   await expect(startTime).toHaveValue('13:00');
-  await expect(page.getByRole('heading', { name: 'Draft v2' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Draft v3' })).toBeVisible();
 
   const lock = page.getByRole('button', { name: 'Lock assignment for R-105' });
   await lock.focus();

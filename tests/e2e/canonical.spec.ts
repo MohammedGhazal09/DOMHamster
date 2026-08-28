@@ -7,18 +7,14 @@ import {
   toolNames,
 } from './model-context-harness.ts';
 
-test('completes the canonical human conflict, lock, and agent repair journey', async ({
-  page,
-}) => {
+test('completes the canonical human conflict, lock, and agent repair journey', async ({ page }) => {
   await installToolHarness(page);
   await page.goto('/');
 
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.READY);
-  const created = (await runTool(
-    page,
-    'create_assignment_draft',
-    VALID_DRAFT_INPUT,
-  )) as { readonly ok: boolean };
+  const created = (await runTool(page, 'create_assignment_draft', VALID_DRAFT_INPUT)) as {
+    readonly ok: boolean;
+  };
   expect(created.ok).toBe(true);
 
   await expect(page.getByRole('heading', { name: 'Draft v1' })).toBeVisible();
@@ -35,14 +31,12 @@ test('completes the canonical human conflict, lock, and agent repair journey', a
   const r105Unlock = page.getByRole('button', { name: 'Unlock assignment for R-105' });
   await expect(r105Unlock).toHaveAttribute('aria-pressed', 'true');
   await expect(
-    page.getByText(
-      'Locked by the coordinator. Agent revisions cannot change this assignment.',
-    ),
+    page.getByText('Locked by the coordinator. Agent revisions cannot change this assignment.'),
   ).toBeVisible();
   await expect(page.getByText('VOLUNTEER_TIME_OVERLAP').first()).toBeVisible();
-  await expect(
-    page.getByRole('status', { name: 'Current application status' }),
-  ).toContainText('DRAFT_INVALID');
+  await expect(page.getByRole('status', { name: 'Current application status' })).toContainText(
+    'DRAFT_INVALID',
+  );
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.DRAFT_INVALID);
 
   const validation = (await runTool(page, 'validate_assignment_draft', {
@@ -55,9 +49,7 @@ test('completes the canonical human conflict, lock, and agent repair journey', a
     };
   };
   expect(validation).toMatchObject({ ok: true, data: { draftVersion: 3 } });
-  expect(validation.data?.errors.map(({ code }) => code)).toContain(
-    'VOLUNTEER_TIME_OVERLAP',
-  );
+  expect(validation.data?.errors.map(({ code }) => code)).toContain('VOLUNTEER_TIME_OVERLAP');
 
   const revised = (await runTool(page, 'revise_assignment_draft', {
     expectedDraftVersion: 3,
@@ -99,9 +91,9 @@ test('completes the canonical human conflict, lock, and agent repair journey', a
   });
 
   await expect(page.getByRole('heading', { name: 'Draft v4' })).toBeVisible();
-  await expect(
-    page.getByRole('status', { name: 'Current application status' }),
-  ).toContainText('DRAFT_VALID');
+  await expect(page.getByRole('status', { name: 'Current application status' })).toContainText(
+    'DRAFT_VALID',
+  );
   await expect(page.getByLabel('Volunteer for R-105')).toHaveValue('V-03');
   await expect(page.getByLabel('Start time for R-105')).toHaveValue('13:00');
   await expect(page.getByLabel('Start time for R-105')).toBeDisabled();

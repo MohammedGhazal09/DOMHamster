@@ -35,4 +35,10 @@ createRoot(rootElement).render(
 );
 
 void runtime.start();
-window.addEventListener('pagehide', () => runtime.teardown(), { once: true });
+window.addEventListener(
+  'pagehide',
+  () => {
+    runtime.teardown();
+  },
+  { once: true },
+);

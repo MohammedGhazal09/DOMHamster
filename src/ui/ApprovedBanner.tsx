@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ApprovalRecord } from '../domain/types.ts';
-import {
-  executeWorkflowCommand,
-  type WorkflowCommandHandler,
-} from './workflow-commands.ts';
+import { executeWorkflowCommand, type WorkflowCommandHandler } from './workflow-commands.ts';
 
 export interface ApprovedBannerProps {
   readonly approval: ApprovalRecord & { readonly status: 'approved' };
@@ -57,7 +54,9 @@ export function ApprovedBanner({
 
     update();
     const intervalId = window.setInterval(update, tickMilliseconds);
-    return () => window.clearInterval(intervalId);
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [approval.expiresAt, draftVersion, now, onAnnouncement, onCommand, tickMilliseconds]);
 
   return (
@@ -65,18 +64,13 @@ export function ApprovedBanner({
       <div>
         <span className="eyebrow">Human approval recorded</span>
         <h3 id="approved-banner-heading">Approved draft v{draftVersion}</h3>
-        <p
-          className="approved-banner__countdown"
-          role="timer"
-          aria-live="off"
-          aria-atomic="true"
-        >
+        <p className="approved-banner__countdown" role="timer" aria-live="off" aria-atomic="true">
           Version {draftVersion} approved. Waiting for the agent to commit. Approval expires in{' '}
           {formatApprovalCountdown(remaining)}.
         </p>
         <p>
-          Only the agent can invoke the one-shot commit tool for this exact version. No human
-          commit control is exposed.
+          Only the agent can invoke the one-shot commit tool for this exact version. No human commit
+          control is exposed.
         </p>
       </div>
       <div className="approved-banner__actions">

@@ -81,12 +81,7 @@ export function AppHeader({
         >
           Diagnostics
         </button>
-        <button
-          id="reset-action"
-          type="button"
-          className="button button--danger"
-          onClick={onReset}
-        >
+        <button id="reset-action" type="button" className="button button--danger" onClick={onReset}>
           Reset
         </button>
       </nav>

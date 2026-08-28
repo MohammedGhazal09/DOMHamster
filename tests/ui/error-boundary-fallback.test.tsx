@@ -57,9 +57,7 @@ describe('application render recovery boundary', () => {
     });
 
     renderBoundary({ onReset }, () => shouldThrow);
-    await user.click(
-      await screen.findByRole('button', { name: 'Reset fictional scenario' }),
-    );
+    await user.click(await screen.findByRole('button', { name: 'Reset fictional scenario' }));
 
     expect(onReset).toHaveBeenCalledTimes(1);
     expect(await screen.findByText('Recovered workspace')).toBeVisible();
@@ -72,9 +70,7 @@ describe('application render recovery boundary', () => {
     const onReset = vi.fn(() => Promise.reject(new Error(RENDER_SENTINEL)));
 
     renderBoundary({ onReset });
-    await user.click(
-      await screen.findByRole('button', { name: 'Reset fictional scenario' }),
-    );
+    await user.click(await screen.findByRole('button', { name: 'Reset fictional scenario' }));
 
     expect(
       await screen.findByText('Reset could not complete. Reload the page or try again.'),

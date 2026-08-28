@@ -14,12 +14,16 @@ const rejectedHandler: WorkflowCommandHandler = () => ({
     message: 'PERSISTENCE_WRITE_FAILED',
   },
 });
-const asynchronousHandler: WorkflowCommandHandler = async () => ({
-  ok: true,
-  state: DEFAULT_READY_STATE,
-});
+const asynchronousHandler: WorkflowCommandHandler = async () => {
+  await Promise.resolve();
+  return {
+    ok: true,
+    state: DEFAULT_READY_STATE,
+  };
+};
 const asynchronousNoResultHandler: WorkflowCommandHandler = async () => {
   await Promise.resolve();
+  return undefined;
 };
 
 // @ts-expect-error Numeric callback results are not valid workflow command outcomes.

@@ -20,16 +20,16 @@ Include:
 
 ## Security boundaries
 
-| Boundary | Enforced behavior |
-|---|---|
-| Data | All recipients, locations, channels, requests, and volunteers are fictional |
-| Agent authority | No WebMCP tool can lock, unlock, approve, reject, cancel, discard, or reset |
-| Draft mutation | Stale versions and attempts to change human locks are rejected |
-| Commit | Requires the exact human-approved version, expires after 120 seconds, revalidates, and succeeds once |
-| Contact access | Exists only after commit, requires explicit assigned request IDs, and records an audit event |
-| Tool input | Strict schemas reject undeclared or malformed fields |
-| Tool output | Errors are sanitized and pre-commit results exclude restricted contact fields |
-| Runtime | No analytics, telemetry, backend, API key, account system, or external runtime service |
+| Boundary        | Enforced behavior                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| Data            | All recipients, locations, channels, requests, and volunteers are fictional                          |
+| Agent authority | No WebMCP tool can lock, unlock, approve, reject, cancel, discard, or reset                          |
+| Draft mutation  | Stale versions and attempts to change human locks are rejected                                       |
+| Commit          | Requires the exact human-approved version, expires after 120 seconds, revalidates, and succeeds once |
+| Contact access  | Exists only after commit, requires explicit assigned request IDs, and records an audit event         |
+| Tool input      | Strict schemas reject undeclared or malformed fields                                                 |
+| Tool output     | Errors are sanitized and pre-commit results exclude restricted contact fields                        |
+| Runtime         | No analytics, telemetry, backend, API key, account system, or external runtime service               |
 
 ## Known limitations
 

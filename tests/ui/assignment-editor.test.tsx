@@ -18,6 +18,7 @@ import {
   expectCommandSuccess,
   workflowStates,
 } from '../helpers/webmcp-fixtures.ts';
+import { registrySourceForStore } from '../helpers/registry-source.ts';
 
 function renderDraft(state: AppState, onCommand: HumanDraftCommandHandler = vi.fn()) {
   const draft = selectAssignmentDraft(state);
@@ -81,10 +82,7 @@ describe('human assignment editor', () => {
     const user = userEvent.setup();
     renderDraft(workflowStates().DRAFT_VALID, onCommand);
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Volunteer for R-105' }),
-      'V-03',
-    );
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Volunteer for R-105' }), 'V-03');
 
     expect(onCommand).toHaveBeenCalledTimes(1);
     expect(onCommand).toHaveBeenCalledWith({
@@ -127,10 +125,7 @@ describe('human assignment editor', () => {
     const user = userEvent.setup();
     renderDraft(workflowStates().DRAFT_VALID, onCommand);
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Volunteer for R-105' }),
-      '',
-    );
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Volunteer for R-105' }), '');
 
     expect(onCommand).toHaveBeenCalledWith({
       type: 'EDIT_ASSIGNMENT',
@@ -162,9 +157,7 @@ describe('human assignment editor', () => {
     const unlockCommand = vi.fn<HumanDraftCommandHandler>().mockResolvedValue(undefined);
     renderDraft(lockedDraftState(), unlockCommand);
 
-    expect(
-      screen.getAllByRole('combobox', { name: 'Volunteer for R-105' }).at(-1),
-    ).toBeDisabled();
+    expect(screen.getAllByRole('combobox', { name: 'Volunteer for R-105' }).at(-1)).toBeDisabled();
     expect(screen.getAllByLabelText('Start time for R-105').at(-1)).toBeDisabled();
     const unlockButton = screen
       .getAllByRole('button', { name: 'Unlock assignment for R-105' })
@@ -172,9 +165,7 @@ describe('human assignment editor', () => {
     expect(unlockButton).toHaveAttribute('aria-pressed', 'true');
     expect(
       screen
-        .getAllByText(
-          'Locked by the coordinator. Agent revisions cannot change this assignment.',
-        )
+        .getAllByText('Locked by the coordinator. Agent revisions cannot change this assignment.')
         .at(-1),
     ).toBeVisible();
     expect(screen.getAllByText('Last accepted change: You').at(-1)).toBeVisible();
@@ -199,14 +190,11 @@ describe('human assignment editor', () => {
       <StoreConnectedApp
         store={store}
         capabilityStatus="AVAILABLE"
-        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        registrySource={registrySourceForStore(store)}
       />,
     );
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Volunteer for R-105' }),
-      'V-03',
-    );
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Volunteer for R-105' }), 'V-03');
     expect(await screen.findByText('Draft v2')).toBeVisible();
     expect(
       screen.getByText(
@@ -264,9 +252,7 @@ describe('human assignment editor', () => {
     expect(within(validation).getByText('VOLUNTEER_TIME_OVERLAP')).toBeVisible();
     expect(within(validation).getByText('Volunteer assignments overlap in time.')).toBeVisible();
 
-    await user.click(
-      within(validation).getByRole('button', { name: 'Focus assignment R-105' }),
-    );
+    await user.click(within(validation).getByRole('button', { name: 'Focus assignment R-105' }));
     expect(document.activeElement).toHaveAttribute('id', 'assignment-row-R-105');
   });
 });

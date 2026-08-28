@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { validDraftToolInput } from '../helpers/webmcp-fixtures.ts';
+import { validDraftToolInput } from '../fixtures/drafts.ts';
 
 export const VALID_DRAFT_INPUT = Object.freeze(validDraftToolInput());
 
@@ -41,22 +41,15 @@ export const EXPECTED_TOOL_NAMES = Object.freeze({
     'commit_assignment_plan',
     'get_audit_history',
   ]),
-  COMMITTED: Object.freeze([
-    'get_committed_plan',
-    'access_dispatch_contacts',
-    'get_audit_history',
-  ]),
+  COMMITTED: Object.freeze(['get_committed_plan', 'access_dispatch_contacts', 'get_audit_history']),
 });
 
 export async function installToolHarness(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    type RegisteredTool = {
+    interface RegisteredTool {
       readonly name: string;
-      execute(
-        input: object,
-        options: { readonly signal: AbortSignal },
-      ): Promise<unknown>;
-    };
+      execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
+    }
     const tools = new Map<string, RegisteredTool>();
     const capturedTools = new Map<string, RegisteredTool>();
 
@@ -95,11 +88,7 @@ export async function toolNames(page: Page): Promise<readonly string[]> {
   );
 }
 
-export async function runTool(
-  page: Page,
-  name: string,
-  input: object,
-): Promise<unknown> {
+export async function runTool(page: Page, name: string, input: object): Promise<unknown> {
   return page.evaluate(
     async ({ toolName, toolInput }) => {
       const tool = (
@@ -107,10 +96,7 @@ export async function runTool(
           __domhamsterTools: Map<
             string,
             {
-              execute(
-                input: object,
-                options: { readonly signal: AbortSignal },
-              ): Promise<unknown>;
+              execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
             }
           >;
         }
@@ -122,11 +108,7 @@ export async function runTool(
   );
 }
 
-export async function captureTool(
-  page: Page,
-  name: string,
-  captureKey: string,
-): Promise<void> {
+export async function captureTool(page: Page, name: string, captureKey: string): Promise<void> {
   await page.evaluate(
     ({ toolName, key }) => {
       const harness = window as unknown as {
@@ -153,10 +135,7 @@ export async function runCapturedTool(
           __domhamsterCapturedTools: Map<
             string,
             {
-              execute(
-                input: object,
-                options: { readonly signal: AbortSignal },
-              ): Promise<unknown>;
+              execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
             }
           >;
         }

@@ -22,6 +22,8 @@
     "vitest.config.ts",
     "playwright.config.ts",
     "eslint.config.js",
+    "src/domain/types.ts",
+    "tests/fixtures/drafts.ts",
     "tests/e2e/**/*.ts"
   ]
 }

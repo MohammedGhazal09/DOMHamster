@@ -4,17 +4,17 @@ This document contains the judge-facing content and release controls for the Web
 
 ## Public identity
 
-| Field | Working value |
-|---|---|
-| Project name | DOMHamster |
-| Subtitle | The human-approved agent dispatcher |
-| Submitter | Mohammed Ghazal, individual entrant |
-| Country | Saudi Arabia |
-| Project status | New project created during the challenge |
-| License | MIT |
-| Public repository | https://github.com/MohammedGhazal09/DOMHamster |
-| Live URL | **Live URL: pending** until exact-commit Netlify verification |
-| Video | **Video URL: pending** until the verified release is recorded |
+| Field             | Working value                                                 |
+| ----------------- | ------------------------------------------------------------- |
+| Project name      | DOMHamster                                                    |
+| Subtitle          | The human-approved agent dispatcher                           |
+| Submitter         | Mohammed Ghazal, individual entrant                           |
+| Country           | Saudi Arabia                                                  |
+| Project status    | New project created during the challenge                      |
+| License           | MIT                                                           |
+| Public repository | https://github.com/MohammedGhazal09/DOMHamster                |
+| Live URL          | **Live URL: pending** until exact-commit Netlify verification |
+| Video             | **Video URL: pending** until the verified release is recorded |
 
 ## Elevator pitch
 
@@ -36,16 +36,16 @@ Expected end state: `COMMITTED`, the human lock remains, the contact request is 
 
 ## Devpost content inventory
 
-| Section | Required final content |
-|---|---|
-| Overview | Project name, elevator pitch, and release-matched thumbnail |
-| Story | Inspiration, what it does, construction, challenges, accomplishments, learning, and next steps |
-| Built with | WebMCP, TypeScript, React, Vite, Ajv, Vitest, Playwright, Netlify, GitHub |
-| Links | Exact production URL, public repository, and public video |
-| Media | Four release-matched images: READY, conflict, approval, committed/audit |
-| Testing | Supported clients, reset, canonical prompt, human conflict/lock, approval, commit, optional contacts/audit |
-| AI disclosure | Actual tools and uses from [AI-use disclosure](ai-use.md) |
-| Entrant data | Individual submitter and Saudi Arabia residence |
+| Section       | Required final content                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| Overview      | Project name, elevator pitch, and release-matched thumbnail                                                |
+| Story         | Inspiration, what it does, construction, challenges, accomplishments, learning, and next steps             |
+| Built with    | WebMCP, TypeScript, React, Vite, Ajv, Vitest, Playwright, Netlify, GitHub                                  |
+| Links         | Exact production URL, public repository, and public video                                                  |
+| Media         | Four release-matched images: READY, conflict, approval, committed/audit                                    |
+| Testing       | Supported clients, reset, canonical prompt, human conflict/lock, approval, commit, optional contacts/audit |
+| AI disclosure | Actual tools and uses from [AI-use disclosure](ai-use.md)                                                  |
+| Entrant data  | Individual submitter and Saudi Arabia residence                                                            |
 
 ## Video requirements
 

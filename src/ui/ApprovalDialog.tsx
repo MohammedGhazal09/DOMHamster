@@ -1,15 +1,9 @@
 import { useId, useRef, useState } from 'react';
-import type {
-  AssignmentDraftView,
-  PublicRequestView,
-} from '../app/selectors.ts';
+import type { AssignmentDraftView, PublicRequestView } from '../app/selectors.ts';
 import type { ApprovalRecord } from '../domain/types.ts';
 import { useModalFocus } from './dialog-focus.ts';
 import { ReadonlyAssignmentTable } from './ReadonlyAssignmentTable.tsx';
-import {
-  executeWorkflowCommand,
-  type WorkflowCommandHandler,
-} from './workflow-commands.ts';
+import { executeWorkflowCommand, type WorkflowCommandHandler } from './workflow-commands.ts';
 
 export interface ApprovalDialogProps {
   readonly draft: AssignmentDraftView;

@@ -1,7 +1,4 @@
-import type {
-  CommittedPlanView,
-  PublicRequestView,
-} from '../app/selectors.ts';
+import type { CommittedPlanView, PublicRequestView } from '../app/selectors.ts';
 import { ReadonlyAssignmentTable } from './ReadonlyAssignmentTable.tsx';
 
 export interface CommittedSummaryProps {

@@ -136,14 +136,22 @@ for (const script of [
   'release:manifest',
   'release:verify',
 ]) {
-  assert.equal(typeof packageJson.scripts?.[script], 'string', `WP13_PACKAGE_SCRIPT_MISSING:${script}`);
+  assert.equal(
+    typeof packageJson.scripts?.[script],
+    'string',
+    `WP13_PACKAGE_SCRIPT_MISSING:${script}`,
+  );
 }
 assert.equal(
   packageJson.scripts['verify:docs'],
   'node tests/docs/documentation-contract.test.mjs',
   'WP13_DOC_SCRIPT_DRIFT',
 );
-assert.match(packageJson.scripts.verify, /npm run verify:docs/u, 'WP13_VERIFY_DOES_NOT_INCLUDE_DOCS');
+assert.match(
+  packageJson.scripts.verify,
+  /npm run verify:docs/u,
+  'WP13_VERIFY_DOES_NOT_INCLUDE_DOCS',
+);
 
 const markdownFiles = requiredFiles.filter((path) => path.endsWith('.md'));
 for (const path of markdownFiles) {

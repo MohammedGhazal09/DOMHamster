@@ -1,9 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  selectAuditHistory,
-} from '../../src/app/selectors.ts';
+import { selectAuditHistory } from '../../src/app/selectors.ts';
 import type { DiagnosticsSnapshot } from '../../src/diagnostics/diagnostics.ts';
 import { ActivityDrawer } from '../../src/ui/ActivityDrawer.tsx';
 import { ConfirmDialog } from '../../src/ui/ConfirmDialog.tsx';
@@ -71,7 +69,9 @@ describe('confirmation dialog', () => {
     const dialog = screen.getByRole('alertdialog', {
       name: 'Reset the fictional scenario?',
     });
-    await waitFor(() => expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus());
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus(),
+    );
 
     await user.keyboard('{Escape}');
     expect(onCancel).toHaveBeenCalledTimes(1);

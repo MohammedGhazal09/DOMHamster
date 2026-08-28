@@ -46,7 +46,13 @@ for (const fragment of [
 }
 
 assert.ok(main.includes('registrySource={registrySource}'), 'MAIN_REGISTRY_SOURCE_NOT_CONNECTED');
-assert.ok(main.includes('subscribe: runtime.subscribeRegistry'), 'MAIN_REGISTRY_SUBSCRIBE_NOT_CONNECTED');
-assert.ok(main.includes('getSnapshot: runtime.getRegistrySnapshot'), 'MAIN_REGISTRY_SNAPSHOT_NOT_CONNECTED');
+assert.ok(
+  main.includes('subscribe: runtime.subscribeRegistry'),
+  'MAIN_REGISTRY_SUBSCRIBE_NOT_CONNECTED',
+);
+assert.ok(
+  main.includes('getSnapshot: runtime.getRegistrySnapshot'),
+  'MAIN_REGISTRY_SNAPSHOT_NOT_CONNECTED',
+);
 
 console.log('DOMHAMSTER_REGISTRY_UI_BRIDGE_CONTRACT_PASS');

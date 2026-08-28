@@ -1,9 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  selectCommittedPlan,
-  selectOpenRequests,
-} from '../../src/app/selectors.ts';
+import { selectCommittedPlan, selectOpenRequests } from '../../src/app/selectors.ts';
 import { CommittedSummary } from '../../src/ui/CommittedSummary.tsx';
 import { workflowStates } from '../helpers/webmcp-fixtures.ts';
 

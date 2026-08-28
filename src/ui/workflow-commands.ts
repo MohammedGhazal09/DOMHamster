@@ -18,11 +18,11 @@ export type WorkflowCommand =
   | DiscardDraftCommand
   | ResetDemoCommand;
 
-export type WorkflowCommandHandler =
-  | ((
-      command: WorkflowCommand,
-    ) => StoreDispatchResult | undefined | Promise<StoreDispatchResult | undefined>)
-  | ((command: WorkflowCommand) => Promise<void>);
+export type WorkflowCommandResult = StoreDispatchResult | undefined;
+
+export type WorkflowCommandHandler = (
+  command: WorkflowCommand,
+) => WorkflowCommandResult | Promise<WorkflowCommandResult>;
 
 export async function executeWorkflowCommand(
   onCommand: WorkflowCommandHandler,

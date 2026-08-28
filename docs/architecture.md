@@ -16,27 +16,27 @@ WebMCP handlers never inspect or click presentation DOM. UI components never rea
 
 ## Layers
 
-| Layer | Responsibility | Must not do |
-|---|---|---|
-| `src/domain` | Types, fixture, validation, state classification, commands, approval, commit, and audit | Read browser APIs or presentation DOM |
-| `src/app/store.ts` | Serialize commands, persist before publish, notify subscribers | Reimplement domain rules |
-| `src/app/selectors.ts` | Construct privacy-bounded public views | Return private contacts before commit |
-| `src/persistence` | Read and write the versioned `localStorage` envelope and recover safely | Preserve pending approval across reload |
-| `src/webmcp` | Define tools, validate input, authorize state/version, execute handlers, reconcile registration | Scrape, query, or click UI DOM |
-| `src/diagnostics` | Return bounded capability, build, lifecycle, and safe-error evidence | Return prompts, full state, notes, contacts, or stack traces |
-| `src/ui` | Render the coordinator workspace and human-only controls | Mutate domain objects directly or grant agent authority |
-| `src/main.tsx` | Compose browser ports, persistence, store, handlers, registry, and React | Contain business rules |
+| Layer                  | Responsibility                                                                                  | Must not do                                                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `src/domain`           | Types, fixture, validation, state classification, commands, approval, commit, and audit         | Read browser APIs or presentation DOM                        |
+| `src/app/store.ts`     | Serialize commands, persist before publish, notify subscribers                                  | Reimplement domain rules                                     |
+| `src/app/selectors.ts` | Construct privacy-bounded public views                                                          | Return private contacts before commit                        |
+| `src/persistence`      | Read and write the versioned `localStorage` envelope and recover safely                         | Preserve pending approval across reload                      |
+| `src/webmcp`           | Define tools, validate input, authorize state/version, execute handlers, reconcile registration | Scrape, query, or click UI DOM                               |
+| `src/diagnostics`      | Return bounded capability, build, lifecycle, and safe-error evidence                            | Return prompts, full state, notes, contacts, or stack traces |
+| `src/ui`               | Render the coordinator workspace and human-only controls                                        | Mutate domain objects directly or grant agent authority      |
+| `src/main.tsx`         | Compose browser ports, persistence, store, handlers, registry, and React                        | Contain business rules                                       |
 
 ## State model
 
-| State | Meaning | Consequential boundary |
-|---|---|---|
-| `READY` | No draft exists | Agent may create a complete draft |
-| `DRAFT_INVALID` | Draft contains one or more hard errors | Approval and commit are unavailable |
-| `DRAFT_VALID` | Draft has no hard errors | Agent may prepare visible human review |
-| `AWAITING_APPROVAL` | Exact version is displayed for a human decision | Agent cannot approve or commit |
-| `APPROVED` | Human approved the exact version within a 120-second window | Agent may call one-shot commit |
-| `COMMITTED` | Immutable operational plan exists | Selected fictional contacts may be accessed and audited |
+| State               | Meaning                                                     | Consequential boundary                                  |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| `READY`             | No draft exists                                             | Agent may create a complete draft                       |
+| `DRAFT_INVALID`     | Draft contains one or more hard errors                      | Approval and commit are unavailable                     |
+| `DRAFT_VALID`       | Draft has no hard errors                                    | Agent may prepare visible human review                  |
+| `AWAITING_APPROVAL` | Exact version is displayed for a human decision             | Agent cannot approve or commit                          |
+| `APPROVED`          | Human approved the exact version within a 120-second window | Agent may call one-shot commit                          |
+| `COMMITTED`         | Immutable operational plan exists                           | Selected fictional contacts may be accessed and audited |
 
 Any draft edit or lock change increments the version and invalidates prior authorization. Reload clears pending or approved authorization while preserving a recoverable draft.
 
@@ -58,13 +58,13 @@ After commit:
 
 ## Trust boundaries
 
-| Input or actor | Treatment |
-|---|---|
-| Browser agent arguments | Untrusted; schema, state, version, identifier, lock, and domain validation apply |
-| Request notes and contact instructions | Untrusted content; never interpreted as system instructions |
-| Human coordinator | Owns visible locks, approval decisions, cancellation, discard, and reset |
-| Browser persistence | Untrusted on read; schema, fixture identity, timestamps, audit types, and state invariants are revalidated |
-| Build and deployment metadata | Non-sensitive evidence only; no credential or environment secret is exposed |
+| Input or actor                         | Treatment                                                                                                  |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Browser agent arguments                | Untrusted; schema, state, version, identifier, lock, and domain validation apply                           |
+| Request notes and contact instructions | Untrusted content; never interpreted as system instructions                                                |
+| Human coordinator                      | Owns visible locks, approval decisions, cancellation, discard, and reset                                   |
+| Browser persistence                    | Untrusted on read; schema, fixture identity, timestamps, audit types, and state invariants are revalidated |
+| Build and deployment metadata          | Non-sensitive evidence only; no credential or environment secret is exposed                                |
 
 ## Failure behavior
 

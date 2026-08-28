@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  APPROVED_LICENSE_IDS,
-  auditLockfileLicenses,
-} from '../../scripts/lib/license-policy.mjs';
+import { APPROVED_LICENSE_IDS, auditLockfileLicenses } from '../../scripts/lib/license-policy.mjs';
 
 function lockfile(packages) {
   return {
