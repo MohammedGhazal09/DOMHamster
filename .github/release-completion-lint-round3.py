@@ -89,3 +89,224 @@ replace_once(
     "  'subscribeRegistry(listener: () => void): () => void;',",
     "  'readonly subscribeRegistry: (listener: () => void) => () => void;',",
 )
+
+replace_once(
+    "tests/app/store.test.ts",
+    """    expect(persisted.map(stateVersion)).toEqual([1, 2]);
+    expect(observed.map(stateVersion)).toEqual([1, 2]);
+    expect(store.getState().workflowState).toBe('DRAFT_VALID');
+""",
+    """    expect(persisted.map(stateVersion)).toEqual([1, 2]);
+    expect(observed.map(stateVersion)).toEqual([1, 2]);
+    expect(store.getState().workflowState).toBe('DRAFT_INVALID');
+""",
+)
+
+replace_once(
+    "tests/domain/validation.test.ts",
+    """  it('accepts back-to-back assignments for the same volunteer', () => {
+    let assignments = replaceAssignment(validAssignments(), requestId('R-104'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '11:30',
+    });
+    assignments = replaceAssignment(assignments, requestId('R-105'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '13:00',
+    });
+
+    const result = validateDraft(buildContext(assignments));
+""",
+    """  it('accepts back-to-back assignments for the same volunteer', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-104'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '11:30',
+    });
+
+    const result = validateDraft(buildContext(assignments));
+""",
+)
+replace_once(
+    "tests/domain/validation.test.ts",
+    """  it('reports workload above the scenario maximum of three', () => {
+    let assignments = replaceAssignment(validAssignments(), requestId('R-104'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '11:30',
+    });
+    assignments = replaceAssignment(assignments, requestId('R-105'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '13:00',
+    });
+
+    const issue = findIssue(
+      validateDraft(buildContext(assignments)).errors,
+      'VOLUNTEER_WORKLOAD_EXCEEDED',
+    );
+
+    expect(issue.requestIds).toEqual([
+      requestId('R-103'),
+      requestId('R-104'),
+      requestId('R-105'),
+      requestId('R-108'),
+    ]);
+""",
+    """  it('reports workload above the scenario maximum of three', () => {
+    let assignments = replaceAssignment(validAssignments(), requestId('R-104'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '11:30',
+    });
+    assignments = replaceAssignment(assignments, requestId('R-108'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '15:00',
+    });
+
+    const issue = findIssue(
+      validateDraft(buildContext(assignments)).errors,
+      'VOLUNTEER_WORKLOAD_EXCEEDED',
+    );
+
+    expect(issue.requestIds).toEqual([
+      requestId('R-103'),
+      requestId('R-104'),
+      requestId('R-106'),
+      requestId('R-108'),
+    ]);
+""",
+)
+replace_once(
+    "tests/domain/validation.test.ts",
+    """  it('accepts exactly three assignments for one volunteer', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-105'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '13:00',
+    });
+""",
+    """  it('accepts exactly three assignments for one volunteer', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-108'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '15:00',
+    });
+""",
+)
+replace_once(
+    "tests/domain/validation.test.ts",
+    """  it('warns about noncritical cross-zone assignment', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-105'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '13:00',
+    });
+
+    const issue = findIssue(validateDraft(buildContext(assignments)).warnings, 'ZONE_INEFFICIENCY');
+
+    expect(issue.requestIds).toEqual([requestId('R-105')]);
+    expect(issue.volunteerId).toBe(volunteerId('V-03'));
+""",
+    """  it('warns about noncritical cross-zone assignment', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-106'), {
+      volunteerId: volunteerId('V-04'),
+      startTime: '13:00',
+    });
+
+    const issue = findIssue(validateDraft(buildContext(assignments)).warnings, 'ZONE_INEFFICIENCY');
+
+    expect(issue.requestIds).toEqual([requestId('R-106')]);
+    expect(issue.volunteerId).toBe(volunteerId('V-04'));
+""",
+)
+replace_once(
+    "tests/domain/validation.test.ts",
+    """  it('warns when the assigned workload spread exceeds one without invalidating the draft', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-105'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '13:00',
+    });
+""",
+    """  it('warns when the assigned workload spread exceeds one without invalidating the draft', () => {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-108'), {
+      volunteerId: volunteerId('V-03'),
+      startTime: '15:00',
+    });
+""",
+)
+
+replace_once(
+    "src/ui/AssignmentTable.tsx",
+    """                  <select
+                    id={volunteerControlId}
+                    value={assignment.volunteerId ?? ''}
+""",
+    """                  <select
+                    id={volunteerControlId}
+                    aria-label={`Volunteer for ${request.id}`}
+                    value={assignment.volunteerId ?? ''}
+""",
+)
+replace_once(
+    "src/ui/AssignmentTable.tsx",
+    """                  <input
+                    id={timeControlId}
+                    type="time"
+""",
+    """                  <input
+                    id={timeControlId}
+                    aria-label={`Start time for ${request.id}`}
+                    type="time"
+""",
+)
+replace_once(
+    "src/ui/ValidationPanel.tsx",
+    """            <button
+              key={requestId}
+              type="button"
+              className="validation-focus-link mono"
+""",
+    """            <button
+              key={requestId}
+              type="button"
+              className="validation-focus-link mono"
+              aria-label={`Focus assignment ${requestId}`}
+""",
+)
+replace_once(
+    "src/ui/VolunteerPanel.tsx",
+    """    <aside className="workspace-panel volunteer-panel surface" aria-labelledby="volunteers-heading">""",
+    """    <aside
+      className="workspace-panel volunteer-panel surface"
+      role="region"
+      aria-labelledby="volunteers-heading"
+    >""",
+)
+
+replace_once(
+    "tests/ui/app-shell.test.tsx",
+    """  it('copies the canonical prompt and announces the accepted action', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+    const user = userEvent.setup();
+    render(<JudgeBrief />);
+""",
+    """  it('copies the canonical prompt and announces the accepted action', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+    render(<JudgeBrief />);
+""",
+)
+replace_once(
+    "tests/ui/approval-dialog.test.tsx",
+    """    await user.tab();
+    expect(within(dialog).getByRole('button', { name: 'Approve version 1' })).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+""",
+    """    await user.tab();
+    expect(
+      within(dialog).getByRole('region', {
+        name: 'Draft assignment review horizontal scroll area',
+      }),
+    ).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+""",
+)
