@@ -1,0 +1,80 @@
+name: Release completion repair v2
+
+on:
+  push:
+    branches:
+      - automation/release-completion-20260828
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-completion-repair-v2
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out release-completion branch
+        uses: actions/checkout@v7
+        with:
+          ref: automation/release-completion-20260828
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Verify runtime
+        run: |
+          test "$(node --version)" = "v24.19.0"
+          test "$(npm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Apply strictness repairs and add regression test
+        run: python .github/release-completion-repair.py pre
+
+      - name: Prove stale-confirmation regression is RED
+        run: |
+          set +e
+          npx vitest run tests/ui/workflow-shell.test.tsx \
+            -t "dismisses a confirmation when the immutable state snapshot changes within the same workflow state" \
+            2>&1 | tee /tmp/stale-confirmation-red.log
+          status=${PIPESTATUS[0]}
+          set -e
+          test "$status" -ne 0
+          grep -F "dismisses a confirmation when the immutable state snapshot changes" \
+            /tmp/stale-confirmation-red.log
+
+      - name: Bind confirmations to the exact immutable state snapshot
+        run: python .github/release-completion-repair.py app
+
+      - name: Prove stale-confirmation regression is GREEN
+        run: |
+          npx vitest run tests/ui/workflow-shell.test.tsx \
+            -t "dismisses a confirmation when the immutable state snapshot changes within the same workflow state"
+
+      - name: Run complete source verification without temporary automation
+        run: |
+          rm .github/release-completion-repair.py
+          rm .github/workflows/release-completion-autoformat.yml
+          rm .github/workflows/release-completion-workflow-fix.yml
+          rm .github/workflows/release-completion-repair-v2.yml
+          npm run format
+          npm run verify
+          git diff --check
+          git checkout -- .github/workflows
+
+      - name: Commit verified product and test repairs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- scripts src tests tsconfig.app.json .github/release-completion-repair.py
+          git diff --cached --check
+          git commit -m "fix: satisfy strict source verification"
+          git push origin HEAD:automation/release-completion-20260828
