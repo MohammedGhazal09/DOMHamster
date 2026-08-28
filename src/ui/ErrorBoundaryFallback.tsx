@@ -53,8 +53,8 @@ export function ErrorBoundaryFallback({
           DOMHamster paused this view
         </h1>
         <p>
-          DOMHamster could not complete that action. State was not changed. Use Reset if the
-          problem continues.
+          DOMHamster could not complete that action. State was not changed. Use Reset if the problem
+          continues.
         </p>
         <p className="error-boundary-reference">
           Error reference: <code>{reference}</code>

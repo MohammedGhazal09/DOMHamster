@@ -10,19 +10,13 @@ import {
 } from './selectors.ts';
 import type { AppState } from '../domain/types.ts';
 import { CANONICAL_FIXTURE_HASH } from '../domain/fixture-identity.ts';
-import {
-  createDiagnosticsSnapshot,
-  type PersistenceStatus,
-} from '../diagnostics/diagnostics.ts';
+import { createDiagnosticsSnapshot, type PersistenceStatus } from '../diagnostics/diagnostics.ts';
 import { detectWebMcpCapability, type WebMcpCapabilityStatus } from '../webmcp/capability.ts';
 import type { ToolName } from '../webmcp/contracts.ts';
 import { desiredToolNames } from '../webmcp/lifecycle.ts';
 import { ActivityDrawer } from '../ui/ActivityDrawer.tsx';
 import { AppHeader } from '../ui/AppHeader.tsx';
-import type {
-  HumanDraftCommand,
-  HumanDraftCommandHandler,
-} from '../ui/AssignmentTable.tsx';
+import type { HumanDraftCommand, HumanDraftCommandHandler } from '../ui/AssignmentTable.tsx';
 import { ApprovalDialog } from '../ui/ApprovalDialog.tsx';
 import { CapabilityNotice } from '../ui/CapabilityNotice.tsx';
 import { ConfirmDialog } from '../ui/ConfirmDialog.tsx';
@@ -115,9 +109,7 @@ export function App({
   const resolvedCapability = capabilityStatus ?? browserCapabilityStatus();
   const desiredNames = desiredToolNames(state.workflowState);
   const visibleToolNames =
-    resolvedCapability === 'AVAILABLE'
-      ? (registeredToolNames ?? desiredNames)
-      : EMPTY_TOOL_NAMES;
+    resolvedCapability === 'AVAILABLE' ? (registeredToolNames ?? desiredNames) : EMPTY_TOOL_NAMES;
   const overview = selectCoordinationOverview(state);
   const requests = selectOpenRequests(state);
   const volunteers = selectAvailableVolunteers(state);
@@ -134,8 +126,7 @@ export function App({
   const baseCommandHandler = useMemo<WorkflowCommandHandler>(() => {
     if (onWorkflowCommand !== undefined) return onWorkflowCommand;
     if (onHumanDraftCommand === undefined) return ignoreWorkflowCommand;
-    return (command) =>
-      isHumanDraftCommand(command) ? onHumanDraftCommand(command) : undefined;
+    return (command) => (isHumanDraftCommand(command) ? onHumanDraftCommand(command) : undefined);
   }, [onHumanDraftCommand, onWorkflowCommand]);
 
   const trackedCommandHandler = useCallback<WorkflowCommandHandler>(

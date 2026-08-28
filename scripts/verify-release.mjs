@@ -49,7 +49,10 @@ assert.equal(manifest.schemaVersion, 1);
 assert.equal(manifest.product, 'DOMHamster');
 assert.equal(manifest.sourceCommit, expectedCommit, 'DOMHAMSTER_RELEASE_COMMIT_MISMATCH');
 assert.equal(manifest.fixture.sha256, FROZEN_FIXTURE_HASH, 'DOMHAMSTER_FIXTURE_HASH_MISMATCH');
-assert.deepEqual(manifest.tools.names, contracts.map(({ name }) => name));
+assert.deepEqual(
+  manifest.tools.names,
+  contracts.map(({ name }) => name),
+);
 assert.deepEqual(
   manifest.tools.lifecycleCounts,
   Object.fromEntries(Object.entries(lifecycle).map(([state, names]) => [state, names.length])),

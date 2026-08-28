@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AppStore } from '../../src/app/store.ts';
 import { createToolHandlers } from '../../src/webmcp/handlers.ts';
-import {
-  createTestStore,
-  validDraftToolInput,
-} from '../helpers/webmcp-fixtures.ts';
+import { createTestStore, validDraftToolInput } from '../helpers/webmcp-fixtures.ts';
 
 describe('WebMCP execution cancellation', () => {
   it('returns EXECUTION_ABORTED before consulting application state', async () => {
@@ -26,10 +23,7 @@ describe('WebMCP execution cancellation', () => {
     const controller = new AbortController();
     controller.abort();
 
-    const result = await handlers.get_coordination_overview(
-      {},
-      { signal: controller.signal },
-    );
+    const result = await handlers.get_coordination_overview({}, { signal: controller.signal });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error('TEST_EXPECTED_ABORT_FAILURE');
@@ -49,10 +43,9 @@ describe('WebMCP execution cancellation', () => {
     controller.abort();
     const before = store.getState();
 
-    const result = await handlers.create_assignment_draft(
-      validDraftToolInput(),
-      { signal: controller.signal },
-    );
+    const result = await handlers.create_assignment_draft(validDraftToolInput(), {
+      signal: controller.signal,
+    });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error('TEST_EXPECTED_ABORT_FAILURE');

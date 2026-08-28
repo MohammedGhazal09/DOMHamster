@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { reduceCommand, type CommandDependencies, type CommandResult } from '../../src/domain/commands.ts';
+import {
+  reduceCommand,
+  type CommandDependencies,
+  type CommandResult,
+} from '../../src/domain/commands.ts';
 import { CANONICAL_SCENARIO } from '../../src/domain/seed.ts';
 import {
   type AppState,
@@ -54,11 +58,7 @@ describe('approved-plan cancellation', () => {
       ),
     );
     const approved = success(
-      reduceCommand(
-        awaiting,
-        { type: 'APPROVE', actor: 'human', expectedDraftVersion: 1 },
-        deps,
-      ),
+      reduceCommand(awaiting, { type: 'APPROVE', actor: 'human', expectedDraftVersion: 1 }, deps),
     );
     const cancelled = success(
       reduceCommand(

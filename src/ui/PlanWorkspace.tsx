@@ -186,8 +186,8 @@ export function PlanWorkspace({
                 <span className="eyebrow">Human decision required</span>
                 <h3 id="awaiting-draft-heading">Draft v{draft.version} is under review</h3>
                 <p>
-                  The background workspace is read-only until the coordinator approves, rejects,
-                  or cancels this review.
+                  The background workspace is read-only until the coordinator approves, rejects, or
+                  cancels this review.
                 </p>
               </div>
               <span className="mono">AWAITING_APPROVAL</span>

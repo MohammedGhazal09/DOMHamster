@@ -12,15 +12,14 @@ export interface RegistrySnapshotSource {
   getSnapshot(): WebMcpRegistrySnapshot | null;
 }
 
-export interface StoreConnectedAppProps
-  extends Omit<
-    AppProps,
-    | 'state'
-    | 'onHumanDraftCommand'
-    | 'onWorkflowCommand'
-    | 'registeredToolNames'
-    | 'registryErrorCodes'
-  > {
+export interface StoreConnectedAppProps extends Omit<
+  AppProps,
+  | 'state'
+  | 'onHumanDraftCommand'
+  | 'onWorkflowCommand'
+  | 'registeredToolNames'
+  | 'registryErrorCodes'
+> {
   readonly store: AppStore;
   readonly registrySource?: RegistrySnapshotSource;
 }
@@ -36,11 +35,7 @@ export function registrySnapshotKey(snapshot: WebMcpRegistrySnapshot | null): st
   ]);
 }
 
-export function StoreConnectedApp({
-  store,
-  registrySource,
-  ...appProps
-}: StoreConnectedAppProps) {
+export function StoreConnectedApp({ store, registrySource, ...appProps }: StoreConnectedAppProps) {
   const state = useSyncExternalStore(store.subscribe, store.getState, store.getState);
   const subscribeToRegistry = useCallback(
     (listener: () => void) => registrySource?.subscribe(listener) ?? (() => undefined),
@@ -57,9 +52,7 @@ export function StoreConnectedApp({
     <App
       {...appProps}
       state={state}
-      registeredToolNames={
-        registrySnapshot?.registeredToolNames ?? EMPTY_REGISTERED_TOOL_NAMES
-      }
+      registeredToolNames={registrySnapshot?.registeredToolNames ?? EMPTY_REGISTERED_TOOL_NAMES}
       registryErrorCodes={registrySnapshot?.errorCodes ?? EMPTY_REGISTRY_ERRORS}
       onWorkflowCommand={store.dispatch}
     />

@@ -1,7 +1,4 @@
-import type {
-  PublicAssignmentView,
-  PublicRequestView,
-} from '../app/selectors.ts';
+import type { PublicAssignmentView, PublicRequestView } from '../app/selectors.ts';
 import type { Priority, RequestType, Zone } from '../domain/types.ts';
 
 export interface ReadonlyAssignmentTableProps {

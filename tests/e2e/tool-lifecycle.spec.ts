@@ -17,11 +17,9 @@ test('reconciles the exact six-state tool lifecycle and rejects stale captured t
 
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.READY);
 
-  const created = (await runTool(
-    page,
-    'create_assignment_draft',
-    VALID_DRAFT_INPUT,
-  )) as { readonly ok: boolean };
+  const created = (await runTool(page, 'create_assignment_draft', VALID_DRAFT_INPUT)) as {
+    readonly ok: boolean;
+  };
   expect(created.ok).toBe(true);
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.DRAFT_VALID);
 
@@ -79,8 +77,8 @@ test('reconciles the exact six-state tool lifecycle and rejects stale captured t
   const reset = page.getByRole('alertdialog', { name: 'Reset the fictional scenario?' });
   await reset.getByRole('button', { name: 'Reset scenario' }).click();
 
-  await expect(
-    page.getByRole('status', { name: 'Current application status' }),
-  ).toContainText('READY');
+  await expect(page.getByRole('status', { name: 'Current application status' })).toContainText(
+    'READY',
+  );
   await expect.poll(() => toolNames(page)).toEqual(EXPECTED_TOOL_NAMES.READY);
 });

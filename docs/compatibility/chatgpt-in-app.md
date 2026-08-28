@@ -4,17 +4,17 @@
 
 ## Environment
 
-| Field | Recorded value |
-|---|---|
-| Production URL | Record the exact public Netlify URL |
-| Source commit | Record the deployed 40-character commit SHA |
-| Release candidate | Record `rc.N` |
-| ChatGPT app build | Record the visible desktop-app build |
-| Selected model | Record the model used for the test |
-| Account site-tools access | Confirm available or record blocker |
-| UTC timestamp | Record ISO 8601 |
-| Asia/Riyadh timestamp | Record ISO 8601 with offset |
-| Tester | Mohammed Ghazal |
+| Field                     | Recorded value                              |
+| ------------------------- | ------------------------------------------- |
+| Production URL            | Record the exact public Netlify URL         |
+| Source commit             | Record the deployed 40-character commit SHA |
+| Release candidate         | Record `rc.N`                               |
+| ChatGPT app build         | Record the visible desktop-app build        |
+| Selected model            | Record the model used for the test          |
+| Account site-tools access | Confirm available or record blocker         |
+| UTC timestamp             | Record ISO 8601                             |
+| Asia/Riyadh timestamp     | Record ISO 8601 with offset                 |
+| Tester                    | Mohammed Ghazal                             |
 
 ## Canonical acceptance sequence
 
@@ -33,17 +33,17 @@
 
 ## Result ledger
 
-| Check | Result | Evidence or discrepancy |
-|---|---|---|
-| READY discovery | Not run | Record observed tool names |
-| Structured draft creation | Not run | Record tool sequence |
-| Human edit and lock | Not run | Record visible version and state |
-| Lock-preserving repair | Not run | Record R-105 and R-106 outcomes |
-| Human approval boundary | Not run | Record review and exact version |
-| One-shot commit | Not run | Record plan ID and lifecycle |
-| Scoped contact access | Not run | Record requested IDs only; never paste contact values here |
-| Audit | Not run | Record event type and sequence only |
-| Console/network | Not run | Record any warning or unexpected request |
-| Repeatability | Not run | Record second-run outcome |
+| Check                     | Result  | Evidence or discrepancy                                    |
+| ------------------------- | ------- | ---------------------------------------------------------- |
+| READY discovery           | Not run | Record observed tool names                                 |
+| Structured draft creation | Not run | Record tool sequence                                       |
+| Human edit and lock       | Not run | Record visible version and state                           |
+| Lock-preserving repair    | Not run | Record R-105 and R-106 outcomes                            |
+| Human approval boundary   | Not run | Record review and exact version                            |
+| One-shot commit           | Not run | Record plan ID and lifecycle                               |
+| Scoped contact access     | Not run | Record requested IDs only; never paste contact values here |
+| Audit                     | Not run | Record event type and sequence only                        |
+| Console/network           | Not run | Record any warning or unexpected request                   |
+| Repeatability             | Not run | Record second-run outcome                                  |
 
 A release candidate fails this gate if site tools are unavailable for the account/model, any required tool is missing, a human-only action is exposed as a tool, contact data appears before commit, or the canonical journey cannot be completed twice.

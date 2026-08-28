@@ -13,7 +13,8 @@ function variableInitializer(file, variableName) {
     if (!ts.isVariableStatement(statement)) continue;
     for (const declaration of statement.declarationList.declarations) {
       if (ts.isIdentifier(declaration.name) && declaration.name.text === variableName) {
-        if (declaration.initializer === undefined) throw new Error(`DOMHAMSTER_METADATA_INITIALIZER_MISSING:${variableName}`);
+        if (declaration.initializer === undefined)
+          throw new Error(`DOMHAMSTER_METADATA_INITIALIZER_MISSING:${variableName}`);
         return declaration.initializer;
       }
     }
@@ -21,7 +22,8 @@ function variableInitializer(file, variableName) {
   throw new Error(`DOMHAMSTER_METADATA_VARIABLE_MISSING:${variableName}`);
 }
 function unwrap(expression) {
-  if (ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression)) return unwrap(expression.expression);
+  if (ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression))
+    return unwrap(expression.expression);
   if (ts.isCallExpression(expression)) {
     const first = expression.arguments[0];
     if (first !== undefined) return unwrap(first);
@@ -32,7 +34,8 @@ function property(object, name) {
   for (const item of object.properties) {
     if (!ts.isPropertyAssignment(item)) continue;
     const key = item.name;
-    if ((ts.isIdentifier(key) || ts.isStringLiteral(key)) && key.text === name) return item.initializer;
+    if ((ts.isIdentifier(key) || ts.isStringLiteral(key)) && key.text === name)
+      return item.initializer;
   }
   throw new Error(`DOMHAMSTER_METADATA_PROPERTY_MISSING:${name}`);
 }
@@ -49,29 +52,40 @@ function booleanValue(expression, label) {
 }
 function stringArray(expression, label) {
   const value = unwrap(expression);
-  if (!ts.isArrayLiteralExpression(value)) throw new Error(`DOMHAMSTER_METADATA_ARRAY_REQUIRED:${label}`);
+  if (!ts.isArrayLiteralExpression(value))
+    throw new Error(`DOMHAMSTER_METADATA_ARRAY_REQUIRED:${label}`);
   return value.elements.map((element, index) => stringValue(element, `${label}[${index}]`));
 }
 export function readToolMetadata(root = process.cwd()) {
   const contractsFile = sourceFile(join(root, 'src/webmcp/contracts.ts'));
   const lifecycleFile = sourceFile(join(root, 'src/webmcp/lifecycle.ts'));
   const contractsExpression = unwrap(variableInitializer(contractsFile, 'RAW_TOOL_CONTRACTS'));
-  if (!ts.isArrayLiteralExpression(contractsExpression)) throw new Error('DOMHAMSTER_CONTRACT_ARRAY_MISSING');
+  if (!ts.isArrayLiteralExpression(contractsExpression))
+    throw new Error('DOMHAMSTER_CONTRACT_ARRAY_MISSING');
   const contracts = contractsExpression.elements.map((element, index) => {
     const object = unwrap(element);
-    if (!ts.isObjectLiteralExpression(object)) throw new Error(`DOMHAMSTER_CONTRACT_OBJECT_REQUIRED:${index}`);
+    if (!ts.isObjectLiteralExpression(object))
+      throw new Error(`DOMHAMSTER_CONTRACT_OBJECT_REQUIRED:${index}`);
     const annotations = unwrap(property(object, 'annotations'));
-    if (!ts.isObjectLiteralExpression(annotations)) throw new Error(`DOMHAMSTER_ANNOTATIONS_OBJECT_REQUIRED:${index}`);
+    if (!ts.isObjectLiteralExpression(annotations))
+      throw new Error(`DOMHAMSTER_ANNOTATIONS_OBJECT_REQUIRED:${index}`);
     return Object.freeze({
       name: stringValue(property(object, 'name'), `contract[${index}].name`),
       title: stringValue(property(object, 'title'), `contract[${index}].title`),
       description: stringValue(property(object, 'description'), `contract[${index}].description`),
-      readOnlyHint: booleanValue(property(annotations, 'readOnlyHint'), `contract[${index}].readOnlyHint`),
-      untrustedContentHint: booleanValue(property(annotations, 'untrustedContentHint'), `contract[${index}].untrustedContentHint`),
+      readOnlyHint: booleanValue(
+        property(annotations, 'readOnlyHint'),
+        `contract[${index}].readOnlyHint`,
+      ),
+      untrustedContentHint: booleanValue(
+        property(annotations, 'untrustedContentHint'),
+        `contract[${index}].untrustedContentHint`,
+      ),
     });
   });
   const lifecycleExpression = unwrap(variableInitializer(lifecycleFile, 'TOOL_NAMES_BY_STATE'));
-  if (!ts.isObjectLiteralExpression(lifecycleExpression)) throw new Error('DOMHAMSTER_LIFECYCLE_OBJECT_MISSING');
+  if (!ts.isObjectLiteralExpression(lifecycleExpression))
+    throw new Error('DOMHAMSTER_LIFECYCLE_OBJECT_MISSING');
   const lifecycle = {};
   for (const item of lifecycleExpression.properties) {
     if (!ts.isPropertyAssignment(item)) continue;
@@ -79,11 +93,20 @@ export function readToolMetadata(root = process.cwd()) {
     if (!ts.isIdentifier(key) && !ts.isStringLiteral(key)) continue;
     lifecycle[key.text] = Object.freeze(stringArray(item.initializer, `lifecycle.${key.text}`));
   }
-  return Object.freeze({ contracts: Object.freeze(contracts), lifecycle: Object.freeze(lifecycle) });
+  return Object.freeze({
+    contracts: Object.freeze(contracts),
+    lifecycle: Object.freeze(lifecycle),
+  });
 }
-export function sha256File(path) { return createHash('sha256').update(readFileSync(path)).digest('hex'); }
+export function sha256File(path) {
+  return createHash('sha256').update(readFileSync(path)).digest('hex');
+}
 export function gitCommit(root = process.cwd()) {
-  try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); }
-  catch { return process.env.DOMHAMSTER_COMMIT ?? 'unknown'; }
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  } catch {
+    return process.env.DOMHAMSTER_COMMIT ?? 'unknown';
+  }
 }
-export const FROZEN_FIXTURE_HASH = 'b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1';
+export const FROZEN_FIXTURE_HASH =
+  'b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1';

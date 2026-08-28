@@ -4,33 +4,33 @@ DOMHamster publishes twelve imperative, task-specific WebMCP tools. Contracts ar
 
 ## Tool inventory
 
-| Tool | Mode | Purpose |
-|---|---|---|
-| `get_coordination_overview` | Read-only | Return workflow state, scenario date, counts, and active policy |
-| `list_open_requests` | Read-only, untrusted content | List privacy-minimized operational request fields |
-| `list_available_volunteers` | Read-only | List volunteer capabilities, availability, limits, and current workload |
-| `create_assignment_draft` | State-changing | Account for every request by assigning it or explicitly leaving it unassigned |
-| `get_assignment_draft` | Read-only | Return current version, assignments, human locks, issues, and approval status |
-| `validate_assignment_draft` | Read-only | Re-run deterministic validation for the expected current version |
-| `revise_assignment_draft` | State-changing | Change only unlocked requests in the expected current version |
-| `prepare_plan_approval` | State-changing | Open visible human review for a valid exact version; never approve or commit |
-| `commit_assignment_plan` | Consequential | Commit the exact human-approved version once before authorization expires |
-| `get_committed_plan` | Read-only | Return the immutable plan without contacts |
-| `access_dispatch_contacts` | State-changing, untrusted content | Return selected fictional contacts after commit and audit the access |
-| `get_audit_history` | Read-only, untrusted content | Return bounded immutable event history |
+| Tool                        | Mode                              | Purpose                                                                       |
+| --------------------------- | --------------------------------- | ----------------------------------------------------------------------------- |
+| `get_coordination_overview` | Read-only                         | Return workflow state, scenario date, counts, and active policy               |
+| `list_open_requests`        | Read-only, untrusted content      | List privacy-minimized operational request fields                             |
+| `list_available_volunteers` | Read-only                         | List volunteer capabilities, availability, limits, and current workload       |
+| `create_assignment_draft`   | State-changing                    | Account for every request by assigning it or explicitly leaving it unassigned |
+| `get_assignment_draft`      | Read-only                         | Return current version, assignments, human locks, issues, and approval status |
+| `validate_assignment_draft` | Read-only                         | Re-run deterministic validation for the expected current version              |
+| `revise_assignment_draft`   | State-changing                    | Change only unlocked requests in the expected current version                 |
+| `prepare_plan_approval`     | State-changing                    | Open visible human review for a valid exact version; never approve or commit  |
+| `commit_assignment_plan`    | Consequential                     | Commit the exact human-approved version once before authorization expires     |
+| `get_committed_plan`        | Read-only                         | Return the immutable plan without contacts                                    |
+| `access_dispatch_contacts`  | State-changing, untrusted content | Return selected fictional contacts after commit and audit the access          |
+| `get_audit_history`         | Read-only, untrusted content      | Return bounded immutable event history                                        |
 
 Every input schema is a closed object with `additionalProperties: false`. IDs, enums, strings, arrays, version numbers, and cross-field request accounting are validated before a handler runs.
 
 ## State lifecycle
 
-| State | Tool count | Registered tools |
-|---|---:|---|
-| READY | 5 | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `create_assignment_draft`, `get_audit_history` |
-| DRAFT_INVALID | 7 | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `get_assignment_draft`, `validate_assignment_draft`, `revise_assignment_draft`, `get_audit_history` |
-| DRAFT_VALID | 8 | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `get_assignment_draft`, `validate_assignment_draft`, `revise_assignment_draft`, `prepare_plan_approval`, `get_audit_history` |
-| AWAITING_APPROVAL | 3 | `get_assignment_draft`, `validate_assignment_draft`, `get_audit_history` |
-| APPROVED | 4 | `get_assignment_draft`, `validate_assignment_draft`, `commit_assignment_plan`, `get_audit_history` |
-| COMMITTED | 3 | `get_committed_plan`, `access_dispatch_contacts`, `get_audit_history` |
+| State             | Tool count | Registered tools                                                                                                                                                                                             |
+| ----------------- | ---------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| READY             |          5 | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `create_assignment_draft`, `get_audit_history`                                                                               |
+| DRAFT_INVALID     |          7 | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `get_assignment_draft`, `validate_assignment_draft`, `revise_assignment_draft`, `get_audit_history`                          |
+| DRAFT_VALID       |          8 | `get_coordination_overview`, `list_open_requests`, `list_available_volunteers`, `get_assignment_draft`, `validate_assignment_draft`, `revise_assignment_draft`, `prepare_plan_approval`, `get_audit_history` |
+| AWAITING_APPROVAL |          3 | `get_assignment_draft`, `validate_assignment_draft`, `get_audit_history`                                                                                                                                     |
+| APPROVED          |          4 | `get_assignment_draft`, `validate_assignment_draft`, `commit_assignment_plan`, `get_audit_history`                                                                                                           |
+| COMMITTED         |          3 | `get_committed_plan`, `access_dispatch_contacts`, `get_audit_history`                                                                                                                                        |
 
 The registry subscribes to the application store, computes the desired set, aborts removed registrations, and serializes reconciliation so stale generations cannot restore obsolete tools.
 

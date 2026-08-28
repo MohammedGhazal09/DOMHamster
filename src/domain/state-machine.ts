@@ -54,11 +54,7 @@ export function canTransition(
     return actor === 'agent' && isDraftState(state);
   }
 
-  if (
-    event === 'EDIT_ASSIGNMENT' ||
-    event === 'LOCK_ASSIGNMENT' ||
-    event === 'UNLOCK_ASSIGNMENT'
-  ) {
+  if (event === 'EDIT_ASSIGNMENT' || event === 'LOCK_ASSIGNMENT' || event === 'UNLOCK_ASSIGNMENT') {
     return actor === 'human' && isDraftState(state);
   }
 

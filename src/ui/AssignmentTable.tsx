@@ -24,9 +24,7 @@ import { validationIssueDomId } from './validation-ids.ts';
 import type { WorkflowCommandHandler } from './workflow-commands.ts';
 
 export type HumanDraftCommand =
-  | EditAssignmentCommand
-  | LockAssignmentCommand
-  | UnlockAssignmentCommand;
+  EditAssignmentCommand | LockAssignmentCommand | UnlockAssignmentCommand;
 
 export type HumanDraftCommandHandler = WorkflowCommandHandler;
 
@@ -90,20 +88,14 @@ function capabilityText(volunteer: PublicVolunteerView): string {
   return [...skills, ...languages].join(', ') || 'general support';
 }
 
-function volunteerMatches(
-  request: PublicRequestView,
-  volunteer: PublicVolunteerView,
-): boolean {
+function volunteerMatches(request: PublicRequestView, volunteer: PublicVolunteerView): boolean {
   return (
     request.requiredSkills.every((skill) => volunteer.skills.includes(skill)) &&
     request.requiredLanguages.every((language) => volunteer.languages.includes(language))
   );
 }
 
-function volunteerOptionLabel(
-  request: PublicRequestView,
-  volunteer: PublicVolunteerView,
-): string {
+function volunteerOptionLabel(request: PublicRequestView, volunteer: PublicVolunteerView): string {
   const constraintHint = volunteerMatches(request, volunteer)
     ? 'matches requirements'
     : 'review constraints';
@@ -180,9 +172,7 @@ export function AssignmentTable({
 }: AssignmentTableProps) {
   const assignments = assignmentByRequest(draft);
   const indexedIssues = issuesByRequest(draft);
-  const orderedVolunteers = [...volunteers].sort((left, right) =>
-    compareText(left.id, right.id),
-  );
+  const orderedVolunteers = [...volunteers].sort((left, right) => compareText(left.id, right.id));
 
   return (
     <div

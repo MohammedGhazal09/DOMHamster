@@ -60,10 +60,7 @@ async function runTool(page: Page, name: string, input: object): Promise<unknown
           __domhamsterTools: Map<
             string,
             {
-              execute(
-                input: object,
-                options: { readonly signal: AbortSignal },
-              ): Promise<unknown>;
+              execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
             }
           >;
         }

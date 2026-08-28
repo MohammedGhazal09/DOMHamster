@@ -2,10 +2,7 @@ import { cleanup, render, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  selectAssignmentDraft,
-  selectOpenRequests,
-} from '../../src/app/selectors.ts';
+import { selectAssignmentDraft, selectOpenRequests } from '../../src/app/selectors.ts';
 import type { AppState } from '../../src/domain/types.ts';
 import { ApprovalDialog } from '../../src/ui/ApprovalDialog.tsx';
 import type { WorkflowCommandHandler } from '../../src/ui/workflow-commands.ts';

@@ -14,10 +14,7 @@ const requiredPatterns = Object.freeze([
     'immutable asset cache',
     /for\s*=\s*"\/assets\/\*"[\s\S]*?Cache-Control\s*=\s*"public, max-age=31536000, immutable"/u,
   ],
-  [
-    'HTML no-store',
-    /for\s*=\s*"\/index\.html"[\s\S]*?Cache-Control\s*=\s*"no-store, max-age=0"/u,
-  ],
+  ['HTML no-store', /for\s*=\s*"\/index\.html"[\s\S]*?Cache-Control\s*=\s*"no-store, max-age=0"/u],
   [
     'release identity no-store',
     /for\s*=\s*"\/release-manifest\.json"[\s\S]*?Cache-Control\s*=\s*"no-store, max-age=0"/u,

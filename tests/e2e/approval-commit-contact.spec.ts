@@ -61,10 +61,7 @@ async function runTool(page: Page, name: string, input: object): Promise<unknown
           __domhamsterTools: Map<
             string,
             {
-              execute(
-                input: object,
-                options: { readonly signal: AbortSignal },
-              ): Promise<unknown>;
+              execute(input: object, options: { readonly signal: AbortSignal }): Promise<unknown>;
             }
           >;
         }
@@ -82,11 +79,9 @@ test('completes the human-approved agent commit and audited contact boundary', a
   await page.goto('/');
 
   await expect.poll(() => toolAvailable(page, 'create_assignment_draft')).toBe(true);
-  const created = (await runTool(
-    page,
-    'create_assignment_draft',
-    VALID_DRAFT_INPUT,
-  )) as { readonly ok: boolean };
+  const created = (await runTool(page, 'create_assignment_draft', VALID_DRAFT_INPUT)) as {
+    readonly ok: boolean;
+  };
   expect(created.ok).toBe(true);
   await expect(page.getByText('Draft v1')).toBeVisible();
 

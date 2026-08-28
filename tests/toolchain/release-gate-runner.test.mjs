@@ -36,11 +36,7 @@ test('requires an existing evaluation result file before any release command run
   );
   assert.throws(
     () =>
-      resolveEvaluationResultsPath(
-        ['--eval-results', 'missing-results.json'],
-        {},
-        process.cwd(),
-      ),
+      resolveEvaluationResultsPath(['--eval-results', 'missing-results.json'], {}, process.cwd()),
     /DOMHAMSTER_EVAL_RESULTS_NOT_FOUND/u,
   );
 });

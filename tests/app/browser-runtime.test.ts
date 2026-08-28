@@ -96,9 +96,7 @@ describe('browser runtime composition', () => {
     storage.values.set(DOMHAMSTER_STORAGE_KEY, '{malformed');
 
     const runtime = createBrowserRuntime(runtimeDependencies(storage, {}));
-    const savedState = JSON.parse(
-      storage.values.get(DOMHAMSTER_STORAGE_KEY) ?? '{}',
-    ) as unknown;
+    const savedState = JSON.parse(storage.values.get(DOMHAMSTER_STORAGE_KEY) ?? '{}') as unknown;
 
     expect(runtime.persistenceRecovery?.code).toBe('MALFORMED_JSON');
     expect(runtime.store.getState().scenario).toBe(CANONICAL_SCENARIO);

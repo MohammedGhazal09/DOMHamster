@@ -4,11 +4,7 @@ import { join } from 'node:path';
 
 const root = process.env.DOMHAMSTER_ROOT ?? process.cwd();
 const traceabilityPath = join(root, 'tests/README.md');
-assert.equal(
-  existsSync(traceabilityPath),
-  true,
-  'TRACEABILITY_INDEX_MISSING:tests/README.md',
-);
+assert.equal(existsSync(traceabilityPath), true, 'TRACEABILITY_INDEX_MISSING:tests/README.md');
 
 const traceability = readFileSync(traceabilityPath, 'utf8');
 const referencedPaths = new Set(
@@ -39,11 +35,7 @@ assert.doesNotMatch(
 );
 
 const harness = readFileSync(join(root, 'tests/e2e/model-context-harness.ts'), 'utf8');
-assert.match(
-  harness,
-  /validDraftToolInput/u,
-  'E2E_HARNESS_MUST_USE_AUTHORITATIVE_VALID_FIXTURE',
-);
+assert.match(harness, /validDraftToolInput/u, 'E2E_HARNESS_MUST_USE_AUTHORITATIVE_VALID_FIXTURE');
 assert.doesNotMatch(
   harness,
   /requestId:\s*['"]R-101['"]/u,
@@ -62,6 +54,4 @@ assert.match(
   'TRACEABILITY_NOT_IN_VERIFY_GATE',
 );
 
-console.log(
-  `DOMHAMSTER_VERIFICATION_TRACEABILITY_PASS references=${referencedPaths.size}`,
-);
+console.log(`DOMHAMSTER_VERIFICATION_TRACEABILITY_PASS references=${referencedPaths.size}`);

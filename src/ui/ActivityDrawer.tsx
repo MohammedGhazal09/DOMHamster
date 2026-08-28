@@ -20,12 +20,7 @@ function formatEventTime(value: string): string {
   }).format(new Date(timestamp));
 }
 
-export function ActivityDrawer({
-  open,
-  events,
-  onClose,
-  returnFocusId,
-}: ActivityDrawerProps) {
+export function ActivityDrawer({ open, events, onClose, returnFocusId }: ActivityDrawerProps) {
   const titleId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);

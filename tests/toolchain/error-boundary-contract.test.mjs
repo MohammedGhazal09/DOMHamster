@@ -8,11 +8,7 @@ const requiredFiles = [
   'tests/ui/error-boundary-fallback.test.tsx',
 ];
 for (const path of requiredFiles) {
-  assert.equal(
-    existsSync(join(root, path)),
-    true,
-    `ERROR_BOUNDARY_REQUIRED_FILE_MISSING:${path}`,
-  );
+  assert.equal(existsSync(join(root, path)), true, `ERROR_BOUNDARY_REQUIRED_FILE_MISSING:${path}`);
 }
 
 const boundary = readFileSync(join(root, 'src/ui/ErrorBoundaryFallback.tsx'), 'utf8');
@@ -27,7 +23,7 @@ for (const fragment of [
   'ErrorBoundaryFallback',
   'Reset fictional scenario',
   'Reload page',
-  "role=\"alert\"",
+  'role="alert"',
   'headingRef.current?.focus()',
 ]) {
   assert.ok(boundary.includes(fragment), `ERROR_BOUNDARY_FRAGMENT_MISSING:${fragment}`);
@@ -41,10 +37,7 @@ assert.ok(
   main.includes("import { ApplicationErrorBoundary } from './ui/ErrorBoundaryFallback.tsx';"),
   'ERROR_BOUNDARY_MAIN_IMPORT_MISSING',
 );
-assert.ok(
-  main.includes('<ApplicationErrorBoundary'),
-  'ERROR_BOUNDARY_MAIN_WRAPPER_MISSING',
-);
+assert.ok(main.includes('<ApplicationErrorBoundary'), 'ERROR_BOUNDARY_MAIN_WRAPPER_MISSING');
 assert.ok(
   main.includes("type: 'RESET_DEMO', actor: 'human'"),
   'ERROR_BOUNDARY_RESET_COMMAND_MISSING',
