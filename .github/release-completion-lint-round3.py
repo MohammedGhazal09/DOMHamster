@@ -10,6 +10,15 @@ def replace_once(path_name: str, old: str, new: str) -> None:
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
+def replace_count(path_name: str, old: str, new: str, expected: int) -> None:
+    path = Path(path_name)
+    text = path.read_text(encoding="utf-8")
+    count = text.count(old)
+    if count != expected:
+        raise SystemExit(f"expected {expected} patch targets in {path_name}, found {count}")
+    path.write_text(text.replace(old, new), encoding="utf-8")
+
+
 replace_once(
     "src/app/ports.ts",
     """export interface StatePersistencePort {
@@ -23,7 +32,6 @@ replace_once(
 replace_once(
     "src/persistence/local-storage.ts",
     """export interface LocalStorageRepository extends StatePersistencePort {
-  save(state: AppState): void;
   load(): PersistenceLoadResult;
   clear(): void;
 }""",
@@ -31,6 +39,29 @@ replace_once(
   readonly load: () => PersistenceLoadResult;
   readonly clear: () => void;
 }""",
+)
+
+replace_count(
+    "tests/persistence/local-storage.test.ts",
+    "await stateRepository.save(state);",
+    "await Promise.resolve(stateRepository.save(state));",
+    2,
+)
+replace_count(
+    "tests/persistence/local-storage.test.ts",
+    "await stateRepository.save(readyState());",
+    "await Promise.resolve(stateRepository.save(readyState()));",
+    3,
+)
+replace_once(
+    "tests/persistence/local-storage.test.ts",
+    "await stateRepository.save(draftState(runtime.command));",
+    "await Promise.resolve(stateRepository.save(draftState(runtime.command)));",
+)
+replace_once(
+    "tests/persistence/local-storage.test.ts",
+    "await stateRepository.save(committedState(runtime.command));",
+    "await Promise.resolve(stateRepository.save(committedState(runtime.command)));",
 )
 
 replace_once(
