@@ -39,7 +39,7 @@ test('completes the canonical human conflict, lock, and agent repair journey', a
       'Locked by the coordinator. Agent revisions cannot change this assignment.',
     ),
   ).toBeVisible();
-  await expect(page.getByText('ASSIGNMENT_OVERLAP').first()).toBeVisible();
+  await expect(page.getByText('VOLUNTEER_TIME_OVERLAP').first()).toBeVisible();
   await expect(
     page.getByRole('status', { name: 'Current application status' }),
   ).toContainText('DRAFT_INVALID');
@@ -55,7 +55,9 @@ test('completes the canonical human conflict, lock, and agent repair journey', a
     };
   };
   expect(validation).toMatchObject({ ok: true, data: { draftVersion: 3 } });
-  expect(validation.data?.errors.map(({ code }) => code)).toContain('ASSIGNMENT_OVERLAP');
+  expect(validation.data?.errors.map(({ code }) => code)).toContain(
+    'VOLUNTEER_TIME_OVERLAP',
+  );
 
   const revised = (await runTool(page, 'revise_assignment_draft', {
     expectedDraftVersion: 3,
