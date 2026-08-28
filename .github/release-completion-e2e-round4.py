@@ -214,3 +214,9 @@ replace_once(
     expect(onCommand).toHaveBeenCalledTimes(1);
 """,
 )
+
+replace_once(
+    "vite.config.ts",
+    "    sourcemap: true,",
+    "    sourcemap: false,",
+)
