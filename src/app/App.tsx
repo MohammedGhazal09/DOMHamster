@@ -59,6 +59,11 @@ export interface AppProps {
 
 type ConfirmationKind = 'reset' | 'discard' | 'cancel-approval';
 
+interface ConfirmationRequest {
+  readonly kind: ConfirmationKind;
+  readonly stateSnapshot: AppState;
+}
+
 const EMPTY_TOOL_NAMES = Object.freeze([] as ToolName[]);
 const EMPTY_REGISTRY_ERRORS = Object.freeze([] as string[]);
 
@@ -126,10 +131,12 @@ export function App({
   const auditHistory = selectAuditHistory(state);
   const [activityOpen, setActivityOpen] = useState(false);
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
-  const [confirmation, setConfirmation] = useState<ConfirmationKind | null>(null);
+  const [confirmation, setConfirmation] = useState<ConfirmationRequest | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const [recentErrorCodes, setRecentErrorCodes] = useState<readonly string[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
+  const activeConfirmation =
+    confirmation !== null && confirmation.stateSnapshot === state ? confirmation.kind : null;
 
   const baseCommandHandler = useMemo<WorkflowCommandHandler>(() => {
     if (onWorkflowCommand !== undefined) return onWorkflowCommand;
@@ -185,17 +192,7 @@ export function App({
     state.workflowState === 'AWAITING_APPROVAL' ||
     activityOpen ||
     diagnosticsOpen ||
-    confirmation !== null;
-
-  useEffect(() => {
-    if (
-      (confirmation === 'cancel-approval' && state.workflowState !== 'APPROVED') ||
-      (confirmation === 'discard' &&
-        (state.workflowState === 'READY' || state.workflowState === 'COMMITTED'))
-    ) {
-      setConfirmation(null);
-    }
-  }, [confirmation, state.workflowState]);
+    activeConfirmation !== null;
 
   useEffect(() => {
     const target = contentRef.current as (HTMLElement & { inert: boolean }) | null;
@@ -292,7 +289,9 @@ export function App({
             onOpenDiagnostics();
             setDiagnosticsOpen(true);
           }}
-          onReset={() => setConfirmation('reset')}
+          onReset={() => {
+            setConfirmation(Object.freeze({ kind: 'reset', stateSnapshot: state }));
+          }}
         />
 
         <CapabilityNotice status={resolvedCapability} />
@@ -312,8 +311,14 @@ export function App({
             volunteers={volunteers}
             toolNames={visibleToolNames}
             onCommand={trackedCommandHandler}
-            onRequestDiscard={() => setConfirmation('discard')}
-            onRequestCancelApproval={() => setConfirmation('cancel-approval')}
+            onRequestDiscard={() => {
+              setConfirmation(Object.freeze({ kind: 'discard', stateSnapshot: state }));
+            }}
+            onRequestCancelApproval={() => {
+              setConfirmation(
+                Object.freeze({ kind: 'cancel-approval', stateSnapshot: state }),
+              );
+            }}
             now={now}
           />
           <VolunteerPanel volunteers={volunteers} />
@@ -350,12 +355,14 @@ export function App({
         returnFocusId="diagnostics-action"
       />
 
-      {confirmation === null ? null : (
+      {activeConfirmation === null ? null : (
         <ConfirmDialog
-          {...confirmationContent(confirmation)}
-          onConfirm={() => confirmWorkflowAction(confirmation)}
+          {...confirmationContent(activeConfirmation)}
+          onConfirm={() => {
+            void confirmWorkflowAction(activeConfirmation);
+          }}
           onCancel={() => setConfirmation(null)}
-          returnFocusId={confirmationReturnFocusId(confirmation)}
+          returnFocusId={confirmationReturnFocusId(activeConfirmation)}
         />
       )}
 
