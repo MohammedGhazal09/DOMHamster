@@ -27,6 +27,7 @@
   "include": [
     "src",
     "tests/setup.ts",
+    "tests/accessibility/**/*.tsx",
     "tests/domain/**/*.ts",
     "tests/app/**/*.ts",
     "tests/app/**/*.tsx",
