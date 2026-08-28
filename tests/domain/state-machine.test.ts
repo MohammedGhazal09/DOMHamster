@@ -42,6 +42,7 @@ const events = [
   'CANCEL_APPROVAL',
   'APPROVAL_EXPIRES',
   'COMMIT_PLAN',
+  'ACCESS_CONTACTS',
 ] as const satisfies readonly WorkflowEvent[];
 
 function validDraft(version = 2): Draft {
