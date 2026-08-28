@@ -48,7 +48,7 @@ function recoverPersistence(
   if (recovery === null) return;
 
   try {
-    repository.save(store.getState());
+    void Promise.resolve(repository.save(store.getState())).catch(() => undefined);
   } catch {
     // The manual in-memory interface remains available when storage is blocked.
   }
