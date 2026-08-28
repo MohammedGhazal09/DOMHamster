@@ -38,7 +38,9 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Apply deterministic release repairs
-        run: python3 .github/release-completion-finalize.py
+        run: |
+          python3 .github/release-completion-finalize.py
+          python3 .github/release-completion-typecheck-round2.py
 
       - name: Remove temporary automation
         run: |
@@ -47,6 +49,7 @@ jobs:
             .github/release-completion-repair.py \
             .github/release-completion-typecheck-fixes.py \
             .github/release-completion-finalize.py \
+            .github/release-completion-typecheck-round2.py \
             .github/workflows/release-completion-finalize.yml
 
       - name: Normalize formatting
