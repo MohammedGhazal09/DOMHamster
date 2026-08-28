@@ -34,7 +34,11 @@ function capabilityLabel(volunteer: PublicVolunteerView): string {
 
 export function VolunteerPanel({ volunteers }: VolunteerPanelProps) {
   return (
-    <aside className="workspace-panel volunteer-panel surface" aria-labelledby="volunteers-heading">
+    <aside
+      className="workspace-panel volunteer-panel surface"
+      role="region"
+      aria-labelledby="volunteers-heading"
+    >
       <header className="workspace-panel__header">
         <h2 id="volunteers-heading">Volunteers</h2>
         <p>{volunteers.length} available · max 3 tasks</p>
