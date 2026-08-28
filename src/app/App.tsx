@@ -85,8 +85,9 @@ function noOperation(): void {
   // Optional integration callbacks remain inert when omitted.
 }
 
-function ignoreWorkflowCommand(): void {
+function ignoreWorkflowCommand(): undefined {
   // Store-connected rendering supplies the real shared command dispatcher.
+  return undefined;
 }
 
 function isHumanDraftCommand(command: WorkflowCommand): command is HumanDraftCommand {
