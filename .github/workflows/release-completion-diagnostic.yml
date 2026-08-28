@@ -1,0 +1,68 @@
+name: Release completion diagnostic
+
+on:
+  push:
+    branches:
+      - automation/release-completion-diagnostic-20260828
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Reproduce candidate repairs
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from textwrap import dedent
+
+          workflow = Path(".github/workflows/release-completion-fix.yml").read_text(
+              encoding="utf-8"
+          )
+          start_marker = "          python3 - <<'PY'\n"
+          end_marker = "\n          PY\n\n      - name: Remove superseded repair automation"
+          start = workflow.index(start_marker) + len(start_marker)
+          end = workflow.index(end_marker, start)
+          repair = dedent(workflow[start:end])
+          exec(compile(repair, "release-completion-candidate-repair", "exec"), {})
+          PY
+
+      - name: Match final candidate tree
+        run: |
+          rm -f \
+            .github/release-completion-contract-preserving.py \
+            .github/release-completion-repair.py \
+            .github/release-completion-typecheck-fixes.py \
+            .github/workflows/release-completion-finalize.yml \
+            .github/workflows/release-completion-fix.yml \
+            .github/workflows/release-completion-diagnostic.yml
+
+      - name: Normalize formatting quietly
+        run: npm run format -- --log-level silent
+
+      - name: Report failing source gate
+        run: |
+          set +e
+          npm run verify > /tmp/domhamster-verify.log 2>&1
+          status=$?
+          echo "DOMHAMSTER_VERIFY_EXIT=${status}"
+          echo "----- VERIFY DIAGNOSTIC TAIL -----"
+          tail -n 240 /tmp/domhamster-verify.log
+          echo "----- END VERIFY DIAGNOSTIC TAIL -----"
+          exit "${status}"
