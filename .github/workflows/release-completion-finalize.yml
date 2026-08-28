@@ -44,22 +44,29 @@ jobs:
           python3 .github/release-completion-typecheck-fixes.py
           python3 .github/release-completion-repair.py app
 
-      - name: Restore permissive callback contract safely
+      - name: Harden permissive callback handling
         run: |
           python3 - <<'PY'
           from pathlib import Path
 
-          path = Path("src/ui/workflow-commands.ts")
-          text = path.read_text(encoding="utf-8")
-          old_type = """export type WorkflowCommandHandler = (
+          def replace_once(path_name: str, old: str, new: str) -> None:
+              path = Path(path_name)
+              text = path.read_text(encoding="utf-8")
+              if old not in text:
+                  raise SystemExit(f"patch target not found in {path_name}")
+              path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          replace_once(
+              "src/ui/workflow-commands.ts",
+              """export type WorkflowCommandHandler = (
             command: WorkflowCommand,
           ) => StoreDispatchResult | undefined | Promise<StoreDispatchResult | undefined>;
 
           export async function executeWorkflowCommand(
-          """
-          new_type = """export type WorkflowCommandHandler = (command: WorkflowCommand) => unknown;
+          """,
+              """export type WorkflowCommandHandler = (command: WorkflowCommand) => unknown;
 
-          function isStoreDispatchResult(value: unknown): value is StoreDispatchResult {
+          export function isStoreDispatchResult(value: unknown): value is StoreDispatchResult {
             return (
               typeof value === 'object' &&
               value !== null &&
@@ -69,14 +76,17 @@ jobs:
           }
 
           export async function executeWorkflowCommand(
-          """
-          old_result = """    const result = await onCommand(command);
+          """,
+          )
+          replace_once(
+              "src/ui/workflow-commands.ts",
+              """    const result = await onCommand(command);
               if (result !== undefined && !result.ok) {
                 onAnnouncement(`Action was not accepted: ${result.error.code}.`);
                 return false;
               }
-          """
-          new_result = """    const result: unknown = await onCommand(command);
+          """,
+              """    const result: unknown = await onCommand(command);
               if (result !== undefined) {
                 if (!isStoreDispatchResult(result)) {
                   throw new TypeError('Unexpected workflow command result.');
@@ -86,11 +96,67 @@ jobs:
                   return false;
                 }
               }
-          """
-          if old_type not in text or old_result not in text:
-              raise SystemExit("workflow command callback patch target not found")
-          text = text.replace(old_type, new_type, 1).replace(old_result, new_result, 1)
-          path.write_text(text, encoding="utf-8")
+          """,
+          )
+          replace_once(
+              "src/app/App.tsx",
+              """import {
+            executeWorkflowCommand,
+            type WorkflowCommand,
+          """,
+              """import {
+            executeWorkflowCommand,
+            isStoreDispatchResult,
+            type WorkflowCommand,
+          """,
+          )
+          replace_once(
+              "src/app/App.tsx",
+              """        const result = await baseCommandHandler(command);
+                  if (result !== undefined && !result.ok) {
+                    setRecentErrorCodes((previous) => [...previous, result.error.code].slice(-10));
+                  }
+                  return result;
+          """,
+              """        const result: unknown = await baseCommandHandler(command);
+                  if (result !== undefined) {
+                    if (!isStoreDispatchResult(result)) {
+                      throw new TypeError('Unexpected workflow command result.');
+                    }
+                    if (!result.ok) {
+                      setRecentErrorCodes((previous) => [...previous, result.error.code].slice(-10));
+                    }
+                  }
+                  return result;
+          """,
+          )
+          replace_once(
+              "src/ui/AssignmentTable.tsx",
+              """import type { WorkflowCommandHandler } from './workflow-commands.ts';
+          """,
+              """import { isStoreDispatchResult, type WorkflowCommandHandler } from './workflow-commands.ts';
+          """,
+          )
+          replace_once(
+              "src/ui/AssignmentTable.tsx",
+              """    const result = await onCommand(command);
+              if (result !== undefined && !result.ok) {
+                onAnnouncement(`Assignment change was not accepted: ${result.error.code}.`);
+                return;
+              }
+          """,
+              """    const result: unknown = await onCommand(command);
+              if (result !== undefined) {
+                if (!isStoreDispatchResult(result)) {
+                  throw new TypeError('Unexpected workflow command result.');
+                }
+                if (!result.ok) {
+                  onAnnouncement(`Assignment change was not accepted: ${result.error.code}.`);
+                  return;
+                }
+              }
+          """,
+          )
           PY
 
       - name: Remove temporary automation
