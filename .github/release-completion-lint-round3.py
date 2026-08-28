@@ -81,7 +81,6 @@ export function registrySourceForStore(store: AppStore): RegistrySnapshotSource 
 
 const EMPTY_ERROR_CODES = Object.freeze([] as string[]);
 
-// eslint-disable-next-line react-refresh/only-export-components -- Test-only registry fixture.
 export function registrySourceForStore(store: AppStore): TestRegistrySnapshotSource {""",
 )
 
