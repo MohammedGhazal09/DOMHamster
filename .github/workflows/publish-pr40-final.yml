@@ -1,0 +1,79 @@
+name: Publish verified PR40 repairs
+
+on:
+  push:
+    branches:
+      - release/manual-completion-20260828
+    paths:
+      - .github/workflows/publish-pr40-final.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out guarded publication head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 3
+
+      - name: Decode and apply the verified source patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD~2)" = "a494c61bddcefe7dd003db568c0a2ce7833b06cb"
+          test "$(git rev-parse HEAD~1)" = "6140f6816a357d38bb3d09e8589e1d1a86774a41"
+
+          base64 --decode .github/pr40-final.patch.xz.b64 > /tmp/pr40-final.patch.xz
+          echo "8c18b6265527ffd5246f78f913952dc339a5a91dcb839fd4e0b13a35507fec71  /tmp/pr40-final.patch.xz" | sha256sum --check --strict
+          xz --decompress --stdout /tmp/pr40-final.patch.xz > /tmp/pr40-final.patch
+          echo "1f01743f471e91e1d27ebba1a094cf0e576ce6b961eb355f8121f5116601d375  /tmp/pr40-final.patch" | sha256sum --check --strict
+
+          git apply --check /tmp/pr40-final.patch
+          git apply /tmp/pr40-final.patch
+          git rm \
+            .github/pr40-final.patch.xz.b64 \
+            .github/workflows/export-pr40-runtime.yml \
+            .github/workflows/publish-pr40-final.yml
+          git diff --check
+
+      - name: Set up exact Node runtime
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Install exact dependencies and Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.19.0"
+          test "$(npm --version)" = "11.17.0"
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+
+      - name: Verify repaired source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run verify
+          npm run test:e2e
+          npm run verify:bundle
+          npm run verify:licenses
+          test "$(node scripts/print-fixture-hash.mjs)" = "b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1"
+
+      - name: Publish clean source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e .github/pr40-final.patch.xz.b64
+          test ! -e .github/workflows/export-pr40-runtime.yml
+          test ! -e .github/workflows/publish-pr40-final.yml
+          git config user.name "Mohammed Ghazal"
+          git config user.email "mohammedghazal01@outlook.com"
+          git add --all
+          git commit -m "fix: close exact-runtime release findings"
+          git push origin HEAD:release/manual-completion-20260828
