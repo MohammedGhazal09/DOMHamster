@@ -26,6 +26,16 @@ def guarded_replace_once(path_value: str, old: str, new: str) -> None:
 
 repair.replace_once = guarded_replace_once
 repair.apply_pre_fix()
+original_replace_once(
+    'tests/ui/workflow-shell.test.tsx',
+    "screen.getByRole('dialog', { name: 'Cancel approval for version 1?' })",
+    "screen.getByRole('alertdialog', { name: 'Cancel approval for version 1?' })",
+)
+original_replace_once(
+    'tests/ui/workflow-shell.test.tsx',
+    "screen.queryByRole('dialog', { name: 'Cancel approval for version 1?' })",
+    "screen.queryByRole('alertdialog', { name: 'Cancel approval for version 1?' })",
+)
 
 
 def replace_once(path_value: str, old: str, new: str) -> None:
