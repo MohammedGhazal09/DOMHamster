@@ -15,7 +15,7 @@ concurrency:
 jobs:
   repair:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Check out release-completion branch
         uses: actions/checkout@v7
@@ -36,8 +36,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Apply strictness repairs and add regression test
-        run: python .github/release-completion-repair.py pre
+      - name: Apply strictness repairs, preserve source contracts, and add regression test
+        run: python .github/release-completion-contract-preserving.py
 
       - name: Prove stale-confirmation regression is RED
         run: |
@@ -62,9 +62,11 @@ jobs:
       - name: Run complete source verification without temporary automation
         run: |
           rm .github/release-completion-repair.py
+          rm .github/release-completion-contract-preserving.py
           rm .github/workflows/release-completion-autoformat.yml
           rm .github/workflows/release-completion-workflow-fix.yml
           rm .github/workflows/release-completion-repair-v2.yml
+          rm .github/workflows/release-completion-repair-v3.yml
           npm run format
           npm run verify
           git diff --check
@@ -74,7 +76,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- scripts src tests tsconfig.app.json .github/release-completion-repair.py
+          git add -A -- scripts src tests tsconfig.app.json \
+            .github/release-completion-repair.py \
+            .github/release-completion-contract-preserving.py
           git diff --cached --check
           git commit -m "fix: satisfy strict source verification"
           git push origin HEAD:automation/release-completion-20260828
