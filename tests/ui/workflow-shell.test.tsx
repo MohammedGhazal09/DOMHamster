@@ -83,6 +83,41 @@ describe('store-connected approval and recovery workflow', () => {
     expect(store.getState().approval).toBeNull();
   });
 
+  it('dismisses a confirmation when the immutable state snapshot changes', async () => {
+    const initialState = workflowStates().APPROVED;
+    const replacementState = Object.freeze({
+      ...initialState,
+      auditHistory: Object.freeze([...initialState.auditHistory]),
+    });
+    const user = userEvent.setup();
+    const renderResult = render(
+      <App
+        state={initialState}
+        capabilityStatus="AVAILABLE"
+        registeredToolNames={desiredToolNames(initialState.workflowState)}
+        now={() => Date.parse('2026-08-26T12:00:30.000Z')}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Cancel approval' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'Cancel approval for version 1?' }),
+    ).toBeVisible();
+
+    renderResult.rerender(
+      <App
+        state={replacementState}
+        capabilityStatus="AVAILABLE"
+        registeredToolNames={desiredToolNames(replacementState.workflowState)}
+        now={() => Date.parse('2026-08-26T12:00:30.000Z')}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('alertdialog', { name: 'Cancel approval for version 1?' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('suppresses stale registered tools when WebMCP is unavailable', async () => {
     const state = workflowStates().READY;
     const user = userEvent.setup();
