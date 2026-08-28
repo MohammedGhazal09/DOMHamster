@@ -1,0 +1,53 @@
+name: Release completion autoformat
+
+on:
+  push:
+    branches:
+      - automation/release-completion-20260828
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-completion-autoformat
+  cancel-in-progress: false
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out release-completion branch
+        uses: actions/checkout@v7
+        with:
+          ref: automation/release-completion-20260828
+
+      - name: Set up Node.js 24.19.0
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Verify runtime
+        run: |
+          test "$(node --version)" = "v24.19.0"
+          test "$(npm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Apply repository formatting
+        run: npm run format
+
+      - name: Commit formatting changes when present
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: apply repository formatting"
+          git push origin HEAD:automation/release-completion-20260828
