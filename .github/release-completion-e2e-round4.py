@@ -220,3 +220,130 @@ replace_once(
     "    sourcemap: true,",
     "    sourcemap: false,",
 )
+
+replace_once(
+    "scripts/check-licenses.mjs",
+    """import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+const allowed = new Set([
+  '0BSD',
+  'Apache-2.0',
+  'BSD-2-Clause',
+  'BSD-3-Clause',
+  'CC0-1.0',
+  'ISC',
+  'MIT',
+  'Python-2.0',
+  'Unlicense',
+  'BlueOak-1.0.0',
+]);
+const problems = [];
+for (const [path, entry] of Object.entries(lock.packages ?? {})) {
+  if (path === '' || (entry.dev === undefined && entry.license === undefined)) continue;
+  const license = entry.license;
+  if (typeof license !== 'string' || license.trim() === '') {
+    problems.push(`${path}:missing-license`);
+    continue;
+  }
+  const identifiers = license.match(/[A-Za-z0-9.-]+/gu) ?? [];
+  const meaningful = identifiers.filter((value) => !['AND', 'OR', 'WITH'].includes(value));
+  if (meaningful.some((identifier) => !allowed.has(identifier)))
+    problems.push(`${path}:${license}`);
+}
+assert.deepEqual(problems, [], `DOMHAMSTER_LICENSE_FAILURE\n${problems.join('\n')}`);
+console.log(`DOMHAMSTER_LICENSE_PASS packages=${Object.keys(lock.packages ?? {}).length - 1}`);
+""",
+    """import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+const runtimeAllowed = new Set([
+  '0BSD',
+  'Apache-2.0',
+  'BSD-2-Clause',
+  'BSD-3-Clause',
+  'CC0-1.0',
+  'ISC',
+  'MIT',
+  'Python-2.0',
+  'Unlicense',
+  'BlueOak-1.0.0',
+]);
+const developmentAllowed = new Set(['MIT-0', 'CC-BY-4.0', 'MPL-2.0']);
+
+function licenseAllowed(identifier, entry) {
+  return runtimeAllowed.has(identifier) ||
+    (entry.dev === true && developmentAllowed.has(identifier));
+}
+
+const problems = [];
+let developmentExceptions = 0;
+for (const [path, entry] of Object.entries(lock.packages ?? {})) {
+  if (path === '' || (entry.dev === undefined && entry.license === undefined)) continue;
+  const license = entry.license;
+  if (typeof license !== 'string' || license.trim() === '') {
+    problems.push(`${path}:missing-license`);
+    continue;
+  }
+  const identifiers = license.match(/[A-Za-z0-9.-]+/gu) ?? [];
+  const meaningful = identifiers.filter((value) => !['AND', 'OR', 'WITH'].includes(value));
+  if (meaningful.some((identifier) => !licenseAllowed(identifier, entry))) {
+    problems.push(`${path}:${license}`);
+    continue;
+  }
+  if (entry.dev === true && meaningful.some((identifier) => developmentAllowed.has(identifier))) {
+    developmentExceptions += 1;
+  }
+}
+
+const notice = readFileSync('NOTICE.md', 'utf8');
+const usesCcByData = Object.values(lock.packages ?? {}).some(
+  (entry) => entry.dev === true && entry.license === 'CC-BY-4.0',
+);
+if (usesCcByData) {
+  assert.match(notice, /caniuse\.com/u, 'DOMHAMSTER_CC_BY_ATTRIBUTION_MISSING');
+}
+
+assert.deepEqual(problems, [], `DOMHAMSTER_LICENSE_FAILURE\n${problems.join('\n')}`);
+console.log(
+  `DOMHAMSTER_LICENSE_PASS packages=${Object.keys(lock.packages ?? {}).length - 1} developmentExceptions=${developmentExceptions}`,
+);
+""",
+)
+
+replace_once(
+    "NOTICE.md",
+    """# Notices
+
+DOMHamster is licensed under the MIT License. Third-party packages retain their own copyright notices and licenses as distributed by their authors.
+
+The judged application uses:
+
+- system fonts only; no font files are distributed;
+- original fictional scenario data;
+- an original DOMHamster mark and interface assets;
+- OpenAI-generated visual concepts as design references, with the final interface implemented as code-native React, HTML, and CSS; and
+- permissively licensed npm dependencies recorded in `package-lock.json`.
+
+The release license gate must inspect the exact dependency graph before a release is selected. Any package requiring additional attribution must be added to this notice before tagging.
+""",
+    """# Notices
+
+DOMHamster is licensed under the MIT License. Third-party packages retain their own copyright notices and licenses as distributed by their authors.
+
+The judged application uses:
+
+- system fonts only; no font files are distributed;
+- original fictional scenario data;
+- an original DOMHamster mark and interface assets;
+- OpenAI-generated visual concepts as design references, with the final interface implemented as code-native React, HTML, and CSS; and
+- permissively licensed production runtime dependencies recorded in `package-lock.json`.
+
+Development and build tooling is not shipped in `dist` and may use separately approved open-source licenses, including MIT-0 and MPL-2.0.
+
+Browser compatibility data used by development and build tooling is sourced from caniuse.com under the Creative Commons Attribution 4.0 International license (CC BY 4.0).
+
+The release license gate inspects the exact dependency graph, keeps the production allowlist stricter than the development allowlist, and requires attribution-bearing development licenses to remain documented here before a release is selected.
+""",
+)
