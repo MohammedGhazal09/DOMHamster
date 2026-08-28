@@ -51,3 +51,162 @@ replace_once(
   ).toContainText('READY');
 """,
 )
+
+replace_once(
+    "src/ui/AssignmentTable.tsx",
+    """async function executeCommand(
+  onCommand: HumanDraftCommandHandler,
+  onAnnouncement: (message: string) => void,
+  command: HumanDraftCommand,
+  acceptedMessage: string,
+): Promise<void> {
+  try {
+    const result: unknown = await Promise.resolve(onCommand(command));
+    if (result !== undefined) {
+      if (!isWorkflowCommandResult(result)) {
+        throw new TypeError('Unexpected workflow command result.');
+      }
+      if (!result.ok) {
+        onAnnouncement(`Assignment change was not accepted: ${result.error.code}.`);
+        return;
+      }
+    }
+    onAnnouncement(acceptedMessage);
+  } catch {
+    onAnnouncement('DOMHamster could not apply that assignment change. State was not changed.');
+  }
+}
+""",
+    """async function executeCommand(
+  onCommand: HumanDraftCommandHandler,
+  onAnnouncement: (message: string) => void,
+  command: HumanDraftCommand,
+  acceptedMessage: string,
+): Promise<boolean> {
+  try {
+    const result: unknown = await Promise.resolve(onCommand(command));
+    if (result !== undefined) {
+      if (!isWorkflowCommandResult(result)) {
+        throw new TypeError('Unexpected workflow command result.');
+      }
+      if (!result.ok) {
+        onAnnouncement(`Assignment change was not accepted: ${result.error.code}.`);
+        return false;
+      }
+    }
+    onAnnouncement(acceptedMessage);
+    return true;
+  } catch {
+    onAnnouncement('DOMHamster could not apply that assignment change. State was not changed.');
+    return false;
+  }
+}
+""",
+)
+
+replace_once(
+    "src/ui/AssignmentTable.tsx",
+    """                  <input
+                    id={timeControlId}
+                    aria-label={`Start time for ${request.id}`}
+                    type="time"
+                    step={900}
+                    min={request.timeWindow.start}
+                    max={request.timeWindow.end}
+                    value={assignment.startTime ?? ''}
+                    disabled={assignment.lockedByHuman || unassigned}
+                    aria-describedby={describedBy}
+                    onChange={(event) => {
+                      const nextTime = event.currentTarget.value;
+                      if (!TIME_PATTERN.test(nextTime) || assignment.volunteerId === null) return;
+                      const command: EditAssignmentCommand = {
+                        type: 'EDIT_ASSIGNMENT',
+                        actor: 'human',
+                        expectedDraftVersion: draft.version,
+                        requestId: request.id,
+                        patch: {
+                          volunteerId: assignment.volunteerId,
+                          startTime: nextTime as TimeOfDay,
+                          status: 'planned',
+                        },
+                      };
+                      void executeCommand(
+                        onCommand,
+                        onAnnouncement,
+                        command,
+                        `${request.id} start-time change accepted.`,
+                      );
+                    }}
+                  />
+""",
+    """                  <input
+                    key={`${draft.version}:${assignment.startTime ?? 'unassigned'}`}
+                    id={timeControlId}
+                    aria-label={`Start time for ${request.id}`}
+                    type="time"
+                    step={900}
+                    min={request.timeWindow.start}
+                    max={request.timeWindow.end}
+                    defaultValue={assignment.startTime ?? ''}
+                    disabled={assignment.lockedByHuman || unassigned}
+                    aria-describedby={describedBy}
+                    onBlur={(event) => {
+                      const input = event.currentTarget;
+                      const previousTime = assignment.startTime ?? '';
+                      const nextTime = input.value;
+                      if (!TIME_PATTERN.test(nextTime) || assignment.volunteerId === null) {
+                        input.value = previousTime;
+                        return;
+                      }
+                      if (nextTime === previousTime) return;
+                      const command: EditAssignmentCommand = {
+                        type: 'EDIT_ASSIGNMENT',
+                        actor: 'human',
+                        expectedDraftVersion: draft.version,
+                        requestId: request.id,
+                        patch: {
+                          volunteerId: assignment.volunteerId,
+                          startTime: nextTime as TimeOfDay,
+                          status: 'planned',
+                        },
+                      };
+                      void executeCommand(
+                        onCommand,
+                        onAnnouncement,
+                        command,
+                        `${request.id} start-time change accepted.`,
+                      ).then((accepted) => {
+                        if (!accepted) input.value = previousTime;
+                      });
+                    }}
+                  />
+""",
+)
+
+replace_once(
+    "tests/ui/assignment-editor.test.tsx",
+    """  it('emits one exact human edit command when the start time changes', () => {
+    const onCommand = vi.fn<HumanDraftCommandHandler>().mockResolvedValue(undefined);
+    renderDraft(workflowStates().DRAFT_VALID, onCommand);
+
+    fireEvent.change(screen.getByLabelText('Start time for R-105'), {
+      target: { value: '13:15' },
+    });
+
+    expect(onCommand).toHaveBeenCalledTimes(1);
+""",
+    """  it('commits one exact human time edit only after keyboard entry is complete', () => {
+    const onCommand = vi.fn<HumanDraftCommandHandler>().mockResolvedValue(undefined);
+    renderDraft(workflowStates().DRAFT_VALID, onCommand);
+
+    const startTime = screen.getByLabelText('Start time for R-105');
+    fireEvent.change(startTime, {
+      target: { value: '13:15' },
+    });
+    expect(onCommand).not.toHaveBeenCalled();
+
+    fireEvent.blur(startTime);
+
+    expect(onCommand).toHaveBeenCalledTimes(1);
+""",
+)
