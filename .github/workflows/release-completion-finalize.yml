@@ -42,7 +42,7 @@ jobs:
         run: |
           python3 .github/release-completion-contract-preserving.py
           python3 .github/release-completion-typecheck-fixes.py
-          python3 .github/release-completion-repair.py --phase app
+          python3 .github/release-completion-repair.py app
 
       - name: Restore permissive callback contract safely
         run: |
