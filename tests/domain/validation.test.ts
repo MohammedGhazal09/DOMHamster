@@ -152,13 +152,9 @@ describe('hard assignment validation rules', () => {
   });
 
   it('accepts back-to-back assignments for the same volunteer', () => {
-    let assignments = replaceAssignment(validAssignments(), requestId('R-104'), {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-104'), {
       volunteerId: volunteerId('V-03'),
       startTime: '11:30',
-    });
-    assignments = replaceAssignment(assignments, requestId('R-105'), {
-      volunteerId: volunteerId('V-03'),
-      startTime: '13:00',
     });
 
     const result = validateDraft(buildContext(assignments));
@@ -171,9 +167,9 @@ describe('hard assignment validation rules', () => {
       volunteerId: volunteerId('V-03'),
       startTime: '11:30',
     });
-    assignments = replaceAssignment(assignments, requestId('R-105'), {
+    assignments = replaceAssignment(assignments, requestId('R-108'), {
       volunteerId: volunteerId('V-03'),
-      startTime: '13:00',
+      startTime: '15:00',
     });
 
     const issue = findIssue(
@@ -184,16 +180,16 @@ describe('hard assignment validation rules', () => {
     expect(issue.requestIds).toEqual([
       requestId('R-103'),
       requestId('R-104'),
-      requestId('R-105'),
+      requestId('R-106'),
       requestId('R-108'),
     ]);
     expect(issue.volunteerId).toBe(volunteerId('V-03'));
   });
 
   it('accepts exactly three assignments for one volunteer', () => {
-    const assignments = replaceAssignment(validAssignments(), requestId('R-105'), {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-108'), {
       volunteerId: volunteerId('V-03'),
-      startTime: '13:00',
+      startTime: '15:00',
     });
 
     expect(errorCodes(validateDraft(buildContext(assignments)))).not.toContain(
@@ -320,15 +316,15 @@ describe('validation warnings', () => {
   });
 
   it('warns about noncritical cross-zone assignment', () => {
-    const assignments = replaceAssignment(validAssignments(), requestId('R-105'), {
-      volunteerId: volunteerId('V-03'),
+    const assignments = replaceAssignment(validAssignments(), requestId('R-106'), {
+      volunteerId: volunteerId('V-04'),
       startTime: '13:00',
     });
 
     const issue = findIssue(validateDraft(buildContext(assignments)).warnings, 'ZONE_INEFFICIENCY');
 
-    expect(issue.requestIds).toEqual([requestId('R-105')]);
-    expect(issue.volunteerId).toBe(volunteerId('V-03'));
+    expect(issue.requestIds).toEqual([requestId('R-106')]);
+    expect(issue.volunteerId).toBe(volunteerId('V-04'));
   });
 
   it('does not emit the noncritical zone warning for a high-priority request', () => {
@@ -346,9 +342,9 @@ describe('validation warnings', () => {
   });
 
   it('warns when the assigned workload spread exceeds one without invalidating the draft', () => {
-    const assignments = replaceAssignment(validAssignments(), requestId('R-105'), {
+    const assignments = replaceAssignment(validAssignments(), requestId('R-108'), {
       volunteerId: volunteerId('V-03'),
-      startTime: '13:00',
+      startTime: '15:00',
     });
 
     const result = validateDraft(buildContext(assignments));
