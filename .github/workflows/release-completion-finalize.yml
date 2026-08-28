@@ -78,6 +78,7 @@ jobs:
             .github/release-completion-typecheck-round2.py \
             .github/release-completion-lint-round3.py \
             .github/release-completion-e2e-round4.py \
+            .github/release-completion-bundle-round5.py \
             .github/workflows/release-completion-finalize.yml
 
       - name: Validate diff
