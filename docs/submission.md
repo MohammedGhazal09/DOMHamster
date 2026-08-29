@@ -4,17 +4,17 @@ This document contains the judge-facing content and release controls for the Web
 
 ## Public identity
 
-| Field             | Working value                                                 |
-| ----------------- | ------------------------------------------------------------- |
-| Project name      | DOMHamster                                                    |
-| Subtitle          | The human-approved agent dispatcher                           |
-| Submitter         | Mohammed Ghazal, individual entrant                           |
-| Country           | Saudi Arabia                                                  |
-| Project status    | New project created during the challenge                      |
-| License           | MIT                                                           |
-| Public repository | https://github.com/MohammedGhazal09/DOMHamster                |
-| Live URL          | **Live URL: pending** until exact-commit Netlify verification |
-| Video             | **Video URL: pending** until the verified release is recorded |
+| Field             | Working value                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| Project name      | DOMHamster                                                                                                   |
+| Subtitle          | The human-approved agent dispatcher                                                                          |
+| Submitter         | Mohammed Ghazal, individual entrant                                                                          |
+| Country           | Saudi Arabia                                                                                                 |
+| Project status    | New project created during the challenge                                                                     |
+| License           | MIT                                                                                                          |
+| Public repository | https://github.com/MohammedGhazal09/DOMHamster                                                               |
+| Live URL          | https://domhamster.netlify.app — permanent URL reserved; exact-commit `rc.1` deployment verification pending |
+| Video             | **Video URL: pending** until the verified release is recorded                                                |
 
 ## Elevator pitch
 
@@ -57,7 +57,7 @@ Expected end state: `COMMITTED`, the human lock remains, the contact request is 
 
 ## Release identity and finalization gate
 
-Do not finalize the Devpost submission while the live URL or video URL is pending, an official-client record contains **Not run**, or the release candidate checklist has an unchecked P0 item.
+Do not finalize the Devpost submission while exact-commit live deployment verification or the video URL is pending, an official-client record contains **Not run**, or the release candidate checklist has an unchecked P0 item.
 
 Before finalization:
 

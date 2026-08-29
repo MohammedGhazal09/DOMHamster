@@ -1,9 +1,9 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.27.1
-> **Checkpoint:** Phase 14 release-candidate hardening checkpoint; exact Node 24 source verification complete on PR #40; external release evidence next
-> **Last updated:** 2026-08-28 (Asia/Riyadh)
+> **Version:** 0.27.2
+> **Checkpoint:** Phase 14 v1.0.0 rc.1 identity-preparation checkpoint; permanent Netlify URL reserved; exact-candidate verification and external evidence remain pending
+> **Last updated:** 2026-08-29 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
 
@@ -70,6 +70,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.26.0 | Phase 14 — WP12 deployment configuration and release-manifest contracts | Passed |
 | 0.27.0 | Phase 14 — WP13 documentation, compatibility guidance, and release runner | Passed |
 | 0.27.1 | Phase 14 — PR #40 exact-runtime remediation and release-candidate source verification | Passed — external release evidence remains |
+| 0.27.2 | Phase 14 — v1.0.0 rc.1 package and permanent deployment identity preparation | Passed — exact-candidate verification and external evidence remain |
 
 ---
 
@@ -89,7 +90,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 has a complete WP00–WP13 release-candidate source stack on draft PR #40 (`release/manual-completion-20260828`). Exact Node 24.19.0/npm 11.17.0 formatting, lint, strict TypeScript, 245 unit tests, 13 Playwright tests, build, bundle, license, fixture-identity, documentation, recovery, and release-runner gates pass on the repaired source tree. Live deployment, authentic 50-trial evaluation evidence, official-client validation, final release identity, media, submission, integration, and tagging remain incomplete. |
+| Implementation status | Phase 14 is preparing v1.0.0 candidate `rc.1` on `release/rc1-finalization-20260829` from the trusted `fd12e2b966140954bbd10bdb52d49ecc54f82d1d` lineage. Package and permanent Netlify identity are recorded. The resulting candidate SHA still requires clean exact-SHA verification; deployment, authentic 50-trial evaluations, official-client validation, acceptance evidence, media, submission, `main` integration, and `v1.0.0` tagging remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3517,3 +3518,29 @@ PR #40 release-candidate findings were reproduced and resolved using the reposit
 4. Generate and verify the final release manifest against the immutable integration SHA and deployed asset hashes.
 5. Produce final demo media and complete the submission package.
 6. Integrate PR #40, freeze the release candidate, tag only the fully evidenced commit, and update this plan with the final release checkpoint.
+
+---
+
+## Execution checkpoint — v0.27.2
+
+Recorded: `2026-08-29` (`Asia/Riyadh`)
+
+This checkpoint prepares release identity only. It does not claim clean exact-candidate verification, deployment, authentic evaluation, official-client, acceptance, media, submission, integration, tag, or freeze completion.
+
+| Item | Recorded value |
+|---|---|
+| Candidate | `rc.1` |
+| Release branch | `release/rc1-finalization-20260829` |
+| Trusted lineage | `fd12e2b966140954bbd10bdb52d49ecc54f82d1d` |
+| Package version | `1.0.0` |
+| Permanent Netlify URL | https://domhamster.netlify.app |
+| Exact candidate SHA | Pending creation of this identity commit; record externally after commit |
+| Exact-SHA source verification | Pending |
+| Git-connected deployment and manifest verification | Pending |
+| Authentic 50-trial evaluations | Pending |
+| Chrome / ChatGPT official-client validation | Pending |
+| Acceptance, media, Devpost, integration, tag, and freeze | Pending |
+
+### Next authorized work
+
+Create the immutable `rc.1` candidate commit, push the clean exact branch head, execute every required Node 24.19.0/npm 11.17.0 source gate from a clean dependency install, and deploy only that exact Git commit through the connected Netlify build.
