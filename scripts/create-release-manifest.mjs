@@ -49,7 +49,7 @@ const manifest = {
   deployment: {
     context: process.env.CONTEXT ?? 'local',
     deployId: process.env.DEPLOY_ID ?? null,
-    deployUrl: process.env.DEPLOY_PRIME_URL ?? null,
+    deployUrl: process.env.DEPLOY_URL ?? null,
   },
   fixture: { sha256: FROZEN_FIXTURE_HASH, requests: 8, volunteers: 5 },
   tools: {

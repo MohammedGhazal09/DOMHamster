@@ -11,11 +11,15 @@ for (const fragment of [
   'IGNORED_DIST_FILES',
   "process.argv.includes('--dist-only')",
   'DEPLOY_ID',
-  'DEPLOY_PRIME_URL',
+  'DEPLOY_URL',
   "join(distDirectory, 'release-manifest.json')",
 ]) {
   assert.ok(createSource.includes(fragment), `WP12_RELEASE_CREATE_CONTRACT_MISSING:${fragment}`);
 }
+assert.ok(
+  !createSource.includes('DEPLOY_PRIME_URL'),
+  'WP12_RELEASE_CREATE_CONTRACT_REJECTS_MUTABLE_DEPLOY_PRIME_URL',
+);
 for (const fragment of ['IGNORED_DIST_FILES', "argument('--manifest')", 'manifest.build.files']) {
   assert.ok(verifySource.includes(fragment), `WP12_RELEASE_VERIFY_CONTRACT_MISSING:${fragment}`);
 }
