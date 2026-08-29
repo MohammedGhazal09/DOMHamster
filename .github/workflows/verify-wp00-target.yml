@@ -67,7 +67,6 @@ jobs:
           path: |
             npm-audit.json
             dist/
-            playwright-report/
-            test-results/
+            .artifacts/playwright/
           retention-days: 7
           if-no-files-found: warn

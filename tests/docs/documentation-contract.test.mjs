@@ -33,7 +33,6 @@ const packageJson = JSON.parse(read('package.json'));
 const requiredReadmeFragments = Object.freeze([
   'DOMHamster',
   'The human-approved agent dispatcher',
-  'Live deployment: pending',
   'ChatGPT in-app browser',
   'WebMCP-enabled Chrome',
   'Reset',
@@ -56,6 +55,11 @@ const requiredReadmeFragments = Object.freeze([
 for (const fragment of requiredReadmeFragments) {
   assert.ok(readme.includes(fragment), `WP13_README_FRAGMENT_MISSING:${fragment}`);
 }
+assert.match(
+  readme,
+  /\|\s*Live deployment\s*\|(?=[^\n]*(?:Live deployment: pending|https:\/\/[^\s)]+\.netlify\.app))[^\n]*\|/iu,
+  'WP13_README_LIVE_DEPLOYMENT_MISSING',
+);
 
 const toolNames = Object.freeze([
   'get_coordination_overview',
@@ -107,15 +111,19 @@ for (const fragment of [
   assert.ok(testing.includes(fragment), `WP13_TESTING_FRAGMENT_MISSING:${fragment}`);
 }
 
-for (const fragment of [
-  'Live URL: pending',
-  'Public repository',
-  'Video URL: pending',
-  'Do not finalize',
-  'September 3, 2026',
-]) {
+for (const fragment of ['Public repository', 'Do not finalize', 'September 3, 2026']) {
   assert.ok(submission.includes(fragment), `WP13_SUBMISSION_FRAGMENT_MISSING:${fragment}`);
 }
+assert.match(
+  submission,
+  /\|\s*Live URL\s*\|(?=[^\n]*(?:Live URL: pending|https:\/\/[^\s|]+\.netlify\.app))[^\n]*\|/iu,
+  'WP13_SUBMISSION_LIVE_URL_MISSING',
+);
+assert.match(
+  submission,
+  /\|\s*Video\s*\|(?=[^\n]*(?:Video URL: pending|https:\/\/[^\s|]+))[^\n]*\|/iu,
+  'WP13_SUBMISSION_VIDEO_URL_MISSING',
+);
 
 for (const fragment of [
   'OpenAI ChatGPT',

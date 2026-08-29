@@ -5,9 +5,7 @@ node_modules/
 # Build and test output
 dist/
 coverage/
-playwright-report/
-test-results/
-blob-report/
+.artifacts/
 
 # Generated evaluation evidence
 evals/results/*.json
@@ -29,4 +27,5 @@ evals/results/*.json
 npm-debug.log*
 
 # Generated release/private checkpoints
+/release-manifest.json
 freeze-manifest.private.json

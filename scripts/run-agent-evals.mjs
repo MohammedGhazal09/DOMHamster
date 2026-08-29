@@ -8,6 +8,29 @@ const casesDocument = JSON.parse(readFileSync('evals/cases.json', 'utf8'));
 assert.equal(casesDocument.version, 1, 'DOMHAMSTER_EVAL_CASE_VERSION');
 assert.equal(casesDocument.cases.length, 30, 'DOMHAMSTER_EVAL_CASE_COUNT');
 const cases = new Map(casesDocument.cases.map((entry) => [entry.id, entry]));
+const requiredSchedule = [
+  ...Array.from({ length: 30 }, (_, index) => `EV-${String(index + 1).padStart(2, '0')}`),
+  'EV-05',
+  'EV-06',
+  'EV-08',
+  'EV-09',
+  'EV-10',
+  'EV-11',
+  'EV-14',
+  'EV-15',
+  'EV-17',
+  'EV-18',
+  'EV-19',
+  'EV-20',
+  'EV-22',
+  'EV-23',
+  'EV-24',
+  'EV-27',
+  'EV-29',
+  'EV-30',
+  'EV-08',
+  'EV-18',
+];
 assert.equal(cases.size, 30, 'DOMHAMSTER_EVAL_CASE_IDS');
 for (const entry of cases.values()) {
   assert.match(entry.id, /^EV-[0-9]{2}$/u);
@@ -44,6 +67,11 @@ assert.equal(
   trials.length,
   casesDocument.thresholds.requiredTrials,
   'DOMHAMSTER_EVAL_REQUIRES_50_TRIALS',
+);
+assert.deepEqual(
+  trials.map((trial) => trial?.caseId),
+  requiredSchedule,
+  'DOMHAMSTER_EVAL_SCHEDULE',
 );
 const coverage = new Set();
 let passed = 0;

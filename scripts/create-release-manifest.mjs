@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import {
   FROZEN_FIXTURE_HASH,
   gitCommit,
@@ -17,14 +17,15 @@ function directoryHash(directory) {
     for (const name of readdirSync(path).sort()) {
       const child = join(path, name);
       if (statSync(child).isDirectory()) walk(child);
-      else if (!IGNORED_DIST_FILES.has(relative(directory, child))) files.push(child);
+      else if (!IGNORED_DIST_FILES.has(relative(directory, child).replaceAll(sep, '/')))
+        files.push(child);
     }
   }
 
   walk(directory);
   const hash = createHash('sha256');
   for (const path of files) {
-    hash.update(relative(directory, path));
+    hash.update(relative(directory, path).replaceAll(sep, '/'));
     hash.update('\0');
     hash.update(readFileSync(path));
     hash.update('\0');

@@ -3,6 +3,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import './agent-eval-schedule.test.mjs';
+import './release-manifest-portability.test.mjs';
 import {
   releaseGateCommands,
   resolveEvaluationResultsPath,
