@@ -62,9 +62,9 @@ const EMPTY_TOOL_NAMES = Object.freeze([] as ToolName[]);
 const EMPTY_REGISTRY_ERRORS = Object.freeze([] as string[]);
 
 const DEFAULT_BUILD_INFO: BuildInfoPort = Object.freeze({
-  version: '0.0.0',
-  commitSha: 'local',
-  builtAt: 'runtime',
+  version: __DOMHAMSTER_RELEASE_VERSION__,
+  commitSha: __DOMHAMSTER_COMMIT_REF__,
+  builtAt: __DOMHAMSTER_BUILT_AT__,
   fixtureHash: CANONICAL_FIXTURE_HASH,
 });
 

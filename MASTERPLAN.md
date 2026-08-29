@@ -1,8 +1,8 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.27.2
-> **Checkpoint:** Phase 14 v1.0.0 rc.1 identity-preparation checkpoint; permanent Netlify URL reserved; exact-candidate verification and external evidence remain pending
+> **Version:** 0.27.3
+> **Checkpoint:** Phase 14 rc.1 source-verification and rc.2 release-identity correction checkpoint; deployment and external evidence remain pending
 > **Last updated:** 2026-08-29 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
@@ -71,6 +71,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.27.0 | Phase 14 — WP13 documentation, compatibility guidance, and release runner | Passed |
 | 0.27.1 | Phase 14 — PR #40 exact-runtime remediation and release-candidate source verification | Passed — external release evidence remains |
 | 0.27.2 | Phase 14 — v1.0.0 rc.1 package and permanent deployment identity preparation | Passed — exact-candidate verification and external evidence remain |
+| 0.27.3 | Phase 14 — rc.1 clean verification and rc.2 visible release-identity correction | In progress — rc.1 rejected before deployment; rc.2 exact-SHA gates remain |
 
 ---
 
@@ -90,7 +91,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 is preparing v1.0.0 candidate `rc.1` on `release/rc1-finalization-20260829` from the trusted `fd12e2b966140954bbd10bdb52d49ecc54f82d1d` lineage. Package and permanent Netlify identity are recorded. The resulting candidate SHA still requires clean exact-SHA verification; deployment, authentic 50-trial evaluations, official-client validation, acceptance evidence, media, submission, `main` integration, and `v1.0.0` tagging remain incomplete. |
+| Implementation status | Phase 14 verified v1.0.0 candidate `rc.1` at `3740676bc1682b3fee3a5d12724768ffad1663ce`, then rejected it before deployment because visible diagnostics reported `0.0.0` / `local`. Candidate `rc.2` is being prepared on `release/rc1-finalization-20260829` with a test-first build-identity correction. Deployment, authentic 50-trial evaluations, official-client validation, acceptance evidence, media, submission, `main` integration, and `v1.0.0` tagging remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3544,3 +3545,45 @@ This checkpoint prepares release identity only. It does not claim clean exact-ca
 ### Next authorized work
 
 Create the immutable `rc.1` candidate commit, push the clean exact branch head, execute every required Node 24.19.0/npm 11.17.0 source gate from a clean dependency install, and deploy only that exact Git commit through the connected Netlify build.
+
+---
+
+## Execution checkpoint — v0.27.3
+
+Recorded: `2026-08-29` (`Asia/Riyadh`)
+
+Candidate `rc.1` passed every required clean local source gate at exact application commit `3740676bc1682b3fee3a5d12724768ffad1663ce` and tree `e376a8cc669148110ead813f5719d870525a097a`. It was rejected before production deployment after exact-build browser reproduction showed that the visible diagnostics identity remained hard-coded to `0.0.0` / `local` while the release manifest correctly reported `1.0.0` and the application SHA.
+
+| Evidence | Verified result |
+|---|---|
+| Exact runtime | Node `24.19.0`; npm `11.17.0` |
+| Clean install / online audit | 257 packages added; 258 audited; 0 vulnerabilities |
+| Aggregate source verification | Passed |
+| Unit tests | 36 files; 245 tests passed; 0 failed |
+| Release-runner tests | 10 passed; 0 failed |
+| Browser tests | Playwright Chromium; 13 passed; 0 failed |
+| Accessibility tests | 11 passed; 0 failed |
+| Security tests | 8 passed; 0 failed |
+| Production build | 128 modules transformed |
+| Bundle budget | 448,910 raw bytes; 127,596 gzipped code bytes |
+| License policy | 4 policy tests passed; 283 lockfile packages accepted |
+| Frozen fixture identity | `b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1` |
+| WebMCP lifecycle | 12 tools across six states with counts `5/7/8/3/4/3` |
+| Local manifest | Version `1.0.0`, source commit `3740676bc1682b3fee3a5d12724768ffad1663ce`, fixture and tool metadata verified |
+| Private source evidence | `W:\domhamster-release-evidence\source` with SHA-256 inventory |
+| Acceptance automation ledger | 24/24 automated paths passed; all production/native/external observations remain pending |
+
+### rc.1 rejection and rc.2 correction
+
+- A focused browser reproduction against the exact `rc.1` build opened Diagnostics and observed `BUILD VERSION 0.0.0` and `COMMIT local`.
+- The focused regression test failed first on the hard-coded identity, then passed after Vite build-time values were wired into the existing diagnostics port.
+- The correction uses the package version plus Netlify's `COMMIT_REF`; it adds no runtime request, API, dependency, telemetry, or secret.
+- Because this changes deployable JavaScript, `rc.2` requires a new application SHA and a complete repeat of every local and downstream release gate.
+
+### Canonical-journey reconciliation
+
+The current frozen fixture and repository-approved journey use a valid baseline with `R-105 = V-01 @ 13:00`; the human changes it to `V-03 @ 13:00` and locks it, creating the overlap with `R-106`. The older `V-03 @ 11:00` baseline is incompatible with the current frozen R-105 request window `12:30–14:00` and cannot be both a valid starting draft and preserve the required fixture hash. Release evidence therefore uses the current fixture-compatible edit documented in `README.md`, `docs/webmcp-tools.md`, `docs/submission.md`, and the primary canonical E2E. The obsolete baseline remains historical context only and must not be reported as an observed valid production journey.
+
+### Next authorized work
+
+Commit the minimum `rc.2` build-identity correction, record its exact SHA and tree, repeat the full clean Node 24.19.0 release-verification phase, and deploy only that exact commit after Netlify confirms a supported GitHub repository link.
