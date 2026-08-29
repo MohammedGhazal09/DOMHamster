@@ -4,17 +4,17 @@ This document contains the judge-facing content and release controls for the Web
 
 ## Public identity
 
-| Field             | Working value                                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------------------------------ |
-| Project name      | DOMHamster                                                                                                   |
-| Subtitle          | The human-approved agent dispatcher                                                                          |
-| Submitter         | Mohammed Ghazal, individual entrant                                                                          |
-| Country           | Saudi Arabia                                                                                                 |
-| Project status    | New project created during the challenge                                                                     |
-| License           | MIT                                                                                                          |
-| Public repository | https://github.com/MohammedGhazal09/DOMHamster                                                               |
-| Live URL          | https://domhamster.netlify.app — permanent URL reserved; exact-commit `rc.1` deployment verification pending |
-| Video             | **Video URL: pending** until the verified release is recorded                                                |
+| Field             | Working value                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| Project name      | DOMHamster                                                                                      |
+| Subtitle          | The human-approved agent dispatcher                                                             |
+| Submitter         | Mohammed Ghazal, individual entrant                                                             |
+| Country           | Saudi Arabia                                                                                    |
+| Project status    | New project created during the challenge                                                        |
+| License           | MIT                                                                                             |
+| Public repository | https://github.com/MohammedGhazal09/DOMHamster                                                  |
+| Live URL          | https://domhamster.netlify.app — permanent URL active; exact-commit `rc.3` verification pending |
+| Video             | **Video URL: pending** until the verified release is recorded                                   |
 
 ## Elevator pitch
 

@@ -9,13 +9,13 @@ async function readJson(path) {
   return JSON.parse(value);
 }
 
-test('pins Node 24 and exposes the WP00 verification scripts', async () => {
+test('pins the exact release Node runtime and exposes the WP00 verification scripts', async () => {
   const [nvmrc, packageJson] = await Promise.all([
     readFile(new URL('.nvmrc', root), 'utf8'),
     readJson('package.json'),
   ]);
 
-  assert.equal(nvmrc.trim(), '24');
+  assert.equal(nvmrc.trim(), '24.19.0');
   assert.equal(packageJson.engines.node, '>=24 <25');
   assert.equal(packageJson.engines.npm, '>=11.17.0 <12');
   assert.equal(packageJson.packageManager, 'npm@11.17.0');
