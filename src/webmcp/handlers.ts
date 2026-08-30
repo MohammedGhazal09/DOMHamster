@@ -263,9 +263,23 @@ function storeFailure(
   currentName: ToolName,
 ): ToolExecutionFailure {
   return failure(result.error.code, result.state, currentName, {
+    message: result.error.message,
     retryable:
+      result.error.code === 'INVALID_INPUT' ||
       result.error.code === 'STALE_DRAFT_VERSION' ||
       result.error.code === 'PERSISTENCE_WRITE_FAILED',
+    details: 'details' in result.error ? result.error.details : undefined,
+  });
+}
+
+function staleDraftFailure(
+  state: DraftBearingState,
+  currentName: 'validate_assignment_draft' | 'revise_assignment_draft',
+): ToolExecutionFailure {
+  return failure('STALE_DRAFT_VERSION', state, currentName, {
+    message: `The draft changed. Read the current draft and retry with version ${state.draft.version}.`,
+    retryable: true,
+    details: Object.freeze({ currentDraftVersion: state.draft.version }),
   });
 }
 
@@ -499,9 +513,7 @@ export function createToolHandlers(
         }
         const expectedVersion = requiredNumber(input, 'expectedDraftVersion');
         if (state.draft.version !== expectedVersion) {
-          return failure('STALE_DRAFT_VERSION', state, 'validate_assignment_draft', {
-            retryable: true,
-          });
+          return staleDraftFailure(state, 'validate_assignment_draft');
         }
         return success(
           Object.freeze({
@@ -524,13 +536,17 @@ export function createToolHandlers(
         if (!isDraftBearingState(state)) {
           return failure('INVALID_STATE', state, 'revise_assignment_draft');
         }
+        const expectedVersion = requiredNumber(input, 'expectedDraftVersion');
+        if (state.draft.version !== expectedVersion) {
+          return staleDraftFailure(state, 'revise_assignment_draft');
+        }
         const assignments = reviseAssignments(state, input);
         if ('ok' in assignments) return assignments;
 
         const result = await store.dispatch({
           type: 'REVISE_DRAFT',
           actor: 'agent',
-          expectedDraftVersion: requiredNumber(input, 'expectedDraftVersion'),
+          expectedDraftVersion: expectedVersion,
           assignments,
         });
         if (!result.ok) return storeFailure(result, 'revise_assignment_draft');

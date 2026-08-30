@@ -41,6 +41,10 @@ export type CommandErrorCode =
 export interface CommandError {
   readonly code: CommandErrorCode;
   readonly message: string;
+  readonly details?: {
+    readonly currentDraftVersion?: number;
+    readonly missingRequestIds?: readonly RequestId[];
+  };
 }
 
 export interface CommandDependencies extends AuditDependencies {
@@ -147,11 +151,32 @@ function success(state: AppState): CommandResult {
   return Object.freeze({ ok: true, state });
 }
 
-function failure(state: AppState, code: CommandErrorCode): CommandResult {
+function failure(
+  state: AppState,
+  code: CommandErrorCode,
+  details?: CommandError['details'],
+): CommandResult {
+  const safeDetails: CommandError['details'] =
+    code === 'STALE_DRAFT_VERSION' && state.draft !== null
+      ? Object.freeze({ currentDraftVersion: state.draft.version })
+      : details?.missingRequestIds !== undefined
+        ? Object.freeze({ missingRequestIds: Object.freeze([...details.missingRequestIds]) })
+        : undefined;
+  const message =
+    safeDetails?.currentDraftVersion !== undefined
+      ? `The draft changed. Read the current draft and retry with version ${safeDetails.currentDraftVersion}.`
+      : safeDetails?.missingRequestIds !== undefined
+        ? `The draft must account for every request. Missing request IDs: ${safeDetails.missingRequestIds.join(', ')}.`
+        : code;
+
   return Object.freeze({
     ok: false,
     state,
-    error: Object.freeze({ code, message: code }),
+    error: Object.freeze({
+      code,
+      message,
+      ...(safeDetails === undefined ? {} : { details: safeDetails }),
+    }),
   });
 }
 
@@ -263,12 +288,17 @@ function containsCommittedDraftStatus(assignments: readonly Assignment[]): boole
   return assignments.some(({ status }) => status === 'committed');
 }
 
+interface AccountingError {
+  readonly code: CommandErrorCode;
+  readonly details?: CommandError['details'];
+}
+
 function accountingError(
   scenario: Scenario,
   assignments: readonly Assignment[],
-): CommandErrorCode | null {
+): AccountingError | null {
   if (containsCommittedDraftStatus(assignments)) {
-    return 'INVALID_INPUT';
+    return { code: 'INVALID_INPUT' };
   }
 
   const knownRequests = new Set(scenario.requests.map(({ id }) => id));
@@ -277,10 +307,10 @@ function accountingError(
 
   for (const assignment of assignments) {
     if (!knownRequests.has(assignment.requestId)) {
-      return 'UNKNOWN_REQUEST';
+      return { code: 'UNKNOWN_REQUEST' };
     }
     if (assignment.volunteerId !== null && !knownVolunteers.has(assignment.volunteerId)) {
-      return 'UNKNOWN_VOLUNTEER';
+      return { code: 'UNKNOWN_VOLUNTEER' };
     }
     counts.set(assignment.requestId, (counts.get(assignment.requestId) ?? 0) + 1);
   }
@@ -289,7 +319,15 @@ function accountingError(
     assignments.length !== scenario.requests.length ||
     scenario.requests.some(({ id }) => counts.get(id) !== 1)
   ) {
-    return 'INVALID_INPUT';
+    const missingRequestIds = scenario.requests
+      .map(({ id }) => id)
+      .filter((id) => (counts.get(id) ?? 0) === 0);
+    return {
+      code: 'INVALID_INPUT',
+      ...(missingRequestIds.length === 0
+        ? {}
+        : { details: { missingRequestIds: Object.freeze(missingRequestIds) } }),
+    };
   }
 
   return null;
@@ -370,7 +408,9 @@ function createDraft(
   dependencies: CommandDependencies,
 ): CommandResult {
   const structuralError = accountingError(state.scenario, command.assignments);
-  if (structuralError !== null) return failure(state, structuralError);
+  if (structuralError !== null) {
+    return failure(state, structuralError.code, structuralError.details);
+  }
   if (command.assignments.some(({ lockedByHuman }) => lockedByHuman)) {
     return failure(state, 'INVALID_INPUT');
   }
@@ -402,7 +442,9 @@ function reviseDraft(
     return failure(state, 'STALE_DRAFT_VERSION');
   }
   const structuralError = accountingError(state.scenario, command.assignments);
-  if (structuralError !== null) return failure(state, structuralError);
+  if (structuralError !== null) {
+    return failure(state, structuralError.code, structuralError.details);
+  }
   const lockError = lockPreservationError(state.draft.assignments, command.assignments);
   if (lockError !== null) return failure(state, lockError);
 

@@ -163,11 +163,63 @@ describe('WebMCP tool handlers', () => {
 
     expectSuccess(await handlers.create_assignment_draft(validDraftToolInput()));
     const before = store.getState();
-    expectFailure(
+    const staleValidation = expectFailure(
       await handlers.validate_assignment_draft({ expectedDraftVersion: 999 }),
       'STALE_DRAFT_VERSION',
     );
+    expect(staleValidation.error).toMatchObject({
+      message: 'The draft changed. Read the current draft and retry with version 1.',
+      retryable: true,
+      details: { currentDraftVersion: 1 },
+    });
     expect(store.getState()).toBe(before);
+  });
+
+  it('returns actionable accounting and stale-version details without changing state', async () => {
+    const { store } = createTestStore();
+    const handlers = createToolHandlers(store, {
+      nextErrorReference: () => 'ERROR-1',
+    });
+    const incompleteInput = validDraftToolInput();
+    incompleteInput.assignments = (incompleteInput.assignments as Record<string, unknown>[]).filter(
+      ({ requestId: candidate }) => candidate !== 'R-108',
+    );
+    const readyBefore = store.getState();
+
+    const incomplete = expectFailure(
+      await handlers.create_assignment_draft(incompleteInput),
+      'INVALID_INPUT',
+    );
+    expect(incomplete.error).toMatchObject({
+      message: 'The draft must account for every request. Missing request IDs: R-108.',
+      retryable: true,
+      details: { missingRequestIds: ['R-108'] },
+    });
+    expect(store.getState()).toBe(readyBefore);
+    expect(store.getState().auditHistory).toEqual([]);
+
+    expectSuccess(await handlers.create_assignment_draft(validDraftToolInput()));
+    expectSuccess(
+      await handlers.revise_assignment_draft({
+        expectedDraftVersion: 1,
+        changes: [{ action: 'SET_UNASSIGNED', requestId: 'R-108' }],
+      }),
+    );
+    const before = store.getState();
+    const stale = expectFailure(
+      await handlers.revise_assignment_draft({
+        expectedDraftVersion: 1,
+        changes: [{ action: 'SET_UNASSIGNED', requestId: 'R-999' }],
+      }),
+      'STALE_DRAFT_VERSION',
+    );
+    expect(stale.error).toMatchObject({
+      message: 'The draft changed. Read the current draft and retry with version 2.',
+      retryable: true,
+      details: { currentDraftVersion: 2 },
+    });
+    expect(store.getState()).toBe(before);
+    expect(store.getState().auditHistory).toHaveLength(before.auditHistory.length);
   });
 
   it('revises unlocked assignments and preserves authoritative human locks', async () => {

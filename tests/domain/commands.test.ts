@@ -48,11 +48,16 @@ function expectSuccess(result: CommandResult): AppState {
   return result.state;
 }
 
-function expectFailure(result: CommandResult, code: string, state: AppState): void {
+function expectFailure(
+  result: CommandResult,
+  code: string,
+  state: AppState,
+): Extract<CommandResult, { readonly ok: false }> {
   expect(result.ok).toBe(false);
   if (result.ok) throw new Error('TEST_EXPECTED_FAILURE');
   expect(result.error.code).toBe(code);
   expect(result.state).toBe(state);
+  return result;
 }
 
 function createValidDraft(deps: CommandDependencies, assignments = validAssignments()): AppState {
@@ -78,7 +83,7 @@ describe('draft creation and revision commands', () => {
     const deps = dependencies();
     const state = readyState();
 
-    expectFailure(
+    const failure = expectFailure(
       reduceCommand(
         state,
         {
@@ -91,6 +96,10 @@ describe('draft creation and revision commands', () => {
       'INVALID_INPUT',
       state,
     );
+    expect(failure.error).toMatchObject({
+      message: 'The draft must account for every request. Missing request IDs: R-108.',
+      details: { missingRequestIds: ['R-108'] },
+    });
   });
 
   it('rejects committed assignment rows before the commit command', () => {
@@ -123,7 +132,7 @@ describe('draft creation and revision commands', () => {
     const deps = dependencies();
     const state = createValidDraft(deps);
 
-    expectFailure(
+    const failure = expectFailure(
       reduceCommand(
         state,
         {
@@ -137,6 +146,10 @@ describe('draft creation and revision commands', () => {
       'STALE_DRAFT_VERSION',
       state,
     );
+    expect(failure.error).toMatchObject({
+      message: 'The draft changed. Read the current draft and retry with version 1.',
+      details: { currentDraftVersion: 1 },
+    });
   });
 
   it('increments the draft version exactly once for an accepted revision', () => {
