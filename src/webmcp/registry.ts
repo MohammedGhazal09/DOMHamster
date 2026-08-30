@@ -32,7 +32,7 @@ interface RegistrationRecord {
 }
 
 interface ExecuteOptions {
-  readonly signal: AbortSignal;
+  readonly signal?: AbortSignal;
 }
 
 const MAX_REGISTRY_ERRORS = 10;
@@ -51,8 +51,8 @@ function registrationTool(
     description: contract.description,
     inputSchema: contract.inputSchema,
     annotations: contract.annotations,
-    execute: (inputObject: object, options: ExecuteOptions): Promise<ToolExecutionResult> =>
-      handler(inputObject, { signal: options.signal }),
+    execute: (inputObject: object, options?: ExecuteOptions): Promise<ToolExecutionResult> =>
+      handler(inputObject, options?.signal === undefined ? undefined : { signal: options.signal }),
   });
 }
 

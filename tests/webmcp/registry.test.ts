@@ -209,6 +209,27 @@ describe('state-aware WebMCP registry', () => {
     });
   });
 
+  it('supports native Chrome invocation without callback options', async () => {
+    const states = workflowStates();
+    const store = createMutableStateStore(states.READY);
+    const modelContext = new FakeModelContext();
+    const registry = createWebMcpRegistry({
+      store,
+      modelContext,
+      handlers: handlers(),
+    });
+    await registry.start();
+
+    const registration = modelContext.latest('get_coordination_overview');
+    const result = await registration?.tool.execute({});
+
+    expect(result).toEqual({
+      ok: true,
+      data: { handler: 'get_coordination_overview' },
+      nextActions: [],
+    });
+  });
+
   it('notifies subscribers when observed registrations change and stops after unsubscribe', async () => {
     const states = workflowStates();
     const store = createMutableStateStore(states.READY);

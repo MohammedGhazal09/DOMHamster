@@ -7,7 +7,7 @@ declare global {
   }
 
   interface ToolExecuteCallbackOptions {
-    readonly signal: AbortSignal;
+    readonly signal?: AbortSignal;
   }
 
   interface ModelContextTool {
@@ -17,7 +17,7 @@ declare global {
     readonly inputSchema?: object;
     readonly execute: (
       inputObject: object,
-      options: ToolExecuteCallbackOptions,
+      options?: ToolExecuteCallbackOptions,
     ) => Promise<unknown>;
     readonly annotations?: ToolAnnotations;
   }
