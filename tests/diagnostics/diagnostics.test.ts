@@ -10,7 +10,6 @@ import { workflowStates } from '../helpers/webmcp-fixtures.ts';
 const buildInfo: BuildInfoPort = {
   version: '0.0.0-test',
   commitSha: '0123456789abcdef0123456789abcdef01234567',
-  builtAt: '2026-08-27T00:00:00.000Z',
   fixtureHash: 'b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1',
 };
 
@@ -36,7 +35,6 @@ describe('sanitized diagnostics', () => {
       build: {
         version: buildInfo.version,
         commitSha: buildInfo.commitSha,
-        builtAt: buildInfo.builtAt,
       },
       fixtureHash: buildInfo.fixtureHash,
       workflowState: 'DRAFT_VALID',
@@ -76,7 +74,6 @@ describe('sanitized diagnostics', () => {
         buildInfo: {
           version: 'v'.repeat(200),
           commitSha: 'c'.repeat(200),
-          builtAt: 'b'.repeat(200),
           fixtureHash: 'f'.repeat(200),
         },
         desiredToolNames: Array.from({ length: 40 }, () => 'get_coordination_overview' as const),
@@ -87,7 +84,6 @@ describe('sanitized diagnostics', () => {
 
     expect(snapshot.build.version.length).toBeLessThanOrEqual(64);
     expect(snapshot.build.commitSha.length).toBeLessThanOrEqual(64);
-    expect(snapshot.build.builtAt.length).toBeLessThanOrEqual(64);
     expect(snapshot.fixtureHash.length).toBeLessThanOrEqual(128);
     expect(snapshot.desiredToolNames.length).toBeLessThanOrEqual(12);
     expect(snapshot.registeredToolNames.length).toBeLessThanOrEqual(12);

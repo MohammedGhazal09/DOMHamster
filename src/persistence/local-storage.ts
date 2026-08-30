@@ -15,12 +15,13 @@ import type {
   Scenario,
   TimeOfDay,
   VolunteerId,
+  WorkflowState,
 } from '../domain/types.ts';
 import { requestId, volunteerId } from '../domain/types.ts';
 import { validateDraft, type HumanLockSnapshot } from '../domain/validation.ts';
 
 export const DOMHAMSTER_STORAGE_KEY = 'domhamster:v1';
-export const PERSISTENCE_SCHEMA_VERSION = 1;
+export const PERSISTENCE_SCHEMA_VERSION = 2;
 
 export type PersistenceRecoveryCode =
   | 'MALFORMED_JSON'
@@ -65,7 +66,7 @@ export class PersistenceWriteError extends Error {
 type JsonRecord = Record<string, unknown>;
 
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-const WORKFLOW_STATES = new Set([
+const WORKFLOW_STATES = new Set<WorkflowState>([
   'READY',
   'DRAFT_INVALID',
   'DRAFT_VALID',
@@ -99,6 +100,10 @@ function isAuditEventType(value: unknown): value is AuditEventType {
 
 function isAuditActor(value: unknown): value is AuditEvent['actor'] {
   return value === 'human' || value === 'agent' || value === 'system';
+}
+
+function isWorkflowState(value: unknown): value is WorkflowState {
+  return typeof value === 'string' && WORKFLOW_STATES.has(value as WorkflowState);
 }
 
 function isNullablePositiveInteger(value: unknown): value is number | null {
@@ -347,6 +352,7 @@ function parseAuditHistory(value: unknown): readonly AuditEvent[] | null {
       entry.sequence <= previousSequence ||
       !isAuditEventType(entry.type) ||
       !isAuditActor(entry.actor) ||
+      !isWorkflowState(entry.workflowState) ||
       !isIsoTimestamp(entry.timestamp) ||
       !isNullablePositiveInteger(entry.draftVersion) ||
       typeof entry.safeSummary !== 'string' ||
@@ -365,6 +371,7 @@ function parseAuditHistory(value: unknown): readonly AuditEvent[] | null {
         sequence: entry.sequence,
         type: entry.type,
         actor: entry.actor,
+        workflowState: entry.workflowState,
         timestamp: entry.timestamp,
         draftVersion: entry.draftVersion,
         safeSummary: entry.safeSummary,
@@ -376,11 +383,7 @@ function parseAuditHistory(value: unknown): readonly AuditEvent[] | null {
 }
 
 function parsePersistedState(value: unknown, scenario: Scenario): AppState | null {
-  if (
-    !isRecord(value) ||
-    typeof value.workflowState !== 'string' ||
-    !WORKFLOW_STATES.has(value.workflowState)
-  ) {
+  if (!isRecord(value) || !isWorkflowState(value.workflowState)) {
     return null;
   }
   const auditHistory = parseAuditHistory(value.auditHistory);

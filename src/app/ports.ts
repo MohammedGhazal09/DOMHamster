@@ -33,7 +33,6 @@ export interface ModelContextPort {
 export interface BuildInfoPort {
   readonly version: string;
   readonly commitSha: string;
-  readonly builtAt: string;
   readonly fixtureHash: string;
 }
 

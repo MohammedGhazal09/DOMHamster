@@ -143,6 +143,7 @@ export function normalizeRehydratedState(
       {
         type: 'APPROVAL_INVALIDATED_RELOAD',
         actor: 'system',
+        workflowState,
         draftVersion: draft.version,
         safeSummary: 'Approval review was invalidated after reload and the draft was revalidated.',
       },

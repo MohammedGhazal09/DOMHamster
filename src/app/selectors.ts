@@ -94,6 +94,7 @@ export interface AuditEventView {
   readonly sequence: number;
   readonly type: string;
   readonly actor: AuditEvent['actor'];
+  readonly workflowState: WorkflowState;
   readonly timestamp: string;
   readonly draftVersion: number | null;
   readonly safeSummary: string;
@@ -281,6 +282,7 @@ export function selectAuditHistory(state: AppState): readonly AuditEventView[] {
         sequence: event.sequence,
         type: event.type,
         actor: event.actor,
+        workflowState: event.workflowState,
         timestamp: event.timestamp,
         draftVersion: event.draftVersion,
         safeSummary: boundedText(event.safeSummary, 200),

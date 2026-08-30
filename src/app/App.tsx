@@ -11,6 +11,7 @@ import {
 import type { AppState } from '../domain/types.ts';
 import { CANONICAL_FIXTURE_HASH } from '../domain/fixture-identity.ts';
 import { createDiagnosticsSnapshot, type PersistenceStatus } from '../diagnostics/diagnostics.ts';
+import type { PersistenceRecovery } from '../persistence/local-storage.ts';
 import { detectWebMcpCapability, type WebMcpCapabilityStatus } from '../webmcp/capability.ts';
 import type { ToolName } from '../webmcp/contracts.ts';
 import { desiredToolNames } from '../webmcp/lifecycle.ts';
@@ -48,6 +49,7 @@ export interface AppProps {
   readonly onWorkflowCommand?: WorkflowCommandHandler;
   readonly buildInfo?: BuildInfoPort;
   readonly persistenceStatus?: PersistenceStatus;
+  readonly persistenceRecovery?: PersistenceRecovery | null;
   readonly now?: () => number;
 }
 
@@ -64,7 +66,6 @@ const EMPTY_REGISTRY_ERRORS = Object.freeze([] as string[]);
 const DEFAULT_BUILD_INFO: BuildInfoPort = Object.freeze({
   version: __DOMHAMSTER_RELEASE_VERSION__,
   commitSha: __DOMHAMSTER_COMMIT_REF__,
-  builtAt: __DOMHAMSTER_BUILT_AT__,
   fixtureHash: CANONICAL_FIXTURE_HASH,
 });
 
@@ -110,6 +111,7 @@ export function App({
   onWorkflowCommand,
   buildInfo = DEFAULT_BUILD_INFO,
   persistenceStatus = 'READY',
+  persistenceRecovery = null,
   now = Date.now,
 }: AppProps) {
   const resolvedCapability = capabilityStatus ?? browserCapabilityStatus();
@@ -287,6 +289,13 @@ export function App({
         />
 
         <CapabilityNotice status={resolvedCapability} />
+
+        {persistenceRecovery === null ? null : (
+          <aside className="capability-notice" role="status" aria-label="Saved data recovery">
+            <strong>Saved data reset</strong>
+            <span>{persistenceRecovery.message}</span>
+          </aside>
+        )}
 
         <section className="judge-summary" aria-label="Product and coordination summary">
           <JudgeBrief />

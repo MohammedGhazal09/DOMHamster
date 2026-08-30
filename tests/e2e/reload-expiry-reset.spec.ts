@@ -121,6 +121,28 @@ test('expires approval after 120 seconds and removes the commit tool', async ({ 
   await expect.poll(() => hasTool(page, 'commit_assignment_plan')).toBe(false);
 });
 
+test('returns a rejected approval to DRAFT_VALID without commit authority and audits it', async ({
+  page,
+}) => {
+  await installHarness(page);
+  await page.goto('/');
+  await createAndPrepare(page);
+
+  await page.getByRole('button', { name: 'Reject and return' }).click();
+
+  await expect(page.getByRole('dialog', { name: 'Review draft v1 before approval' })).toHaveCount(
+    0,
+  );
+  await expect(page.locator('.status-chip')).toHaveText('DRAFT_VALID');
+  await expect.poll(() => hasTool(page, 'commit_assignment_plan')).toBe(false);
+  const audit = (await invoke(page, 'get_audit_history', {})) as {
+    readonly ok: boolean;
+    readonly data?: readonly { readonly type: string }[];
+  };
+  expect(audit.ok).toBe(true);
+  expect(audit.data?.at(0)).toMatchObject({ type: 'APPROVAL_REJECTED' });
+});
+
 test('uses least-destructive discard and reset confirmations', async ({ page }) => {
   await installHarness(page);
   await page.goto('/');

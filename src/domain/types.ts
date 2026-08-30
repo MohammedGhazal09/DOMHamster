@@ -110,6 +110,7 @@ export interface AuditEvent {
   readonly sequence: number;
   readonly type: string;
   readonly actor: 'human' | 'agent' | 'system';
+  readonly workflowState: WorkflowState;
   readonly timestamp: string;
   readonly draftVersion: number | null;
   readonly safeSummary: string;

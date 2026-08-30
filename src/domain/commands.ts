@@ -19,6 +19,7 @@ import type {
   Scenario,
   ValidationIssue,
   ValidationResult,
+  WorkflowState,
 } from './types.ts';
 import { validateDraft, type HumanLockSnapshot } from './validation.ts';
 
@@ -261,13 +262,14 @@ function append(
   state: AppState,
   type: AuditEventType,
   actor: CommandActor,
+  workflowState: WorkflowState,
   draftVersion: number | null,
   safeSummary: string,
   dependencies: CommandDependencies,
 ): readonly AuditEvent[] {
   return appendAuditEvent(
     state.auditHistory,
-    { type, actor, draftVersion, safeSummary },
+    { type, actor, workflowState, draftVersion, safeSummary },
     dependencies,
   );
 }
@@ -426,6 +428,7 @@ function createDraft(
     state,
     'DRAFT_CREATED',
     command.actor,
+    classifyDraft(draft),
     draft.version,
     'Agent created assignment draft version 1.',
     dependencies,
@@ -460,6 +463,7 @@ function reviseDraft(
     state,
     'DRAFT_REVISED',
     command.actor,
+    classifyDraft(draft),
     version,
     `Agent revised assignment draft to version ${version}.`,
     dependencies,
@@ -499,6 +503,7 @@ function editAssignment(
     state,
     'DRAFT_REVISED',
     command.actor,
+    classifyDraft(draft),
     version,
     `Human edited ${command.requestId}; draft advanced to version ${version}.`,
     dependencies,
@@ -547,6 +552,7 @@ function changeLock(
     state,
     eventType,
     command.actor,
+    classifyDraft(draft),
     version,
     `Human ${locking ? 'locked' : 'unlocked'} ${command.requestId}; ` +
       `draft advanced to version ${version}.`,
@@ -564,6 +570,7 @@ function discardDraft(
     state,
     'DRAFT_DISCARDED',
     command.actor,
+    'READY',
     state.draft.version,
     'Human discarded the current uncommitted draft.',
     dependencies,
@@ -610,6 +617,7 @@ function prepareApproval(
     state,
     'APPROVAL_REQUESTED',
     command.actor,
+    'AWAITING_APPROVAL',
     draft.version,
     `Agent prepared human approval for draft version ${draft.version}.`,
     dependencies,
@@ -654,6 +662,7 @@ function decideApproval(
       state,
       'APPROVAL_APPROVED',
       command.actor,
+      'APPROVED',
       state.draft.version,
       `Human approved draft version ${state.draft.version}.`,
       dependencies,
@@ -680,6 +689,7 @@ function decideApproval(
     state,
     rejected ? 'APPROVAL_REJECTED' : 'APPROVAL_CANCELLED',
     command.actor,
+    classifyDraft(state.draft),
     state.draft.version,
     rejected
       ? `Human rejected draft version ${state.draft.version}.`
@@ -703,6 +713,7 @@ function expireApproval(
     state,
     'APPROVAL_EXPIRED',
     command.actor,
+    classifyDraft(state.draft),
     state.draft.version,
     `Approval expired for draft version ${state.draft.version}.`,
     dependencies,
@@ -741,6 +752,7 @@ function commitPlan(
     state,
     'PLAN_COMMITTED',
     command.actor,
+    'COMMITTED',
     state.draft.version,
     `Agent committed human-approved draft version ${state.draft.version}.`,
     dependencies,
@@ -791,6 +803,7 @@ function accessContacts(
     state,
     'CONTACTS_ACCESSED',
     command.actor,
+    'COMMITTED',
     state.committedPlan.draftVersion,
     `Agent accessed dispatch contacts for ${requestIds.length} assigned request${
       requestIds.length === 1 ? '' : 's'

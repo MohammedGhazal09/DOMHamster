@@ -13,7 +13,6 @@ export default defineConfig({
       process.env.DOMHAMSTER_RELEASE_VERSION ?? packageVersion,
     ),
     __DOMHAMSTER_COMMIT_REF__: JSON.stringify(process.env.COMMIT_REF ?? 'local'),
-    __DOMHAMSTER_BUILT_AT__: JSON.stringify(new Date().toISOString()),
   },
   build: {
     outDir: 'dist',

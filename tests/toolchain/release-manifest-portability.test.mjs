@@ -37,3 +37,9 @@ test('creator and verifier normalize every relative dist path before use', () =>
     );
   }
 });
+
+test('client artifact identity excludes wall-clock build values', () => {
+  const viteSource = readFileSync(join(root, 'vite.config.ts'), 'utf8');
+
+  assert.doesNotMatch(viteSource, /(?:__DOMHAMSTER_BUILT_AT__|new Date|Date\.now)/u);
+});

@@ -1,5 +1,6 @@
-import Ajv, { type ErrorObject, type ValidateFunction } from 'ajv';
-import { TOOL_CONTRACTS, type ToolName, type WebMcpInputSchema } from './contracts.ts';
+import type { ErrorObject, ValidateFunction } from 'ajv';
+import { TOOL_NAMES, type ToolName } from './contracts.ts';
+import * as standaloneToolValidators from './generated/tool-validators.js';
 
 export const MAX_SCHEMA_ISSUES = 8;
 const MAX_INSTANCE_PATH_CHARACTERS = 160;
@@ -31,19 +32,8 @@ export interface InputValidationFailure {
 
 export type InputValidationResult = InputValidationSuccess | InputValidationFailure;
 
-const ajv = new Ajv({
-  allErrors: true,
-  strict: true,
-  validateFormats: false,
-});
-
 export const COMPILED_TOOL_VALIDATORS = Object.freeze(
-  Object.fromEntries(
-    TOOL_CONTRACTS.map((contract) => [
-      contract.name,
-      ajv.compile(contract.inputSchema as WebMcpInputSchema),
-    ]),
-  ),
+  Object.fromEntries(TOOL_NAMES.map((name) => [name, standaloneToolValidators[name]])),
 ) as Readonly<Record<ToolName, ValidateFunction>>;
 
 function safeIssue(instancePath: string, keyword: string): SafeSchemaIssue {

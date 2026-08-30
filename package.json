@@ -13,7 +13,9 @@
   "scripts": {
     "bootstrap:deps": "bash scripts/bootstrap-wp00-dependencies.sh",
     "dev": "vite",
-    "build": "npm run typecheck && vite build && node scripts/create-release-manifest.mjs --dist-only",
+    "generate:validators": "node scripts/generate-tool-validators.mjs",
+    "verify:validators": "node scripts/generate-tool-validators.mjs --check",
+    "build": "npm run verify:validators && npm run typecheck && vite build && node scripts/create-release-manifest.mjs --dist-only",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint . --max-warnings 0",

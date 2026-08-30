@@ -162,6 +162,7 @@ describe('draft classification and reload normalization', () => {
       expect(normalized.approval).toBeNull();
       expect(normalized.auditHistory.at(-1)?.type).toBe('APPROVAL_INVALIDATED_RELOAD');
       expect(normalized.auditHistory.at(-1)?.actor).toBe('system');
+      expect(normalized.auditHistory.at(-1)?.workflowState).toBe('DRAFT_VALID');
     },
   );
 

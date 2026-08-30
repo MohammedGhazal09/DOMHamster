@@ -12,7 +12,6 @@ const DIAGNOSTICS: DiagnosticsSnapshot = {
   build: {
     version: '0.0.0',
     commitSha: 'local',
-    builtAt: '2026-08-27T12:00:00.000Z',
   },
   fixtureHash: 'b861f7e997f2f14e087d209130de7e4aa465d8047110b11872edb7750a2122b1',
   workflowState: 'APPROVED',
@@ -34,6 +33,7 @@ describe('activity and diagnostics drawers', () => {
     const drawer = screen.getByRole('dialog', { name: 'Activity history' });
     expect(within(drawer).getAllByRole('listitem')).toHaveLength(events.length);
     expect(within(drawer).getByText('APPROVAL_APPROVED')).toBeVisible();
+    expect(within(drawer).getByText('State APPROVED')).toBeVisible();
     expect(document.body).not.toHaveTextContent('privateContacts');
 
     await user.keyboard('{Escape}');

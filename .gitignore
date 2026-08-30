@@ -12,6 +12,7 @@ evals/results/*.json
 !evals/results/README.md
 
 # Local environment and editor files
+.netlify/
 .env
 .env.*
 !.env.example

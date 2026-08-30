@@ -74,6 +74,7 @@ export function ActivityDrawer({ open, events, onClose, returnFocusId }: Activit
                 <div className="activity-list__metadata">
                   <span className="mono">#{event.sequence}</span>
                   <span>{formatEventTime(event.timestamp)}</span>
+                  <span>State {event.workflowState}</span>
                   <span>
                     {event.draftVersion === null
                       ? 'No draft version'

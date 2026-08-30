@@ -19,7 +19,6 @@ export interface DiagnosticsSnapshot {
   readonly build: {
     readonly version: string;
     readonly commitSha: string;
-    readonly builtAt: string;
   };
   readonly fixtureHash: string;
   readonly workflowState: AppState['workflowState'];
@@ -70,7 +69,6 @@ export function createDiagnosticsSnapshot(input: DiagnosticsInput): DiagnosticsS
     build: Object.freeze({
       version: bounded(input.buildInfo.version, 64),
       commitSha: bounded(input.buildInfo.commitSha, 64),
-      builtAt: bounded(input.buildInfo.builtAt, 64),
     }),
     fixtureHash: bounded(input.buildInfo.fixtureHash, 128),
     workflowState: input.state.workflowState,

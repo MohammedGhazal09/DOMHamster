@@ -136,8 +136,8 @@ test('completes the human-approved agent commit and audited contact boundary', a
     readonly data?: readonly { readonly type: string; readonly safeSummary: string }[];
   };
   expect(auditResult.ok).toBe(true);
-  expect(auditResult.data?.at(-1)).toMatchObject({ type: 'CONTACTS_ACCESSED' });
-  expect(auditResult.data?.at(-1)?.safeSummary).not.toContain('Fictional Address');
+  expect(auditResult.data?.at(0)).toMatchObject({ type: 'CONTACTS_ACCESSED' });
+  expect(auditResult.data?.at(0)?.safeSummary).not.toContain('Fictional Address');
 
   await expect(summary).toContainText(
     'Dispatch details are fictional, returned only for selected assigned requests, and every access is recorded.',

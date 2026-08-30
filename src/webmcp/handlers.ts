@@ -620,7 +620,7 @@ export function createToolHandlers(
       const limitValue = input.limit;
       const limit = typeof limitValue === 'number' ? limitValue : 20;
       return success(
-        Object.freeze(selectAuditHistory(state).slice(-limit)),
+        Object.freeze(selectAuditHistory(state).slice(-limit).reverse()),
         state,
         'get_audit_history',
       );

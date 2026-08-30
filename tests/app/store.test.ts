@@ -90,6 +90,27 @@ describe('serialized application store', () => {
     expect(persisted.map(stateVersion)).toEqual([1, 2]);
     expect(observed.map(stateVersion)).toEqual([1, 2]);
     expect(store.getState().workflowState).toBe('DRAFT_INVALID');
+    expect(
+      store.getState().auditHistory.map(({ actor, type, workflowState, draftVersion }) => ({
+        actor,
+        type,
+        workflowState,
+        draftVersion,
+      })),
+    ).toEqual([
+      {
+        actor: 'agent',
+        type: 'DRAFT_CREATED',
+        workflowState: 'DRAFT_VALID',
+        draftVersion: 1,
+      },
+      {
+        actor: 'human',
+        type: 'DRAFT_REVISED',
+        workflowState: 'DRAFT_INVALID',
+        draftVersion: 2,
+      },
+    ]);
   });
 
   it('does not persist or notify for a rejected domain command', async () => {

@@ -8,3 +8,4 @@ node_modules
 # Frozen planning checkpoints are reviewed as source documents, not reformatted build inputs.
 MASTERPLAN.md
 docs/superpowers/plans/
+src/webmcp/generated/tool-validators.js

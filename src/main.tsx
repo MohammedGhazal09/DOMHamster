@@ -28,6 +28,7 @@ createRoot(rootElement).render(
       <StoreConnectedApp
         store={runtime.store}
         capabilityStatus={runtime.capabilityStatus}
+        persistenceRecovery={runtime.persistenceRecovery}
         registrySource={registrySource}
       />
     </ApplicationErrorBoundary>

@@ -29,6 +29,7 @@ export interface AuditDependencies {
 export interface AuditEventInput {
   readonly type: AuditEventType;
   readonly actor: AuditActor;
+  readonly workflowState: AuditEvent['workflowState'];
   readonly draftVersion: number | null;
   readonly safeSummary: string;
 }
@@ -61,6 +62,7 @@ function createAuditEvent(
     sequence,
     type: input.type,
     actor: input.actor,
+    workflowState: input.workflowState,
     timestamp: dependencies.now(),
     draftVersion: input.draftVersion,
     safeSummary: sanitizeSummary(input.safeSummary),
@@ -86,6 +88,7 @@ export function resetAuditHistory(
       {
         type: 'SCENARIO_RESET',
         actor: input.actor,
+        workflowState: 'READY',
         draftVersion: null,
         safeSummary: input.safeSummary,
       },

@@ -150,9 +150,10 @@ function setEnvelope(storage: MemoryStorage, envelope: unknown): void {
 }
 
 interface StoredEnvelope {
+  schemaVersion: number;
   savedAt: string;
   state: {
-    auditHistory: { type: string }[];
+    auditHistory: { type: string; workflowState?: string }[];
     committedPlan: { assignments: { status: string }[] };
   };
 }
@@ -205,6 +206,7 @@ describe('versioned local storage round trips', () => {
     const envelope = storedEnvelope(storage);
 
     expect(DOMHAMSTER_STORAGE_KEY).toBe('domhamster:v1');
+    expect(PERSISTENCE_SCHEMA_VERSION).toBe(2);
     expect(envelope).toMatchObject({
       schemaVersion: PERSISTENCE_SCHEMA_VERSION,
       fixtureVersion: FIXTURE_VERSION,
@@ -216,6 +218,27 @@ describe('versioned local storage round trips', () => {
 });
 
 describe('safe persistence recovery', () => {
+  it('resets schema 1 without inferring missing workflow states for old audit events', async () => {
+    const storage = new MemoryStorage();
+    const { repository: stateRepository, runtime } = repository(storage);
+    await stateRepository.save(draftState(runtime.command));
+    const envelope = storedEnvelope(storage);
+    envelope.schemaVersion = 1;
+    const firstAuditEvent = envelope.state.auditHistory[0];
+    if (firstAuditEvent === undefined) throw new Error('TEST_EXPECTED_AUDIT_EVENT');
+    delete firstAuditEvent.workflowState;
+    setEnvelope(storage, envelope);
+
+    const loaded = stateRepository.load();
+
+    expect(loaded.state.workflowState).toBe('READY');
+    expect(loaded.state.auditHistory).toEqual([]);
+    expect(loaded.recovery).toEqual({
+      code: 'SCHEMA_MISMATCH',
+      message: 'Saved DOMHamster data was reset safely.',
+    });
+  });
+
   it.each([
     ['malformed JSON', '{broken', 'MALFORMED_JSON'],
     [
@@ -283,6 +306,22 @@ describe('safe persistence recovery', () => {
     const firstAuditEvent = envelope.state.auditHistory[0];
     if (firstAuditEvent === undefined) throw new Error('TEST_EXPECTED_AUDIT_EVENT');
     firstAuditEvent.type = 'CRAFTED_EVENT';
+    setEnvelope(storage, envelope);
+
+    const loaded = stateRepository.load();
+
+    expect(loaded.state.workflowState).toBe('READY');
+    expect(loaded.recovery?.code).toBe('INVALID_STATE');
+  });
+
+  it('rejects current-schema audit events without a recorded workflow state', async () => {
+    const storage = new MemoryStorage();
+    const { repository: stateRepository, runtime } = repository(storage);
+    await stateRepository.save(draftState(runtime.command));
+    const envelope = storedEnvelope(storage);
+    const firstAuditEvent = envelope.state.auditHistory[0];
+    if (firstAuditEvent === undefined) throw new Error('TEST_EXPECTED_AUDIT_EVENT');
+    delete firstAuditEvent.workflowState;
     setEnvelope(storage, envelope);
 
     const loaded = stateRepository.load();

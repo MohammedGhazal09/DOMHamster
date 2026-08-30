@@ -23,6 +23,7 @@ describe('bounded immutable audit history', () => {
       {
         type: 'DRAFT_CREATED',
         actor: 'agent',
+        workflowState: 'DRAFT_VALID',
         draftVersion: 1,
         safeSummary: `  created\n\t${'x'.repeat(500)}  `,
       },
@@ -35,6 +36,7 @@ describe('bounded immutable audit history', () => {
       sequence: 1,
       type: 'DRAFT_CREATED',
       actor: 'agent',
+      workflowState: 'DRAFT_VALID',
       draftVersion: 1,
       timestamp: '2026-08-26T12:00:00.000Z',
     });
@@ -51,6 +53,7 @@ describe('bounded immutable audit history', () => {
       {
         type: 'DRAFT_CREATED',
         actor: 'agent',
+        workflowState: 'DRAFT_VALID',
         draftVersion: 1,
         safeSummary: 'Draft created.',
       },
@@ -61,6 +64,7 @@ describe('bounded immutable audit history', () => {
       {
         type: 'DRAFT_REVISED',
         actor: 'agent',
+        workflowState: 'DRAFT_INVALID',
         draftVersion: 2,
         safeSummary: 'Draft revised.',
       },
@@ -82,6 +86,7 @@ describe('bounded immutable audit history', () => {
         {
           type: 'DRAFT_REVISED',
           actor: 'agent',
+          workflowState: 'DRAFT_VALID',
           draftVersion: index + 1,
           safeSummary: `Revision ${index + 1}.`,
         },
@@ -109,6 +114,7 @@ describe('bounded immutable audit history', () => {
       sequence: 1,
       type: 'SCENARIO_RESET',
       actor: 'human',
+      workflowState: 'READY',
       draftVersion: null,
     });
   });

@@ -199,12 +199,19 @@ describe('WebMCP tool handlers', () => {
     expect(store.getState().auditHistory).toEqual([]);
 
     expectSuccess(await handlers.create_assignment_draft(validDraftToolInput()));
-    expectSuccess(
+    const revised = expectSuccess(
       await handlers.revise_assignment_draft({
         expectedDraftVersion: 1,
         changes: [{ action: 'SET_UNASSIGNED', requestId: 'R-108' }],
       }),
     );
+    expect(revised).toMatchObject({ version: 2, workflowState: 'DRAFT_VALID', valid: true });
+    expect(revised.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'REQUEST_UNASSIGNED', requestIds: ['R-108'] }),
+      ]),
+    );
+    expect(desiredToolNames(store.getState().workflowState)).toContain('prepare_plan_approval');
     const before = store.getState();
     const stale = expectFailure(
       await handlers.revise_assignment_draft({
@@ -344,10 +351,13 @@ describe('WebMCP tool handlers', () => {
     expect(contacts[0]?.fictionalContactChannel).toContain('Fictional phone');
     expect(store.getState().auditHistory).toHaveLength(beforeCount + 1);
     expect(store.getState().auditHistory.at(-1)?.type).toBe('CONTACTS_ACCESSED');
+    expect(store.getState().auditHistory.at(-1)?.workflowState).toBe('COMMITTED');
 
-    const recent = expectSuccess(await handlers.get_audit_history({ limit: 1 }));
-    expect(recent).toHaveLength(1);
+    const recent = expectSuccess(await handlers.get_audit_history({ limit: 2 }));
+    expect(recent).toHaveLength(2);
+    expect(recent.map(({ type }) => type)).toEqual(['CONTACTS_ACCESSED', 'PLAN_COMMITTED']);
     expect(recent[0]?.type).toBe('CONTACTS_ACCESSED');
+    expect(recent[0]?.workflowState).toBe('COMMITTED');
   });
 
   it('sanitizes unexpected exceptions behind an opaque reference', async () => {
