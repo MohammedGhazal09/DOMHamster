@@ -1,49 +1,48 @@
 # ChatGPT in-app browser compatibility record
 
-**Status:** Not yet executed against a public release candidate. This record must contain observed facts before release selection.
+**Status:** **Not run / unavailable** for `rc.6`. This is not a pass.
 
 ## Environment
 
-| Field                     | Recorded value                              |
-| ------------------------- | ------------------------------------------- |
-| Production URL            | Record the exact public Netlify URL         |
-| Source commit             | Record the deployed 40-character commit SHA |
-| Release candidate         | Record `rc.N`                               |
-| ChatGPT app build         | Record the visible desktop-app build        |
-| Selected model            | Record the model used for the test          |
-| Account site-tools access | Confirm available or record blocker         |
-| UTC timestamp             | Record ISO 8601                             |
-| Asia/Riyadh timestamp     | Record ISO 8601 with offset                 |
-| Tester                    | Mohammed Ghazal                             |
+| Field                     | Recorded value                                                                    |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| Production URL            | `https://domhamster.netlify.app`                                                  |
+| Source commit             | `2d1de951f4f0122bb252187c74ddd557011069aa`                                        |
+| Source tree               | `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4`                                        |
+| Release candidate         | `rc.6`                                                                            |
+| ChatGPT app build         | Not observable because no ChatGPT in-app browser backend was available            |
+| Selected model            | Not independently observed                                                        |
+| Checked client            | Codex Desktop `26.825.5331.0`, Codex CLI `0.151.0`                                |
+| Account site-tools access | Unavailable: `agent.browsers.get("iab")` returned `Browser is not available: iab` |
+| UTC timestamp             | `2026-08-30T17:13:15.5973309Z`                                                    |
+| Asia/Riyadh timestamp     | `2026-08-30T20:13:15.5973309+03:00`                                               |
+| Tester                    | Mohammed Ghazal                                                                   |
 
-## Canonical acceptance sequence
+## Observed blocker
 
-1. Open the public URL in ChatGPT's built-in browser.
-2. Confirm the site-tools indicator discovers exactly the READY tool set.
-3. Run the canonical planning prompt from the application.
-4. Confirm structured reads precede draft creation and no contact data is exposed.
-5. Change R-105 to V-03 at 13:00 and lock it through the visible coordinator controls.
-6. Ask the agent to repair the conflict without changing locked R-105.
-7. Confirm only R-106 moves to V-05 at 13:00 and the draft becomes valid.
-8. Ask the agent to prepare approval; verify the agent stops for the human decision.
-9. Approve the exact visible version and confirm the commit tool appears for 120 seconds.
-10. Ask the agent to commit once; verify the tool lifecycle changes to COMMITTED.
-11. Request the fictional contact for R-101 only and confirm the audit event is recorded.
-12. Reset and repeat once to verify determinism.
+The bundled browser plugin was installed and enabled, but the available browser inventory contained only the external Chrome-extension backend. There was no in-app browser backend, in-app tab, page-tool discovery surface, or callable in-app site tool. The exact selector returned:
+
+```text
+Browser is not available: iab
+```
+
+External Chrome evidence is not substituted for this gate. Exactly zero ChatGPT in-app canonical journeys were counted.
 
 ## Result ledger
 
-| Check                     | Result  | Evidence or discrepancy                                    |
-| ------------------------- | ------- | ---------------------------------------------------------- |
-| READY discovery           | Not run | Record observed tool names                                 |
-| Structured draft creation | Not run | Record tool sequence                                       |
-| Human edit and lock       | Not run | Record visible version and state                           |
-| Lock-preserving repair    | Not run | Record R-105 and R-106 outcomes                            |
-| Human approval boundary   | Not run | Record review and exact version                            |
-| One-shot commit           | Not run | Record plan ID and lifecycle                               |
-| Scoped contact access     | Not run | Record requested IDs only; never paste contact values here |
-| Audit                     | Not run | Record event type and sequence only                        |
-| Console/network           | Not run | Record any warning or unexpected request                   |
-| Repeatability             | Not run | Record second-run outcome                                  |
+| Check                     | Result                | Evidence or discrepancy                                             |
+| ------------------------- | --------------------- | ------------------------------------------------------------------- |
+| READY discovery           | **Not run / blocked** | In-app browser backend unavailable                                  |
+| Structured draft creation | **Not run / blocked** | In-app browser backend unavailable                                  |
+| Human edit and lock       | **Not run / blocked** | Journey could not start                                             |
+| Lock-preserving repair    | **Not run / blocked** | Journey could not start                                             |
+| Human approval boundary   | **Not run / blocked** | Journey could not start                                             |
+| One-shot commit           | **Not run / blocked** | Journey could not start                                             |
+| Scoped contact access     | **Not run / blocked** | Journey could not start; no contact value was requested or recorded |
+| Audit                     | **Not run / blocked** | Journey could not start                                             |
+| Console/network           | **Not run / blocked** | No in-app page session existed                                      |
+| Repeatability             | **Not run / blocked** | `0/2` required journeys                                             |
 
-A release candidate fails this gate if site tools are unavailable for the account/model, any required tool is missing, a human-only action is exposed as a tool, contact data appears before commit, or the canonical journey cannot be completed twice.
+Evidence: `W:\domhamster-release-evidence\chatgpt\rc6-in-app-post-repair-unavailable.md`.
+
+This gate remains incomplete until an eligible ChatGPT account/build exposes the in-app browser and both canonical journeys are observed. The blocker does not justify a DOMHamster runtime change.

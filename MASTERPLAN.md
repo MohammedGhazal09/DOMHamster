@@ -1,9 +1,9 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.27.5
-> **Checkpoint:** Phase 14 rc.2 production-runtime rejection and rc.3 exact-runtime correction checkpoint; rc.3 verification and external evidence remain pending
-> **Last updated:** 2026-08-29 (Asia/Riyadh)
+> **Version:** 0.27.6
+> **Checkpoint:** Phase 14 rc.6 exact-source, production, native Chrome, acceptance, media, and deadline-control checkpoint
+> **Last updated:** 2026-09-01 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
 
@@ -74,6 +74,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.27.3 | Phase 14 — rc.1 clean verification and rc.2 visible release-identity correction | In progress — rc.1 rejected before deployment; rc.2 exact-SHA gates remain |
 | 0.27.4 | Phase 14 — rc.2 exact-SHA clean source verification and diagnostics identity evidence | Passed — production deployment and external evidence remain |
 | 0.27.5 | Phase 14 — rc.2 production-runtime rejection and rc.3 exact-runtime pin correction | In progress — rc.2 rejected; rc.3 clean verification remains |
+| 0.27.6 | Phase 14 — rc.6 exact-source, production, native Chrome, acceptance, media, and deadline control | Partially passed — evaluation and ChatGPT gates remain incomplete; publication work continues |
 
 ---
 
@@ -93,7 +94,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 verified v1.0.0 candidate `rc.2` at application SHA `7a68f481f1f6f6f36394905f3c01cda47dd2d4d2` and tree `e7e5d99a10a8905051400713da4c534d4b0ef1bd`. Its exact Git-connected production deploy was rejected because Netlify selected Node `24.20.0` from the broad `.nvmrc` value `24`, violating the required `24.19.0` runtime. Candidate `rc.3` is being prepared with a test-first exact `.nvmrc` pin. Authentic evaluations, official-client validation, acceptance evidence, media, submission, `main` integration, and `v1.0.0` tagging remain incomplete. |
+| Implementation status | Phase 14 candidate `rc.6` is immutable at application SHA `2d1de951f4f0122bb252187c74ddd557011069aa` and tree `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4`. Clean Node `24.19.0` verification, the exact Git-connected production deploy, release manifest, native Chrome lifecycle `326/326`, three canonical journeys, human-authority checks `28/28`, and release screenshots are complete. Acceptance is `23/24`; AC-021 remains pending. Four authentic trials are final (two pass, two fail); the entrant explicitly stopped the remaining 46 trials to protect the submission deadline, so the evaluation gate remains incomplete. ChatGPT in-app is truthfully unavailable. Video, tag, GitHub Release, Devpost receipt, and freeze remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -608,7 +609,7 @@ There are **103 atomic requirements: 97 P0 and 6 P1**. This does not imply 103 s
 | AC-010 | Locked revision rejected | R-105 is locked | the agent revision tries to alter R-105 | LOCKED_ASSIGNMENT_CHANGE is returned and the draft is unchanged | P0 | Handler regression |
 | AC-011 | Stale revision rejected | draft version is N | the agent submits expectedDraftVersion N-1 | STALE_DRAFT_VERSION is returned with current version N and no audit event is appended | P0 | Handler regression |
 | AC-012 | Successful replan | R-105 is locked and R-106 conflicts | the agent moves only R-106 to V-05 at 13:00 using the current version | the lock is preserved, version increments, and state becomes DRAFT_VALID | P0 | E2E |
-| AC-013 | Invalid approval preparation | state is DRAFT_INVALID | the agent calls prepare-plan-approval | DRAFT_INVALID is returned and no approval UI opens | P0 | Handler + E2E |
+| AC-013 | Invalid approval preparation | state is DRAFT_INVALID | a previously captured prepare-plan-approval handler is invoked after the tool disappears | INVALID_STATE is returned, state is unchanged, and no approval UI opens | P0 | Handler + E2E |
 | AC-014 | Visible approval review | state is DRAFT_VALID | the agent calls prepare-plan-approval | AWAITING_APPROVAL opens with assignments, locks, warnings, and irreversible-effect copy | P0 | E2E |
 | AC-015 | Human rejection | approval review is open | the human selects Reject | state returns to DRAFT_VALID, commit tool remains absent, and rejection is audited | P0 | State + E2E |
 | AC-016 | Human approval binding | approval review is open for version N | the human selects Approve | state becomes APPROVED for version N and commit tool is registered | P0 | State + lifecycle |
@@ -620,6 +621,8 @@ There are **103 atomic requirements: 97 P0 and 6 P1**. This does not imply 103 s
 | AC-022 | Unsupported WebMCP fallback | document.modelContext is unavailable | the application starts | manual UI functions, zero tools are registered, and diagnostics explain the unsupported environment without crashing | P0 | Mocked E2E |
 | AC-023 | Audit chronology | multiple human, agent, and system mutations occurred | audit history is read | events are chronological, immutable, bounded, and identify actor, event type, state, and version | P0 | Unit + integration |
 | AC-024 | Deterministic reset from committed | state is COMMITTED | the human selects Reset demo and confirms | the exact canonical READY state and tool set return, with the frozen fixture hash | P0 | E2E |
+
+**AC-013 contract correction (v0.27.6):** The earlier wording asked an agent to call `prepare_plan_approval` while `DRAFT_INVALID`, even though the frozen lifecycle requires that tool to disappear in that state. The corrected scenario invokes a handler captured before the transition and expects safe `INVALID_STATE` rejection with no mutation or approval UI. This is a traceability correction to reconcile AC-013 with the frozen lifecycle and stale-handler invariant; application behavior did not change.
 
 ## 12.3 Phase 3 gate result
 
@@ -3647,3 +3650,37 @@ Candidate `rc.2` reached an exact Git-connected production deploy but is rejecte
 ### Next authorized work
 
 Create candidate `rc.3` from the exact runtime-pin correction, record its SHA and tree externally after commit creation, run the entire clean Node `24.19.0` / npm `11.17.0` verification phase, then accept only a new Git-connected production deploy whose manifest reports that exact runtime and rc.3 application SHA.
+
+---
+
+## Execution checkpoint — v0.27.6
+
+Recorded: `2026-09-01` (`Asia/Riyadh`)
+
+Candidate `rc.6` is the current immutable judged-application candidate. No runtime, package, configuration, fixture, WebMCP contract, visual design, or artwork change was made while gathering the evidence below.
+
+| Evidence | Observed result |
+| --- | --- |
+| Application identity | SHA `2d1de951f4f0122bb252187c74ddd557011069aa`; tree `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4` |
+| Clean source verification | Node `24.19.0`, npm `11.17.0`; Vitest `250/250`, Playwright `16/16`, accessibility `11/11`, security `8/8`, bundle/licenses passed, npm audit `0` vulnerabilities |
+| Production deployment | Netlify deploy `6a94244d34f1b00008cec51a`; immutable URL `https://6a94244d34f1b00008cec51a--domhamster.netlify.app`; permanent URL `https://domhamster.netlify.app`; published `2026-08-30T12:38:53.876Z` / `2026-08-30T15:38:53.876+03:00` |
+| Manifest identity | Version `1.0.0`, exact application SHA, runtime `v24.19.0` / `npm@11.17.0`, frozen fixture, 12 tools, lifecycle `5/7/8/3/4/3`, and production/immutable hashes agree |
+| Rollback target | Deploy `6a932bd5c6d91ae74d37a48d`; source `46cf96f6e59218c2ce230c5133c0a619761ddff8` |
+| Native Chrome | Chrome `151.0.7922.175`; `326/326` checks, `3/3` canonical journeys, exact six-state registration, all 12 valid/invalid tool calls, real 120-second expiry, stale/replay safety, same-origin network, and zero pre-commit leak |
+| Human authority | `28/28`; edit, lock, unlock, approval, rejection, cancellation, discard, and reset stayed UI-only |
+| Acceptance | `23/24`; AC-021 remains pending because authentic EV-06 and EV-27 were not run |
+| Visual media | Four native 1440×960 release states and required 1024×720, 1280×720, 1440×900, and 1440×960 responsive captures completed with SHA-256 inventory |
+| Authentic evaluations | T-001–T-004 final: two pass, two fail. T-005 setup failures are uncounted because the scored prompt was never sent. The entrant stopped T-005–T-050 on 2026-09-01 to protect the submission deadline. Closure: `W:\domhamster-release-evidence\evals\rc6\rc6-partial-evaluation-closure.json`; SHA-256 `E46D7643939CB2CF3E4245DC2CC898EA7699BF98D22C3152C8FF96DC23C925F5` |
+| Evaluation gate | Incomplete: `4/50` trials executed, `2/4` passed, zero high-risk trials completed. No 50-trial pass is claimed |
+| Client blocker | Codex Desktop `26.825.6671.0` exposed no structured `@Chrome` autocomplete candidate. Generic Computer Use could see the page but could not call native Site tools |
+| ChatGPT in-app | `Not run / unavailable`; `agent.browsers.get("iab")` returned `Browser is not available: iab`; zero journeys counted |
+| Remaining publication work | Record/upload the final video; complete documentation; integrate, tag, and publish the GitHub Release; submit Devpost; write the private freeze manifest |
+
+### Identity separation
+
+- **Application SHA:** `2d1de951f4f0122bb252187c74ddd557011069aa`; this remains the deployment, screenshot, video, and future `v1.0.0` tag target.
+- **Evidence commit:** documentation-only reconciliation after testing records observations but is not the deployed application identity.
+
+### Next authorized work
+
+Do not resume authentic evaluations before the submission deadline. Finish the release-matched video and judge-facing records, verify every public link logged out, preserve the application SHA as the `v1.0.0` target, complete Devpost, and freeze all judged surfaces. Keep the evaluation and ChatGPT gates explicitly incomplete.

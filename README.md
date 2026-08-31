@@ -4,18 +4,18 @@
 
 DOMHamster is a WebMCP-native coordination board where a browser agent drafts and repairs volunteer assignments while a human coordinator keeps exclusive control of locks, approval, discard, cancellation, and reset.
 
-| Resource          | Status                                                                                                     |
-| ----------------- | ---------------------------------------------------------------------------------------------------------- |
-| Live deployment   | https://domhamster.netlify.app — permanent production URL active; exact-commit `rc.3` verification pending |
-| Public repository | [MohammedGhazal09/DOMHamster](https://github.com/MohammedGhazal09/DOMHamster)                              |
-| Demo video        | Pending until the verified release is recorded                                                             |
-| License           | [MIT License](LICENSE)                                                                                     |
+| Resource          | Status                                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Live deployment   | https://domhamster.netlify.app — exact `rc.6` deployment verified; strict release gate incomplete; SHA `2d1de951f4f0122bb252187c74ddd557011069aa`; deploy `6a94244d34f1b00008cec51a` |
+| Public repository | [MohammedGhazal09/DOMHamster](https://github.com/MohammedGhazal09/DOMHamster)                                                                                                        |
+| Demo video        | Pending final recording and public upload                                                                                                                                            |
+| License           | [MIT License](LICENSE)                                                                                                                                                               |
 
 > **Fictional demo data only.** DOMHamster is for non-emergency coordination and is not an emergency-dispatch system.
 
 ## Judge quick start
 
-Use the **ChatGPT in-app browser** or **WebMCP-enabled Chrome** against the production URL above after exact-commit `rc.3` deployment verification is recorded.
+Use a supported WebMCP client against the exact rc.6 deployment above. Native WebMCP-enabled Chrome lifecycle evidence is complete; the checked ChatGPT in-app browser backend was unavailable, as recorded in [ChatGPT compatibility](docs/compatibility/chatgpt-in-app.md).
 
 1. Open DOMHamster and select **Reset**. Confirm the header shows `READY`, 8 requests, and 5 volunteers.
 2. Ask: **“Build today’s plan. Prioritize urgent food deliveries, keep every volunteer at three tasks or fewer, and make sure R-104 has an Arabic-speaking volunteer.”**

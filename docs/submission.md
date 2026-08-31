@@ -4,17 +4,18 @@ This document contains the judge-facing content and release controls for the Web
 
 ## Public identity
 
-| Field             | Working value                                                                                   |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| Project name      | DOMHamster                                                                                      |
-| Subtitle          | The human-approved agent dispatcher                                                             |
-| Submitter         | Mohammed Ghazal, individual entrant                                                             |
-| Country           | Saudi Arabia                                                                                    |
-| Project status    | New project created during the challenge                                                        |
-| License           | MIT                                                                                             |
-| Public repository | https://github.com/MohammedGhazal09/DOMHamster                                                  |
-| Live URL          | https://domhamster.netlify.app — permanent URL active; exact-commit `rc.3` verification pending |
-| Video             | **Video URL: pending** until the verified release is recorded                                   |
+| Field             | Working value                                                                    |
+| ----------------- | -------------------------------------------------------------------------------- |
+| Project name      | DOMHamster                                                                       |
+| Subtitle          | The human-approved agent dispatcher                                              |
+| Submitter         | Mohammed Ghazal, individual entrant                                              |
+| Country           | Saudi Arabia                                                                     |
+| Project status    | New project created during the challenge                                         |
+| License           | MIT                                                                              |
+| Public repository | https://github.com/MohammedGhazal09/DOMHamster                                   |
+| Live URL          | https://domhamster.netlify.app — verified rc.6 deploy `6a94244d34f1b00008cec51a` |
+| Application SHA   | `2d1de951f4f0122bb252187c74ddd557011069aa`                                       |
+| Video             | **Video URL: pending** until the final release-matched recording is uploaded     |
 
 ## Elevator pitch
 
@@ -57,14 +58,16 @@ Expected end state: `COMMITTED`, the human lock remains, the contact request is 
 
 ## Release identity and finalization gate
 
-Do not finalize the Devpost submission while exact-commit live deployment verification or the video URL is pending, an official-client record contains **Not run**, or the release candidate checklist has an unchecked P0 item.
+Exact-commit deployment verification and the release screenshots are complete. The strict internal release gate remains incomplete because ChatGPT in-app was unavailable and the entrant stopped the authentic evaluation set to protect the submission deadline. The final evaluation record is `4/50` executed: `2` passed, `2` failed, `46` skipped, and zero high-risk trials completed. These gaps must stay disclosed; they must not be converted into passes.
 
-Before finalization:
+The entrant authorized a deadline-directed Devpost submission once the final video and public-link checks are complete. This exception permits submission but does not redefine or pass the internal evaluation, ChatGPT, AC-021, or full-release gates.
+
+Do not finalize until:
 
 1. select one verified source commit;
 2. generate and verify its release manifest;
 3. deploy that exact commit;
-4. complete WebMCP-enabled Chrome and ChatGPT in-app browser records;
+4. preserve the observed WebMCP-enabled Chrome results and the truthful ChatGPT in-app blocker;
 5. capture release-matched screenshots and video;
 6. verify every link while logged out;
 7. record the final tag and submission receipt; and

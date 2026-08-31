@@ -1,6 +1,20 @@
 # Testing and verification
 
-DOMHamster separates evidence already preserved in the public repository from gates that still require a fully provisioned release environment.
+DOMHamster separates source-controlled test contracts from private release evidence tied to one exact deployed application commit.
+
+## Current rc.6 verification snapshot
+
+Application commit `2d1de951f4f0122bb252187c74ddd557011069aa` and tree `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4` passed a clean Node `24.19.0` / npm `11.17.0` run completed at `2026-08-30T12:37:40.108Z`:
+
+- Vitest: `250/250`;
+- Playwright: `16/16`;
+- accessibility: `11/11`;
+- security: `8/8`;
+- bundle and license gates: passed, `283` packages inspected;
+- npm audit: `0` vulnerabilities; and
+- fixture, release-manifest, release-identity, `git diff --check`, and clean-status gates: passed.
+
+Private source logs remain outside Git under `W:\domhamster-release-evidence\source\rc6\exact-2d1de951f4f0122bb252187c74ddd557011069aa-20260830T123050Z`.
 
 ## Verified in the repository record
 
@@ -83,17 +97,16 @@ High-risk cases cover locks, approval, expiry, commit, replay, contacts, privacy
 
 ## Pending release gates
 
-Before release selection, the exact candidate still needs fresh observed evidence for:
+| Gate                   | Current rc.6 evidence                                                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Clean Node 24 checkout | Passed against the exact application commit                                                                                               |
+| Browser automation     | Passed: Playwright `16/16`                                                                                                                |
+| Visual fidelity        | Passed for the required four states and four release viewports                                                                            |
+| WebMCP-enabled Chrome  | Native lifecycle passed `326/326`, human authority `28/28`, and canonical journeys `3/3`; complete external-agent journey remains not run |
+| ChatGPT in-app browser | **Not run / unavailable**: no `iab` backend on the checked account/build                                                                  |
+| Public deployment      | Passed identity, headers, same-origin network, console, privacy, reset, and three native journeys                                         |
+| Acceptance             | `23/24`; AC-021 awaits authentic EV-06 and EV-27 evidence                                                                                 |
+| Evaluation results     | Incomplete by deadline decision: `4/50` executed, `2` passed, `2` failed, `46` skipped, and zero high-risk trials completed               |
+| Release identity       | Incomplete until video, tag, release, submission receipt, and freeze manifest exist                                                       |
 
-| Gate                   | Required evidence                                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Clean Node 24 checkout | `npm ci`, full verification, build, audit, and release-manifest checks                                     |
-| Browser automation     | Complete Playwright suite across canonical, lifecycle, keyboard, responsive, reload, and privacy paths     |
-| Visual fidelity        | Native-size captures compared with both accepted concepts and recorded in the fidelity ledger              |
-| WebMCP-enabled Chrome  | Native six-state registration matrix and complete external-agent journey                                   |
-| ChatGPT in-app browser | Complete judge journey using discovered WebMCP tools                                                       |
-| Public deployment      | Logged-out access, headers, no unexpected network, console cleanliness, reset, and three repeated journeys |
-| Evaluation results     | 50 scored trials meeting the threshold                                                                     |
-| Release identity       | Tag, commit, manifest, deployment, screenshots, video, and submission all agree                            |
-
-The compatibility templates are stored in [Chrome WebMCP evidence](compatibility/chrome-webmcp.md) and [ChatGPT in-app evidence](compatibility/chatgpt-in-app.md). Unexecuted fields remain explicitly marked **Not run** rather than being inferred.
+Observed client facts are recorded in [Chrome WebMCP evidence](compatibility/chrome-webmcp.md) and [ChatGPT in-app evidence](compatibility/chatgpt-in-app.md). Unexecuted fields remain explicitly marked **Not run** rather than being inferred.
