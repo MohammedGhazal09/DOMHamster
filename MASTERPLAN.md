@@ -1,8 +1,8 @@
 # DOMHamster Master Plan
 
 > **Document ID:** DH-MP-001
-> **Version:** 0.27.6
-> **Checkpoint:** Phase 14 rc.6 exact-source, production, native Chrome, acceptance, media, and deadline-control checkpoint
+> **Version:** 0.27.7
+> **Checkpoint:** Phase 14 rc.6 exact fast-forward integration and v1.0.0 tag checkpoint
 > **Last updated:** 2026-09-01 (Asia/Riyadh)
 > **Status:** Living project-control and design document
 > **Canonical file after repository creation:** `MASTERPLAN.md` at the repository root
@@ -75,6 +75,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | 0.27.4 | Phase 14 — rc.2 exact-SHA clean source verification and diagnostics identity evidence | Passed — production deployment and external evidence remain |
 | 0.27.5 | Phase 14 — rc.2 production-runtime rejection and rc.3 exact-runtime pin correction | In progress — rc.2 rejected; rc.3 clean verification remains |
 | 0.27.6 | Phase 14 — rc.6 exact-source, production, native Chrome, acceptance, media, and deadline control | Partially passed — evaluation and ChatGPT gates remain incomplete; publication work continues |
+| 0.27.7 | Phase 14 — rc.6 exact fast-forward integration and v1.0.0 tag | Passed — video, public release, Devpost, and freeze remain; evaluation and ChatGPT gates remain incomplete |
 
 ---
 
@@ -94,7 +95,7 @@ The file is updated at every waterfall checkpoint. A checkpoint must:
 | Primary differentiator | Human-only locks and approval plus state-dependent WebMCP tools and post-commit progressive disclosure |
 | Delivery architecture | Static React/TypeScript SPA with pure domain engine, local persistence, and no backend |
 | Critical external dependencies | None after static assets load |
-| Implementation status | Phase 14 candidate `rc.6` is immutable at application SHA `2d1de951f4f0122bb252187c74ddd557011069aa` and tree `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4`. Clean Node `24.19.0` verification, the exact Git-connected production deploy, release manifest, native Chrome lifecycle `326/326`, three canonical journeys, human-authority checks `28/28`, and release screenshots are complete. Acceptance is `23/24`; AC-021 remains pending. Four authentic trials are final (two pass, two fail); the entrant explicitly stopped the remaining 46 trials to protect the submission deadline, so the evaluation gate remains incomplete. ChatGPT in-app is truthfully unavailable. Video, tag, GitHub Release, Devpost receipt, and freeze remain incomplete. |
+| Implementation status | Phase 14 candidate `rc.6` is immutable at application SHA `2d1de951f4f0122bb252187c74ddd557011069aa` and tree `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4`. Clean Node `24.19.0` verification, the exact Git-connected production deploy, release manifest, native Chrome lifecycle `326/326`, three canonical journeys, human-authority checks `28/28`, release screenshots, exact fast-forward integration, and annotated tag `v1.0.0` are complete. The tag resolves to the deployed application SHA; `main` subsequently advanced only to documentation evidence commit `77e7944f4af0e51a25bdda46910535a08e13bfcf`. Acceptance is `23/24`; AC-021 remains pending. Four authentic trials are final (two pass, two fail); the entrant explicitly stopped the remaining 46 trials to protect the submission deadline, so the evaluation gate remains incomplete. ChatGPT in-app is truthfully unavailable. Video, GitHub Release publication, Devpost receipt, and freeze remain incomplete. |
 
 ### 2.1 One-sentence product definition
 
@@ -3684,3 +3685,29 @@ Candidate `rc.6` is the current immutable judged-application candidate. No runti
 ### Next authorized work
 
 Do not resume authentic evaluations before the submission deadline. Finish the release-matched video and judge-facing records, verify every public link logged out, preserve the application SHA as the `v1.0.0` target, complete Devpost, and freeze all judged surfaces. Keep the evaluation and ChatGPT gates explicitly incomplete.
+
+---
+
+## Execution checkpoint — v0.27.7
+
+Recorded: `2026-09-01T00:34:37Z` / `2026-09-01T03:34:37+03:00` (`Asia/Riyadh`)
+
+The verified rc.6 application history was integrated without changing the judged application commit. Current `main` was confirmed as the exact strict ancestor, application SHA `2d1de951f4f0122bb252187c74ddd557011069aa` was pushed by an ordinary non-force fast-forward, and GitHub recorded PR #41 as merged with that same SHA rather than a new merge commit. Annotated tag `v1.0.0` was then created and pushed on the exact deployed application SHA. `main` subsequently advanced by one direct child, documentation-only evidence commit `77e7944f4af0e51a25bdda46910535a08e13bfcf`; the release tag did not move.
+
+| Integration evidence | Observed result |
+| --- | --- |
+| Application SHA / tree | `2d1de951f4f0122bb252187c74ddd557011069aa` / `4a094cee974d7e9fef2bbd0e73fb388c974e9fc4` |
+| Integration PR | PR #41 is merged; GitHub reports merge commit `2d1de951f4f0122bb252187c74ddd557011069aa` |
+| Release tag | Annotated `v1.0.0`; tag object `87479b1e9460a2b11b7c209f97387d68850cf856`; peeled target is the exact application SHA |
+| Evidence commit on `main` | `77e7944f4af0e51a25bdda46910535a08e13bfcf`; its diff from the application SHA contains only nine Markdown documentation files |
+| Documentation contracts | Fresh Node `24.19.0` / npm `11.17.0` `verify:docs` and `verify:traceability` passed before evidence integration |
+| Production freeze check | Permanent and immutable manifests still report application SHA `2d1de951f4f0122bb252187c74ddd557011069aa`, deploy `6a94244d34f1b00008cec51a`, version `1.0.0`, and manifest SHA-256 `d38a691a187adec8d47b03d14b4514f2c2b0a516dc9f370e3585ce8ba4f39569` |
+| Public-link check | Production root, manifest, immutable deploy, public repository, and public `v1.0.0` tag each returned HTTP `200` without an authenticated request |
+| Older PR reconciliation | PR #40 and contained stacked PRs #26–#31 were closed only after their heads were verified as ancestors of current `main`; PR #39 remains open pending an explicit supersession audit |
+| GitHub Release | A private draft exists on `v1.0.0` and targets the exact application SHA; it remains unpublished until the verified public YouTube URL replaces all pending media fields |
+
+The authentic evaluation result remains `4/50` with two passes, two failures, zero high-risk trials, and 46 skipped trials. ChatGPT in-app remains unavailable, and AC-021 remains pending. Integration and tagging do not convert any of those incomplete gates into passes.
+
+### Next authorized work
+
+Complete and privacy-review the continuous release video, upload it publicly to YouTube, replace pending media/publication fields with observed URLs, publish the GitHub Release, complete Devpost, preserve the receipt, create the private freeze manifest, and freeze every judged surface. Do not move `v1.0.0` or replace deploy `6a94244d34f1b00008cec51a`.
